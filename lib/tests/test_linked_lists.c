@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <ansi_fmt.h>
+#include <aoc_helpers.h>
 #include <aoc_linked_list.h>
 #define TEST_STRING_MAX_LEN (512)
 #define TS_CAST(_p) ((_string_test_t *)_p)
@@ -57,6 +58,7 @@ void ll_test_suite()
     CU_ASSERT(aoc_ll_size(&_ll) == 4);
     CU_ASSERT(TS_CAST(_ll._first->_prev) == NULL);
 
+    CU_ASSERT(TS_CAST(_ll._last) == _str4);
     CU_ASSERT(TS_CAST(_ll._first) == _str1);
     CU_ASSERT(TS_CAST(_ll._first->_next) == _str2);
     CU_ASSERT(TS_CAST(_ll._first->_next->_next) == _str3);
@@ -69,6 +71,7 @@ void ll_test_suite()
     CU_ASSERT(aoc_ll_size(&_ll) == 3);
     CU_ASSERT(TS_CAST(_ll._first->_prev) == NULL);
 
+    CU_ASSERT(TS_CAST(_ll._last) == _str4);
     CU_ASSERT(TS_CAST(_ll._first) == _str1);
     CU_ASSERT(TS_CAST(_ll._first->_next) == _str3);
     CU_ASSERT(TS_CAST(_ll._first->_next->_next) == _str4);
@@ -81,6 +84,7 @@ void ll_test_suite()
     CU_ASSERT(aoc_ll_size(&_ll) == 3);
     CU_ASSERT(TS_CAST(_ll._first->_prev) == NULL);
 
+    CU_ASSERT(TS_CAST(_ll._last) == _str1);
     CU_ASSERT(TS_CAST(_ll._first) == _str4);
     CU_ASSERT(TS_CAST(_ll._first->_next) == _str3);
     CU_ASSERT(TS_CAST(_ll._first->_next->_next) == _str1);
@@ -104,10 +108,8 @@ void ll_test_suite()
     CU_ASSERT(1 == ll_count_nodes_by_property(&_ll, _str4->_str, _string_node_equal));
     CU_ASSERT(_str4 == TS_CAST(ll_find_node_by_property(&_ll, _str4->_str, _string_node_equal)));
 
-    printf(GREEN "ll_test_suite: all tests passed" RESET);
+    aoc_ans("%s", "ll_test_suite: all tests passed");
 }
-
-typedef int (*listSuite_t)(CU_pSuite arg);
 
 static _string_test_t *_string_ll_test(const char *const _str)
 {

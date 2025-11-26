@@ -66,7 +66,7 @@ void ll_test_suite()
 
     CU_ASSERT(TS_CAST(_ll._first->_next->_next->_next->_next) == NULL);
 
-    ll_node_remove(&_ll, _ll._first->_next);
+    ll_node_disconnect(&_ll, _ll._first->_next);
 
     CU_ASSERT(aoc_ll_size(&_ll) == 3);
     CU_ASSERT(TS_CAST(_ll._first->_prev) == NULL);

@@ -106,7 +106,8 @@ void ll_node_insert(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a, struct 
     _b->_prev = _a;
 }
 
-void ll_node_remove(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a)
+/*  Takes out node from the list without freeing its*/
+void ll_node_disconnect(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a)
 {
     assert(_ctx->_size != 0 && "attempt to remove link from an empty sinked list");
     assert(_a && "NULL pointer provided");

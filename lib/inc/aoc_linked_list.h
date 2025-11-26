@@ -31,7 +31,7 @@ int ll_node_append(aoc_linked_list_handle_t _blk, struct ll_node_t *_new);
 void ll_free_all(aoc_linked_list_handle_t _blk, void (*_caller)(void *_data));
 void ll_node_permut(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a, struct ll_node_t *_b);
 void ll_node_insert(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a, struct ll_node_t *_b);
-void ll_node_remove(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a);
+void ll_node_disconnect(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a);
 size_t aoc_ll_size(aoc_linked_list_handle_t _ctx);
 int ll_find_node(aoc_linked_list_handle_t _blk, struct ll_node_t *_a);
 struct ll_node_t *ll_find_node_by_property(aoc_linked_list_handle_t _blk, void *_prop, bool (*equal)(void *_a, void *_b));

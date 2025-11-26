@@ -84,7 +84,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
             {
                 if (ELF_CAST(_node)->_calories < ELF_CAST(_ctx->_ll._current)->_calories)
                 {
-                    ll_node_remove(&_ctx->_ll, _ctx->_ll._current);
+                    ll_node_disconnect(&_ctx->_ll, _ctx->_ll._current);
                     ll_node_insert(&_ctx->_ll, _ctx->_ll._current, _node);
                     break;
                 }

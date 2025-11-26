@@ -104,7 +104,6 @@ static void test_string_free(void *arg)
 {
     test_string_t *_ntree = (test_string_t *)arg;
     free(_ntree->_str);
-    free(arg);
 }
 
 static bool string_node_equal(void *_a, void *_b)
@@ -125,25 +124,16 @@ static int tree_node_integrity(aoc_tree_node_h _node, aoc_tree_node_h *_exp_chil
         {
             if (*_exp_children)
             {
-                printf("\nin \n");
                 struct tree_node_t *_child_node = (struct tree_node_t *)*_exp_children;
                 struct ll_node_t *_found_node = ll_find_node_by_property(&_node->_children, ((test_string_t *)_child_node)->_str, string_node_equal);
 
-                // printf("%s not found in %s children", ((test_string_t *)_node)->_str, ((test_string_t *)_child_node)->_str);
-
                 CU_ASSERT(NULL != _found_node)
-                if ((0 == _ii) && (NULL == _child_node->_node._prev))
-                {
-                    printf("%s not NULL inititated children ll\n", ((test_string_t *)_child_node)->_str);
+                if (0 == _ii)
                     CU_ASSERT(NULL == _child_node->_node._prev);
-                }
-                if ((_child_cnt - 1 == _ii) && (NULL == _child_node->_node._next))
-                {
-                    printf("%s not NULL terminated children ll\n", ((test_string_t *)_child_node)->_str);
-                    CU_ASSERT(NULL == _child_node->_node._next);
-                }
-            }
 
+                if (_child_cnt - 1 == _ii)
+                    CU_ASSERT(NULL == _child_node->_node._next);
+            }
             _exp_children += 1;
         }
     }

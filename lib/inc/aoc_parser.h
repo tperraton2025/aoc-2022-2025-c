@@ -7,23 +7,23 @@
 #define ABSOLUTE_MAX_SYM_CNT (32)
 #define ABSOLUTE_MAX_NAME_LEN (16)
 
-typedef struct context_t* aoc_context_t;
+typedef struct context* aoc_context_h;
 
 /**
  * Text input parsers
  */
 
-struct parser_t
+struct parser
 {
-    struct ll_node_t _node;
+    struct dll_node _node;
     char *_name;
     char *_parseRegx;
+    char *_expMatches;
     size_t _parsed;
-    int (*_func)(aoc_context_t _ctx, char *_str);
-    void *_arg;
+    int (*_func)(aoc_context_h _ctx, char *_str); 
 };
-typedef struct parser_t * aoc_parser_t;
+typedef struct parser * aoc_parser_h;
 
 
-int aoc_parser_append(aoc_linked_list_handle_t _ll, const aoc_parser_t const _prs);
+int aoc_parser_append(aoc_ll_head_h _ll, const aoc_parser_h const _prs);
 void aoc_parser_free(void *_data); 

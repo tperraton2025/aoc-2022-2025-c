@@ -2,11 +2,11 @@
 
 static int prologue(struct solutionCtrlBlock_t *_blk)
 {
-    _blk->_data = malloc(sizeof(struct context_t));
+    _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
 
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
 
     _ctx->result = 0;
 
@@ -15,7 +15,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk)
 
     _ctx->_grippedBox = NULL;
 
-    ll_blk_init(&_ctx->_cmds);
+    dll_head_init(&_ctx->_cmds);
 
     coord_t _reso = {3, 1};
     coord_t _spce = {1, 0};
@@ -36,14 +36,14 @@ error:
 
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
     parse_all(_ctx, _blk->_str);
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
     char test[16] = {0};
 
     aoc_engine_resize_one_direction(_ctx->_eng, 50, AOC_DIR_DOWN);
@@ -57,7 +57,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
 
     engine_free(_ctx->_eng);
     free(_blk->_data);
@@ -66,7 +66,7 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
 static struct solutionCtrlBlock_t privPart1 = {._name = CONFIG_DAY " part 1", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = free_solution};
 struct solutionCtrlBlock_t *part1 = &privPart1;
 
-static int crate_lift(struct context_t *_ctx, command_t *_cmd)
+static int crate_lift(struct context *_ctx, command_t *_cmd)
 {
     coord_t boundaries = aoc_engine_get_boundaries(_ctx->_eng);
     for (size_t _ii = 0; _ii <= boundaries._y; _ii++)
@@ -89,7 +89,7 @@ static int crate_lift(struct context_t *_ctx, command_t *_cmd)
     return 1;
 }
 
-static int crate_change_lane(struct context_t *_ctx, command_t *_cmd)
+static int crate_change_lane(struct context *_ctx, command_t *_cmd)
 {
     int ret = 0;
     if (!_ctx->_grippedBox)
@@ -109,7 +109,7 @@ static int crate_change_lane(struct context_t *_ctx, command_t *_cmd)
     return 0;
 }
 
-static int crate_deposit(struct context_t *_ctx, command_t *_cmd)
+static int crate_deposit(struct context *_ctx, command_t *_cmd)
 {
     while (!aoc_engine_step_object_and_redraw(_ctx->_eng, _ctx->_grippedBox, AOC_DIR_DOWN, GREEN))
     {
@@ -120,7 +120,7 @@ static int crate_deposit(struct context_t *_ctx, command_t *_cmd)
     return 0;
 }
 
-static int crane_action(struct context_t *_ctx)
+static int crane_action(struct context *_ctx)
 {
     size_t inc = 0;
     char _sCnt[4] = "";
@@ -147,7 +147,7 @@ static int crane_action(struct context_t *_ctx)
         }
         aoc_engine_list_objects(_ctx->_eng);
     }
-    ll_free_all(&_ctx->_cmds, free);
+    dll_free_all(&_ctx->_cmds, free);
 
     char _uCmdCnt[4] = "";
     sprintf(_uCmdCnt, "%3ld", inc);
@@ -157,7 +157,7 @@ static int crane_action(struct context_t *_ctx)
 
 static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
     size_t _colCount = aoc_engine_get_boundaries(_ctx->_eng)._x + 1;
     _ctx->spelling = malloc(_colCount);
     char *_p = _ctx->spelling;

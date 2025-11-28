@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include "aoc_types.h"
 
-int engine_draw_box(struct engine_t *_eng)
+int engine_draw_box(struct ascii_2d_engine *_eng)
 {
     int ret = 0;
 
@@ -36,7 +36,7 @@ error:
     return ret;
 }
 
-int engine_fill_drawing_area(struct engine_t *_eng)
+int engine_fill_drawing_area(struct ascii_2d_engine *_eng)
 {
     if (_eng->_mustDraw)
     {
@@ -52,7 +52,7 @@ int engine_fill_drawing_area(struct engine_t *_eng)
     }
 }
 
-int engine_fill_hv_line(struct engine_t *_eng, coord_t *_start, coord_t *_end, AOC_2D_DIR _dir, const char *_c)
+int engine_fill_hv_line(struct ascii_2d_engine *_eng, coord_t *_start, coord_t *_end, AOC_2D_DIR _dir, const char *_c)
 {
     if (_eng->_mustDraw)
     {
@@ -68,21 +68,21 @@ int engine_fill_hv_line(struct engine_t *_eng, coord_t *_start, coord_t *_end, A
     return 0;
 }
 
-void aoc_engine_list_objects(aoc_2d_engine_t _eng)
+void aoc_engine_list_objects(aoc_2d_engine_h _eng)
 {
     if (_eng->_mustDraw)
     {
         engine_cursor_user_stats(_eng);
         LL_FOREACH(_node, _eng->_objects)
         {
-            struct object_t *_obj = CAST(struct object_t *, _node);
+            struct object *_obj = CAST(struct object *, _node);
             aoc_info("%s %ld:%ld", _obj->_name, _obj->_pos._x, _obj->_pos._y);
             engine_cursor_user_next_stats(_eng);
         }
     }
 }
 
-void aoc_engine_prompt_stats(aoc_2d_engine_t _eng)
+void aoc_engine_prompt_stats(aoc_2d_engine_h _eng)
 {
     engine_cursor_stats(_eng);
     aoc_info("objects %ld", _eng->_objects._size);
@@ -91,7 +91,7 @@ void aoc_engine_prompt_stats(aoc_2d_engine_t _eng)
     engine_cursor_private_next_stats(_eng);
 }
 
-void aoc_engine_prompt(aoc_2d_engine_t _eng, const size_t _sleep, size_t _count, ...)
+void aoc_engine_prompt(aoc_2d_engine_h _eng, const size_t _sleep, size_t _count, ...)
 {
     if (_eng->_mustDraw)
     {

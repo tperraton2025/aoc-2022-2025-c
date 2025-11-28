@@ -11,7 +11,7 @@
 
 typedef struct
 {
-    struct ll_node_t _node;
+    struct dll_node _node;
     char *_str;
 } _string_test_t;
 
@@ -37,8 +37,8 @@ int ll_suite_create()
 
 void ll_test_suite()
 {
-    struct ll_context_t _ll = {0};
-    ll_blk_init(&_ll);
+    struct dll_head _ll = {0};
+    dll_head_init(&_ll);
 
     _string_test_t *_str1 = _string_ll_test("foo 1");
     _string_test_t *_str2 = _string_ll_test("foo 2");
@@ -52,10 +52,10 @@ void ll_test_suite()
 
     for (size_t _ii = 0; _ii < sizeof(_strings) / sizeof(_strings[0]); _ii++)
     {
-        ll_node_append(&_ll, (struct ll_node_t *)_strings[_ii]);
+        dll_node_append(&_ll, (struct dll_node *)_strings[_ii]);
     }
 
-    CU_ASSERT(aoc_ll_size(&_ll) == 4);
+    CU_ASSERT(aoc_dll_size(&_ll) == 4);
     CU_ASSERT(TS_CAST(_ll._first->_prev) == NULL);
 
     CU_ASSERT(TS_CAST(_ll._last) == _str4);
@@ -66,22 +66,22 @@ void ll_test_suite()
 
     CU_ASSERT(TS_CAST(_ll._first->_next->_next->_next->_next) == NULL);
 
-    ll_node_disconnect(&_ll, _ll._first->_next);
+    dll_node_disconnect(&_ll, _ll._first->_next);
 
-    CU_ASSERT(aoc_ll_size(&_ll) == 3);
+    CU_ASSERT(aoc_dll_size(&_ll) == 3);
     CU_ASSERT(TS_CAST(_ll._first->_prev) == NULL);
 
     CU_ASSERT(TS_CAST(_ll._last) == _str4);
     CU_ASSERT(TS_CAST(_ll._first) == _str1);
     CU_ASSERT(TS_CAST(_ll._first->_next) == _str3);
     CU_ASSERT(TS_CAST(_ll._first->_next->_next) == _str4);
-    CU_ASSERT(ENOENT == ll_find_node(&_ll, &_str2->_node))
+    CU_ASSERT(ENOENT == dll_find_node(&_ll, &_str2->_node))
 
     CU_ASSERT(TS_CAST(_ll._first->_next->_next->_next) == NULL);
 
-    ll_node_permut(&_ll, _ll._first, _ll._last);
+    dll_node_permut(&_ll, _ll._first, _ll._last);
 
-    CU_ASSERT(aoc_ll_size(&_ll) == 3);
+    CU_ASSERT(aoc_dll_size(&_ll) == 3);
     CU_ASSERT(TS_CAST(_ll._first->_prev) == NULL);
 
     CU_ASSERT(TS_CAST(_ll._last) == _str1);
@@ -92,9 +92,9 @@ void ll_test_suite()
     CU_ASSERT(TS_CAST(_ll._first->_next->_next->_next) == NULL);
     CU_ASSERT(_ll._first->_next->_next == _ll._last);
 
-    ll_node_insert(&_ll, &_str2->_node, _ll._last);
+    dll_node_insert(&_ll, &_str2->_node, _ll._last);
 
-    CU_ASSERT(aoc_ll_size(&_ll) == 4);
+    CU_ASSERT(aoc_dll_size(&_ll) == 4);
     CU_ASSERT(TS_CAST(_ll._first->_prev) == NULL);
 
     CU_ASSERT(TS_CAST(_ll._first) == _str4);
@@ -105,10 +105,10 @@ void ll_test_suite()
     CU_ASSERT(TS_CAST(_ll._first->_next->_next->_next->_next) == NULL);
     CU_ASSERT(_ll._first->_next->_next->_next == _ll._last);
 
-    CU_ASSERT(1 == ll_count_nodes_by_property(&_ll, _str4->_str, _string_node_equal));
-    CU_ASSERT(_str4 == TS_CAST(ll_find_node_by_property(&_ll, _str4->_str, _string_node_equal)));
+    CU_ASSERT(1 == dll_count_nodes_by_property(&_ll, _str4->_str, _string_node_equal));
+    CU_ASSERT(_str4 == TS_CAST(dll_find_node_by_property(&_ll, _str4->_str, _string_node_equal)));
 
-    ll_free_all(&_ll, free_test_string);
+    dll_free_all(&_ll, free_test_string);
     aoc_ans("%s", "ll_test_suite: all tests passed");
 }
 

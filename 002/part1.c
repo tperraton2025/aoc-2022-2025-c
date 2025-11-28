@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-struct context_t
+struct context
 {
     int result;
 };
@@ -20,7 +20,7 @@ static char *names[] = {"rock", "paper", "scissors"};
 
 static size_t matrix[3][3] = {{1, 0, 2}, {2, 1, 0}, {0, 2, 1}};
 
-#define CTX_CAST(_p) ((struct context_t *)_p)
+#define CTX_CAST(_p) ((struct context *)_p)
 
 size_t score_ind_from_items(size_t mine, size_t his)
 {
@@ -29,10 +29,10 @@ size_t score_ind_from_items(size_t mine, size_t his)
 
 static int prologue(struct solutionCtrlBlock_t *_blk)
 {
-    _blk->_data = malloc(sizeof(struct context_t));
+    _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
-    memset(_blk->_data, 0, sizeof(struct context_t));
+    memset(_blk->_data, 0, sizeof(struct context));
     CTX_CAST(_blk->_data)->result = 0;
     return 0;
 }
@@ -65,7 +65,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
     free(_blk->_data);
 }
 

@@ -9,15 +9,27 @@
 #define TEST_STRING_MAX_LEN (512)
 #define TEST_STRING(_p) ((test_string_t *)_p)
 #define ARR_DIM(_a) (sizeof(_a) / sizeof(_a[0]))
-
 typedef struct
 {
-    struct tree_node_t _node;
+    struct tree_node _node;
     char *_str;
 } test_string_t;
 
+typedef struct
+{
+    test_string_t **_arr;
+    size_t _len;
+} test_str_arr_t;
+
+#define EXPECT_CHILDREN(_tstr, ...)                                              \
+    {                                                                            \
+        test_string_t *_expected[] = {__VA_ARGS__};                              \
+        test_str_arr_t _tsArr = {._arr = _expected, ._len = ARR_DIM(_expected)}; \
+        CU_ASSERT(0 == tree_node_integrity(_tstr, &_tsArr));                     \
+    }
+
 static test_string_t *test_string(aoc_tree_node_h _parent, const char *const _str);
-static int tree_node_integrity(aoc_tree_node_h _parent, aoc_tree_node_h *_exp_children, size_t _child_cnt, aoc_tree_node_h _exp_parent);
+static int tree_node_integrity(test_string_t *_node, test_str_arr_t *_expct);
 
 static void test_string_free(void *arg);
 static void tree_test_suite();
@@ -41,63 +53,47 @@ int tree_suite_create()
 
 void tree_test_suite()
 {
-    aoc_tree_node_h root = aoc_tree_blk_init();
-    test_string_t *_str1 = test_string(root, "foobar is foobar 1");
+    test_string_t *root = test_string(NULL, "foobar is foobar root");
+    test_string_t *_str1 = test_string(&root->_node, "foobar is foobar 1");
+    CU_ASSERT(1 == aoc_tree_size(&root->_node));
 
-    aoc_tree_node_h _exp_children_for_root[] = {&_str1->_node};
-    CU_ASSERT(0 == tree_node_integrity(root, _exp_children_for_root, ARR_DIM(_exp_children_for_root), NULL));
+    EXPECT_CHILDREN(root, _str1);
 
     test_string_t *_str2 = test_string(&_str1->_node, "foobar is foobar 2");
-    aoc_tree_node_h _first_exp_children_for_1[] = {&_str2->_node};
-    CU_ASSERT(0 == tree_node_integrity(&_str1->_node, _first_exp_children_for_1, ARR_DIM(_first_exp_children_for_1), root));
+    EXPECT_CHILDREN(_str1, _str2);
 
     test_string_t *_str3 = test_string(&_str1->_node, "foobar is foobar 3");
     test_string_t *_str4 = test_string(&_str3->_node, "foobar is foobar 4");
-
-    aoc_tree_node_h _exp_children_for_1[] = {&_str2->_node, &_str3->_node};
-    aoc_tree_node_h _exp_children_for_3[] = {&_str4->_node};
-
-    CU_ASSERT(0 == tree_node_integrity(&_str1->_node, _exp_children_for_1, ARR_DIM(_exp_children_for_1), root));
-    CU_ASSERT(0 == tree_node_integrity(&_str3->_node, _exp_children_for_3, ARR_DIM(_exp_children_for_3), (aoc_tree_node_h)&_str1->_node));
-
-    CU_ASSERT(&_str1->_node == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 1", string_node_equal));
-    CU_ASSERT(&_str2->_node == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 2", string_node_equal));
-    CU_ASSERT(&_str3->_node == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 3", string_node_equal));
-    CU_ASSERT(&_str4->_node == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 4", string_node_equal));
+    EXPECT_CHILDREN(_str1, _str2, _str3);
+    EXPECT_CHILDREN(_str3, _str4);
 
     CU_ASSERT(NULL == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 5", string_node_equal));
-    CU_ASSERT(4 == aoc_tree_size(&_str1->_node));
-    CU_ASSERT(root == _str1->_node._parent);
-    CU_ASSERT(NULL == root->_parent);
+    CU_ASSERT(&root->_node == _str1->_node._parent);
+    CU_ASSERT(NULL == root->_node._parent);
 
     aoc_tree_free_node(&_str4->_node);
 
-    CU_ASSERT(0 == tree_node_integrity(&_str1->_node, _exp_children_for_1, ARR_DIM(_exp_children_for_1), root));
-    CU_ASSERT(0 == tree_node_integrity(&_str3->_node, NULL, 0, (aoc_tree_node_h)&_str1->_node));
+    EXPECT_CHILDREN(root, _str1);
 
-    CU_ASSERT(3 == aoc_tree_size(&_str1->_node));
     CU_ASSERT(NULL == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 4", string_node_equal));
-    CU_ASSERT(&_str1->_node == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 1", string_node_equal));
-    CU_ASSERT(&_str2->_node == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 2", string_node_equal));
-    CU_ASSERT(&_str3->_node == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 3", string_node_equal));
 
-    tree_free_all_from_starting_node(&_str1->_node);
+    tree_free(&root->_node);
     aoc_ans("%s", "\ntree_test_suite: all tests passed");
 }
 
 static test_string_t *test_string(aoc_tree_node_h _parent, const char *const _str)
 {
-    test_string_t *_ntree = malloc(sizeof(test_string_t));
-    assert(_ntree && "_ntree malloc failed");
-    memset(_ntree, 0, sizeof(test_string_t));
+    test_string_t *_ntstr = malloc(sizeof(test_string_t));
+    assert(_ntstr && "_ntstr malloc failed");
+    memset(_ntstr, 0, sizeof(test_string_t));
 
-    _ntree->_str = malloc(strnlen(_str, MAX_LINE_LEN + 1) + 1);
-    assert(_ntree->_str && "_ntree->_str malloc failed");
+    _ntstr->_str = malloc(strnlen(_str, MAX_LINE_LEN + 1) + 1);
+    assert(_ntstr->_str && "_ntstr->_str malloc failed");
 
-    snprintf(_ntree->_str, MAX_LINE_LEN, "%s", _str);
-    aoc_tree_node(_parent, &_ntree->_node, test_string_free);
+    snprintf(_ntstr->_str, MAX_LINE_LEN, "%s", _str);
+    aoc_tree_node(_parent, &_ntstr->_node, test_string_free);
 
-    return _ntree;
+    return _ntstr;
 }
 
 static void test_string_free(void *arg)
@@ -111,37 +107,45 @@ static bool string_node_equal(void *_a, void *_b)
     return 0 == strncmp(TEST_STRING(_a)->_str, (char *)_b, TEST_STRING_MAX_LEN);
 }
 
-static int tree_node_integrity(aoc_tree_node_h _node, aoc_tree_node_h *_exp_children, size_t _child_cnt, aoc_tree_node_h _exp_parent)
+static int tree_node_integrity(test_string_t *_string, test_str_arr_t *_expct)
 {
-    if (!_node)
+    if (!_string)
         return EINVAL;
 
-    CU_ASSERT(_node->_parent == _exp_parent);
-
-    if (_exp_children)
+    if (_expct)
     {
-        for (size_t _ii = 0; _ii < _child_cnt; _ii++)
+        for (size_t _ii = 0; _ii < _expct->_len; _ii++)
         {
-            if (*_exp_children)
+            if (_expct->_len)
             {
-                struct tree_node_t *_child_node = (struct tree_node_t *)*_exp_children;
-                struct ll_node_t *_found_node = ll_find_node_by_property(&_node->_children, ((test_string_t *)_child_node)->_str, string_node_equal);
+                test_string_t *_child_tstr = _expct->_arr[_ii];
+                struct dll_node *_found_node = dll_find_node_by_property(&_string->_node._llchildren, _child_tstr->_str, string_node_equal);
 
-                CU_ASSERT(NULL != _found_node)
+                CU_ASSERT(NULL != _found_node) 
                 if (0 == _ii)
-                    CU_ASSERT(NULL == _child_node->_node._prev);
+                {
+                    CU_ASSERT(NULL == _child_tstr->_node._llnode._prev); 
+                }
 
-                if (_child_cnt - 1 == _ii)
-                    CU_ASSERT(NULL == _child_node->_node._next);
+                if (_expct->_len - 1 == _ii)
+                    CU_ASSERT(NULL == _child_tstr->_node._llnode._next);
+
+                CU_ASSERT(_child_tstr->_node._parent == &_string->_node); 
             }
-            _exp_children += 1;
         }
     }
     else
     {
-        CU_ASSERT(0 == aoc_ll_size(&_node->_children));
-        CU_ASSERT(NULL == _node->_children._first);
-        CU_ASSERT(NULL == _node->_children._last);
+        CU_ASSERT(0 == aoc_dll_size(&_string->_node._llchildren));
+        CU_ASSERT(NULL == _string->_node._llchildren._first);
+        CU_ASSERT(NULL == _string->_node._llchildren._last);
+    }
+    for (size_t _ii = 0; _ii < _expct->_len; _ii++)
+    {
+        test_string_t *_ctstr = _expct->_arr[_ii];
+        char *_expName = _ctstr->_str;
+        struct tree_node *_expNode = &_ctstr->_node;
+        CU_ASSERT(_expNode == aoc_tree_search_node_by_property(_expNode, (void *)_expName, string_node_equal));
     }
     return 0;
 }

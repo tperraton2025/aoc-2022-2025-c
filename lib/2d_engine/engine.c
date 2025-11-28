@@ -5,22 +5,22 @@
 #include <fenv.h>
 #include <fcntl.h>
 
-void engine_free(aoc_2d_engine_t _eng)
+void engine_free(aoc_2d_engine_h _eng)
 {
     engine_cursor_exit_drawing_area(_eng);
-    ll_free_all(&_eng->_objects, eng_obj_free);
+    dll_free_all(&_eng->_objects, eng_obj_free);
     FREE(_eng);
 }
 
-aoc_2d_engine_t engine_create(coord_t _res, coord_t _spce, char _void_sym)
+aoc_2d_engine_h engine_create(coord_t _res, coord_t _spce, char _void_sym)
 {
-    aoc_2d_engine_t _ret = malloc(sizeof(struct engine_t));
+    aoc_2d_engine_h _ret = malloc(sizeof(struct ascii_2d_engine));
 
     if (!_ret)
         return NULL;
     coord_t _boundary_MAX = {._x = ABSOLUTE_MAX_X, ._y = ABSOLUTE_MAX_Y};
 
-    ll_blk_init(&_ret->_objects);
+    dll_head_init(&_ret->_objects);
 
     if (BOUNDARY_CHECK(_res, _boundary_MAX) && BOUNDARY_CHECK(_spce, _boundary_MAX))
     {
@@ -52,7 +52,7 @@ cleanup:
     return NULL;
 }
 
-int engine_resize(struct engine_t *_eng, coord_t _ns)
+int engine_resize(struct ascii_2d_engine *_eng, coord_t _ns)
 {
     if (!_eng)
         return EINVAL;
@@ -69,7 +69,7 @@ int engine_resize(struct engine_t *_eng, coord_t _ns)
     return EINVAL;
 }
 
-int engine_draw_symbol_at(aoc_2d_engine_t _eng, coord_t *_pos, char *_sym)
+int engine_draw_symbol_at(aoc_2d_engine_h _eng, coord_t *_pos, char *_sym)
 {
     if (_eng->_mustDraw)
     {
@@ -79,7 +79,7 @@ int engine_draw_symbol_at(aoc_2d_engine_t _eng, coord_t *_pos, char *_sym)
     return 0;
 }
 
-int engine_draw(struct engine_t *_eng)
+int engine_draw(struct ascii_2d_engine *_eng)
 {
     if (_eng->_mustDraw)
     {
@@ -93,7 +93,7 @@ int engine_draw(struct engine_t *_eng)
     }
 }
 
-int engine_draw_objects(aoc_2d_engine_t _eng, coord_t *_corner)
+int engine_draw_objects(aoc_2d_engine_h _eng, coord_t *_corner)
 {
     int ret = 0;
     if (_eng->_mustDraw)
@@ -101,7 +101,7 @@ int engine_draw_objects(aoc_2d_engine_t _eng, coord_t *_corner)
         printf("\n");
         LL_FOREACH(_obj_node, _eng->_objects)
         {
-            struct object_t *_obj = CAST(struct object_t *, _obj_node);
+            struct object *_obj = CAST(struct object *, _obj_node);
             draw_object(_eng, _obj, NULL);
         }
         printf("\n");
@@ -109,7 +109,7 @@ int engine_draw_objects(aoc_2d_engine_t _eng, coord_t *_corner)
     return ret;
 }
 
-int aoc_engine_append_obj(aoc_2d_engine_t _eng, aoc_2d_object_t _obj)
+int aoc_engine_append_obj(aoc_2d_engine_h _eng, aoc_2d_object_h _obj)
 {
     const coord_t _boundary_MAX = {._x = ABSOLUTE_MAX_X, ._y = ABSOLUTE_MAX_Y};
     const coord_t _prev_bound = {._x = _eng->_boundaries._x, ._y = _eng->_boundaries._y};
@@ -117,7 +117,7 @@ int aoc_engine_append_obj(aoc_2d_engine_t _eng, aoc_2d_object_t _obj)
     if (engine_resize(_eng, _obj->_pos))
         return EINVAL;
 
-    if (ll_node_append(&_eng->_objects, CAST(struct ll_node_t *, _obj)))
+    if (dll_node_append(&_eng->_objects, CAST(struct dll_node *, _obj)))
     {
         aoc_err("Failed to append %s", _obj->_name);
         engine_resize(_eng, _prev_bound);
@@ -127,25 +127,25 @@ int aoc_engine_append_obj(aoc_2d_engine_t _eng, aoc_2d_object_t _obj)
         return 0;
 }
 
-aoc_2d_object_t aoc_engine_get_obj_by_position(aoc_2d_engine_t _eng, coord_t *_pos)
+aoc_2d_object_h aoc_engine_get_obj_by_position(aoc_2d_engine_h _eng, coord_t *_pos)
 {
     LL_FOREACH(_objNode, _eng->_objects)
     {
-        coord_t *_at = &CAST(aoc_2d_object_t, _objNode)->_pos;
+        coord_t *_at = &CAST(aoc_2d_object_h, _objNode)->_pos;
         if (_at->_x == _pos->_x && _at->_y == _pos->_y)
         {
-            return CAST(aoc_2d_object_t, _objNode);
+            return CAST(aoc_2d_object_h, _objNode);
         }
     }
     return NULL;
 }
 
-int aoc_engine_collision_detect(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, size_t steps, AOC_2D_DIR dir)
+int aoc_engine_collision_detect(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t steps, AOC_2D_DIR dir)
 {
     coord_t _test = {._x = _obj->_pos._x, ._y = _obj->_pos._y};
     if (move_pos(_eng, &_test, steps, dir))
         return EINVAL;
-    aoc_2d_object_t _other = aoc_engine_get_obj_by_position(_eng, &_test);
+    aoc_2d_object_h _other = aoc_engine_get_obj_by_position(_eng, &_test);
     if (!_other)
         return 0;
     if (_other->_props & OBJ_PROPERTY_NO_COLLISION)
@@ -153,11 +153,11 @@ int aoc_engine_collision_detect(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, size
     return 1;
 }
 
-int aoc_engine_collision_at(aoc_2d_engine_t _eng, coord_t *_pos)
+int aoc_engine_collision_at(aoc_2d_engine_h _eng, coord_t *_pos)
 {
     if (!_eng)
         return EINVAL;
-    aoc_2d_object_t _other = aoc_engine_get_obj_by_position(_eng, _pos);
+    aoc_2d_object_h _other = aoc_engine_get_obj_by_position(_eng, _pos);
     if (!_other)
         return 0;
     if (_other->_props & OBJ_PROPERTY_NO_COLLISION)
@@ -165,7 +165,7 @@ int aoc_engine_collision_at(aoc_2d_engine_t _eng, coord_t *_pos)
     return 1;
 }
 
-int aoc_engine_move_object(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, size_t _steps, AOC_2D_DIR dir)
+int aoc_engine_move_object(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t _steps, AOC_2D_DIR dir)
 {
     if (!_eng || !_obj || dir >= AOC_DIR_MAX)
         return EINVAL;
@@ -178,7 +178,7 @@ int aoc_engine_move_object(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, size_t _s
     engine_put_cursor_in_footer_area(_eng);
 }
 
-int aoc_engine_put_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, coord_t _npos)
+int aoc_engine_put_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, coord_t _npos)
 {
     if (!_eng || !_obj)
         return EINVAL;
@@ -198,7 +198,7 @@ int aoc_engine_put_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj,
     return 0;
 }
 
-int aoc_engine_step_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, AOC_2D_DIR dir, char *fmt)
+int aoc_engine_step_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, AOC_2D_DIR dir, char *fmt)
 {
     int ret = 0;
     coord_t _prevPos = {._x = _obj->_pos._x, ._y = _obj->_pos._y};
@@ -213,7 +213,7 @@ int aoc_engine_step_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj
     erase_object(_eng, _obj);
     move_pos(_eng, &_obj->_pos, (size_t)1, dir);
 
-    aoc_2d_object_t other = aoc_engine_get_obj_by_position(_eng, &_prevPos);
+    aoc_2d_object_h other = aoc_engine_get_obj_by_position(_eng, &_prevPos);
 
     other = aoc_engine_get_obj_by_position(_eng, &_prevPos);
     if (other)
@@ -223,7 +223,7 @@ int aoc_engine_step_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj
     return ret;
 }
 
-int aoc_engine_move_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, size_t steps, AOC_2D_DIR dir)
+int aoc_engine_move_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t steps, AOC_2D_DIR dir)
 {
     int ret = aoc_engine_collision_detect(_eng, _obj, steps, dir);
     if (ret)
@@ -233,7 +233,7 @@ int aoc_engine_move_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj
         return EINVAL;
 
     erase_object(_eng, _obj);
-    struct ll_node_t *_sym_node;
+    struct dll_node *_sym_node;
     struct symbol_t *_sym;
     LL_FOREACH_EXT(_sym_node, _obj->_symbols)
     {
@@ -245,7 +245,7 @@ int aoc_engine_move_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj
     engine_put_cursor_in_footer_area(_eng);
 }
 
-int aoc_engine_resize_one_direction(aoc_2d_engine_t _eng, size_t steps, AOC_2D_DIR _dir)
+int aoc_engine_resize_one_direction(aoc_2d_engine_h _eng, size_t steps, AOC_2D_DIR _dir)
 {
     if (!_eng || _dir >= AOC_DIR_MAX)
         return EINVAL;
@@ -262,22 +262,22 @@ int aoc_engine_resize_one_direction(aoc_2d_engine_t _eng, size_t steps, AOC_2D_D
             return EINVAL;
         _eng->_boundaries._y += steps;
     }
-    struct ll_node_t *_sym_node;
+    struct dll_node *_sym_node;
     struct symbol_t *_sym;
     LL_FOREACH(obj_node, _eng->_objects)
     {
-        aoc_engine_move_object(_eng, CAST(aoc_2d_object_t, obj_node), steps, _dir);
+        aoc_engine_move_object(_eng, CAST(aoc_2d_object_h, obj_node), steps, _dir);
     }
     return 0;
 }
 
-coord_t aoc_engine_get_boundaries(aoc_2d_engine_t _eng)
+coord_t aoc_engine_get_boundaries(aoc_2d_engine_h _eng)
 {
     coord_t ret = {_eng->_boundaries._x, _eng->_boundaries._y};
     return ret;
 }
 
-coord_t aoc_engine_get_object_position(aoc_2d_engine_t _eng, aoc_2d_object_t _obj)
+coord_t aoc_engine_get_object_position(aoc_2d_engine_h _eng, aoc_2d_object_h _obj)
 {
     coord_t _pos = {._x = 0, ._y = 0};
     assert(_eng && _obj && "NULL pointers");
@@ -286,7 +286,7 @@ coord_t aoc_engine_get_object_position(aoc_2d_engine_t _eng, aoc_2d_object_t _ob
     return _pos;
 }
 
-size_t aoc_engine_get_XY_moves_between_objects(aoc_2d_engine_t _eng, aoc_2d_object_t _a, aoc_2d_object_t _b)
+size_t aoc_engine_get_XY_moves_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b)
 {
     coord_t _apos = aoc_engine_get_object_position(_eng, _a);
     coord_t _bpos = aoc_engine_get_object_position(_eng, _b);
@@ -295,7 +295,7 @@ size_t aoc_engine_get_XY_moves_between_objects(aoc_2d_engine_t _eng, aoc_2d_obje
     return (_dX + _dY);
 }
 
-size_t aoc_engine_get_XYD_moves_between_objects(aoc_2d_engine_t _eng, aoc_2d_object_t _a, aoc_2d_object_t _b)
+size_t aoc_engine_get_XYD_moves_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b)
 {
     size_t ret = 0;
 
@@ -327,7 +327,7 @@ size_t aoc_engine_get_XYD_moves_between_objects(aoc_2d_engine_t _eng, aoc_2d_obj
     return ret;
 }
 
-size_t aoc_engine_get_dist_between_objects(aoc_2d_engine_t _eng, aoc_2d_object_t _a, aoc_2d_object_t _b)
+size_t aoc_engine_get_dist_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b)
 {
     coord_t _apos = aoc_engine_get_object_position(_eng, _a);
     coord_t _bpos = aoc_engine_get_object_position(_eng, _b);
@@ -337,7 +337,7 @@ size_t aoc_engine_get_dist_between_objects(aoc_2d_engine_t _eng, aoc_2d_object_t
     return (size_t)floor(sqrt((_dX * _dX) + (_dY * _dY)));
 }
 
-int aoc_engine_move_one_step_towards(aoc_2d_engine_t _eng, aoc_2d_object_t _a, coord_t _pos)
+int aoc_engine_move_one_step_towards(aoc_2d_engine_h _eng, aoc_2d_object_h _a, coord_t _pos)
 {
     int ret = 0;
     coord_t current = aoc_engine_get_object_position(_eng, _a);
@@ -357,12 +357,12 @@ void engine_clear_screen()
     printf(ERASE_DISPLAY);
 }
 
-void engine_activate_drawing(aoc_2d_engine_t _eng)
+void engine_activate_drawing(aoc_2d_engine_h _eng)
 {
     _eng->_mustDraw = true;
 }
 
-void engine_deactivate_drawing(aoc_2d_engine_t _eng)
+void engine_deactivate_drawing(aoc_2d_engine_h _eng)
 {
     _eng->_mustDraw = false;
 }

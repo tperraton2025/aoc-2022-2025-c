@@ -5,106 +5,77 @@
 #include <string.h>
 #include <assert.h>
 
-#define TREE_NODE_CAST(_p) ((struct tree_node_t *)_p)
-#define TREE_BLCK_CAST(_p) ((struct tree_blk_t *)_p)
+#define TREE_NODE_CAST(_p) ((struct tree_node *)_p)
 
-struct tree_blk_t
-{
-    struct tree_node_t _root;
-    size_t _size;
-};
-
-static struct tree_blk_t *aoc_tree_find_root(aoc_tree_node_h _start);
-
-aoc_tree_node_h aoc_tree_blk_init(void)
-{
-    struct tree_blk_t *_blk = malloc(sizeof(struct tree_blk_t));
-    if (!_blk)
-        return NULL;
-    memset(_blk, 0, sizeof(struct tree_blk_t));
-
-    aoc_tree_node(NULL, &_blk->_root, free);
-    _blk->_size = 0;
-    return &_blk->_root;
-}
+#define FOR_EACH_PARENT_UNTIL_ROOT(_pnode, _start) for (struct tree_node *_pnode = _start->_parent; _pnode; _pnode = _pnode->_parent)
+#define TREE_FIND_ROOT_EXT(_pnode, _start) for (_pnode = _start; _pnode->_parent; _pnode = _pnode->_parent)
 
 int aoc_tree_node(aoc_tree_node_h parent_node, aoc_tree_node_h new_node, void (*free)(void *arg))
 {
     assert(free);
     assert(new_node);
-    memset(new_node, 0, sizeof(struct tree_node_t));
+    memset(new_node, 0, sizeof(struct tree_node));
 
     new_node->_free = free;
     new_node->_parent = parent_node;
 
-    ll_blk_init(&new_node->_children);
+    dll_head_init(&new_node->_llchildren);
 
     if (parent_node)
-        tree_node_append(parent_node, new_node);
+        aoc_tree_node_append(parent_node, new_node);
     return 0;
 }
 
-int tree_node_append(aoc_tree_node_h _parent, aoc_tree_node_h _new)
+int aoc_tree_node_append(aoc_tree_node_h _parent, aoc_tree_node_h _new)
 {
     if (_parent == _new)
         return EINVAL;
-    ll_node_append(&TREE_NODE_CAST(_parent)->_children, &_new->_node);
+    int ret = dll_node_append(&TREE_NODE_CAST(_parent)->_llchildren, &_new->_llnode);
+    if (ret)
+        return ret;
+
     _new->_parent = _parent;
-    aoc_tree_find_root(_parent)->_size++;
+    FOR_EACH_PARENT_UNTIL_ROOT(_node, _new)
+    {
+        _node->_size++;
+    }
     return 0;
 }
 
-void tree_free_all_children(aoc_tree_node_h _start)
+void aoc_tree_free_all_children(aoc_tree_node_h _start)
 {
     assert(_start && "NULL pointer detected");
 
-    struct ll_context_t * _ll  = &_start->_children;
-    struct ll_node_t *_node;
-    struct ll_node_t *_nxtNode;
-    for ( _node = _ll->_first; _node; )
+    struct dll_head *_ll = &_start->_llchildren;
+    struct dll_node *_node;
+    struct dll_node *_nxtNode;
+    for (_node = _ll->_first; _node;)
     {
         _nxtNode = _node->_next;
-        tree_free_all_children(TREE_NODE_CAST(_node));
+        aoc_tree_free_all_children(TREE_NODE_CAST(_node));
         _node = _nxtNode;
     }
     _start->_free(_start);
     free(_start);
 }
 
-void tree_free_all_from_starting_node(aoc_tree_node_h _start)
+void tree_free(aoc_tree_node_h _start)
 {
-    assert(_start && "NULL pointer detected");
-    struct tree_blk_t *_blk = aoc_tree_find_root(_start);
-    assert(_blk && "No tree control block found from starting node");
+    assert(_start && "No starting node method provided");
 
-    struct ll_context_t * _ll  = &_blk->_root._children;
-    struct ll_node_t *_node;
-    struct ll_node_t *_nxtNode;
-    for ( _node = _ll->_first; _node; )
+    aoc_tree_node_h _root = aoc_tree_find_root(_start);
+
+    struct dll_head *_ll = &_root->_llchildren;
+    struct dll_node *_node;
+    struct dll_node *_nxtNode;
+
+    for (_node = _ll->_first; _node;)
     {
         _nxtNode = _node->_next;
-        tree_free_all_children(TREE_NODE_CAST(_node));
+        aoc_tree_free_all_children(TREE_NODE_CAST(_node));
         _node = _nxtNode;
     }
-    free(_blk);
-}
-
-void tree_free(aoc_tree_blk_t _blk, aoc_tree_node_h _start)
-{
-    assert(_blk && "No tree control block found");
-    assert(_start && "No free method provided");
-
-    struct ll_context_t * _ll  = &_blk->_root._children;
-    struct ll_node_t *_node;
-    struct ll_node_t *_nxtNode;
-    
-    for ( _node = _ll->_first; _node; )
-    {
-        _nxtNode = _node->_next;
-        tree_free_all_children(TREE_NODE_CAST(_node));
-        _node = _nxtNode;
-    }
-    free(_blk);
+    _root->_free(_root);
 }
 
 int aoc_tree_permut(aoc_tree_node_h _a, aoc_tree_node_h _b)
@@ -112,14 +83,14 @@ int aoc_tree_permut(aoc_tree_node_h _a, aoc_tree_node_h _b)
     if (!_a || !_b)
         return EINVAL;
 
-    struct tree_node_t *_anode = TREE_NODE_CAST(_a);
-    struct tree_node_t *_bnode = TREE_NODE_CAST(_b);
+    struct tree_node *_anode = TREE_NODE_CAST(_a);
+    struct tree_node *_bnode = TREE_NODE_CAST(_b);
 
-    ll_node_disconnect(&_anode->_parent->_children, NODE_CAST(_a));
-    ll_node_disconnect(&_bnode->_parent->_children, NODE_CAST(_b));
+    dll_node_disconnect(&_anode->_parent->_llchildren, NODE_CAST(_a));
+    dll_node_disconnect(&_bnode->_parent->_llchildren, NODE_CAST(_b));
 
-    ll_node_append(&_bnode->_parent->_children, NODE_CAST(_a));
-    ll_node_append(&_anode->_parent->_children, NODE_CAST(_b));
+    dll_node_append(&_bnode->_parent->_llchildren, NODE_CAST(_a));
+    dll_node_append(&_anode->_parent->_llchildren, NODE_CAST(_b));
 
     _anode->_parent = _bnode->_parent;
     _bnode->_parent = _anode;
@@ -134,35 +105,34 @@ static bool pointer_comp(void *const _a, void *const _b)
 void aoc_tree_free_node(aoc_tree_node_h _a)
 {
     assert(_a && "NULL pointer in args");
-    aoc_tree_blk_t _blk = aoc_tree_find_root(_a);
-    assert(_blk && "provided node does not have a control block");
-    aoc_tree_node_h _to_delete = aoc_tree_search_node_by_property(&_blk->_root, _a, pointer_comp);
+    aoc_tree_node_h _root = NULL;
+    TREE_FIND_ROOT_EXT(_root, _a);
+    aoc_tree_node_h _to_delete = aoc_tree_search_node_by_property(_root, _a, pointer_comp);
     assert(_to_delete && "attempt to delete a non-existing tree node");
 
-    struct tree_node_t *_anode = TREE_NODE_CAST(_a);
+    struct tree_node *_anode = TREE_NODE_CAST(_a);
 
-    /*  Takes out node from the list without freeing its*/
+    /* Takes out node from the list without freeing it */
     if (_anode->_parent)
-        ll_node_disconnect(&_anode->_parent->_children, NODE_CAST(_a));
+        dll_node_disconnect(&_anode->_parent->_llchildren, NODE_CAST(_a));
 
-    tree_free_all_children(_a);
-    assert(_blk->_size && "error in tree node counting");
-    _blk->_size--;
+    aoc_tree_free_all_children(_a);
+    FOR_EACH_PARENT_UNTIL_ROOT(_node, _to_delete)
+    {
+        assert(_node->_size && "error in tree node counting");
+        _node->_size--;
+    }
 }
 
 aoc_tree_node_h aoc_tree_leaf_node(aoc_tree_node_h _start)
 {
-    struct tree_node_t *ret = NULL;
+    struct tree_node *ret = NULL;
     assert(_start && "tree node is NULL");
-    while (_start->_children._first)
+    while (_start->_llchildren._first)
     {
-        ret = (aoc_tree_node_h)_start->_children._first;
+        ret = (aoc_tree_node_h)_start->_llchildren._first;
     }
     return ret;
-}
-
-aoc_tree_node_h aoc_tree_search_node(aoc_tree_blk_t _ctx, aoc_tree_node_h _a)
-{
 }
 
 /* TODO: reimplement without recursion */
@@ -174,7 +144,7 @@ aoc_tree_node_h aoc_tree_search_node_by_property(aoc_tree_node_h _start, void *_
     {
         return _start;
     }
-    LL_FOREACH(_node, _start->_children)
+    LL_FOREACH(_node, _start->_llchildren)
     {
         _item = aoc_tree_search_node_by_property(TREE_NODE_CAST(_node), _prop, _equal);
         if (_item)
@@ -185,13 +155,15 @@ aoc_tree_node_h aoc_tree_search_node_by_property(aoc_tree_node_h _start, void *_
 
 size_t aoc_tree_size(aoc_tree_node_h _start)
 {
-    return aoc_tree_find_root(_start)->_size;
+    aoc_tree_node_h _root = NULL;
+    TREE_FIND_ROOT_EXT(_root, _start);
+    assert(_root && "_root found is NULL");
+    return _root->_size;
 }
 
-struct tree_blk_t *aoc_tree_find_root(aoc_tree_node_h _start)
+aoc_tree_node_h aoc_tree_find_root(aoc_tree_node_h _start)
 {
-    struct tree_node_t *_srch = (struct tree_node_t *)_start;
-    while (_srch->_parent)
-        _srch = _srch->_parent;
-    return TREE_BLCK_CAST(_srch);
+    aoc_tree_node_h _root = _start;
+    TREE_FIND_ROOT_EXT(_root, _start);
+    return _root;
 }

@@ -6,19 +6,19 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-struct context_t
+struct context
 {
-    aoc_2d_engine_t _eng;
-    aoc_2d_object_t _head;
-    struct ll_context_t _tails;
-    struct ll_context_t _movs;
-    struct ll_context_t _tailPos;
-    aoc_2d_object_t _lastMovedLink;
+    aoc_2d_engine_h _eng;
+    aoc_2d_object_h _head;
+    struct dll_head _tails;
+    struct dll_head _movs;
+    struct dll_head _tailPos;
+    aoc_2d_object_h _lastMovedLink;
     coord_t _prevPosFromLastMovedLink;
     int result;
 };
 
-#define CTX_CAST(_p) ((struct context_t *)_p)
+#define CTX_CAST(_p) ((struct context *)_p)
 
 #define MOV_CAST(_p) ((movement_t *)_p)
 #define MAP_MID_SIZE (1024)
@@ -41,16 +41,16 @@ static AOC_2D_DIR char_to_AOC_DIR(char *_c)
     }
 }
 
-typedef struct movement_t
+typedef struct
 {
-    struct ll_node_t _node;
+    struct dll_node _node;
     AOC_2D_DIR dir;
     size_t steps;
 } movement_t;
 
-typedef struct coord_tracker_t
+typedef struct
 {
-    struct ll_node_t _node;
+    struct dll_node _node;
     coord_t _pos;
 } coord_tracker_t;
 
@@ -63,16 +63,16 @@ static bool coord_compare(void *_a, void *_b)
 
 static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 {
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
     coord_tracker_t _posTrack = {._pos = {._x = _pos->_x, _pos->_y}};
-    if (NULL == ll_find_node_by_property(&_ctx->_tailPos, (void *)&_posTrack, coord_compare))
+    if (NULL == dll_find_node_by_property(&_ctx->_tailPos, (void *)&_posTrack, coord_compare))
     {
         coord_tracker_t *_npos = malloc(sizeof(coord_tracker_t));
         if (!_npos)
             return ENOMEM;
         _npos->_pos._x = _pos->_x;
         _npos->_pos._y = _pos->_y;
-        int ret = ll_node_append(&_ctx->_tailPos, NODE_CAST(_npos));
+        int ret = dll_node_append(&_ctx->_tailPos, NODE_CAST(_npos));
         if (ret)
             free(_npos);
         return ret;
@@ -83,10 +83,10 @@ static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 static int prologue(struct solutionCtrlBlock_t *_blk)
 {
     int ret = 1;
-    _blk->_data = malloc(sizeof(struct context_t));
+    _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
 
     _ctx->result = 0;
 
@@ -97,9 +97,9 @@ static int prologue(struct solutionCtrlBlock_t *_blk)
 
     _ctx->_head = NULL;
 
-    ll_blk_init(&_ctx->_movs);
-    ll_blk_init(&_ctx->_tailPos);
-    ll_blk_init(&_ctx->_tails);
+    dll_head_init(&_ctx->_movs);
+    dll_head_init(&_ctx->_tailPos);
+    dll_head_init(&_ctx->_tails);
 
     aoc_engine_resize_one_direction(_ctx->_eng, MAP_MID_SIZE, AOC_DIR_RIGHT);
     aoc_engine_resize_one_direction(_ctx->_eng, MAP_MID_SIZE, AOC_DIR_LEFT);
@@ -125,7 +125,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk)
         sprintf(name, "%1ld", ii);
         char fullname[] = "tail %1ld";
         sprintf(fullname, "tail %1ld", ii);
-        aoc_2d_object_t ntail = eng_obj_create(_ctx->_eng, fullname, &start, name, OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_NO_COLLISION);
+        aoc_2d_object_h ntail = eng_obj_create(_ctx->_eng, fullname, &start, name, OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_NO_COLLISION);
 
         if (!ntail)
             ret = ENOMEM;
@@ -135,7 +135,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk)
             ret = aoc_engine_append_obj(_ctx->_eng, ntail);
         if (ret)
             goto error;
-        ll_node_append(&_ctx->_tails, NODE_CAST(ntail));
+        dll_node_append(&_ctx->_tails, NODE_CAST(ntail));
     }
     track_tail(_blk, &start);
 
@@ -151,9 +151,9 @@ error:
         if (_ctx->_head)
             free(_ctx->_head);
 
-        ll_free_all(&_ctx->_movs, free);
-        ll_free_all(&_ctx->_tailPos, free);
-        ll_free_all(&_ctx->_tails, eng_obj_free);
+        dll_free_all(&_ctx->_movs, free);
+        dll_free_all(&_ctx->_tailPos, free);
+        dll_free_all(&_ctx->_tails, eng_obj_free);
     }
     free(_blk->_data);
     return ret;
@@ -162,7 +162,7 @@ error:
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
     char dir = 'R';
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
     size_t cnt = 0;
     movement_t *nmov = NULL;
     if (2 == sscanf(_blk->_str, "%c %ld", &dir, &cnt))
@@ -175,16 +175,16 @@ static int handler(struct solutionCtrlBlock_t *_blk)
         if (nmov->dir >= AOC_DIR_MAX)
             free(nmov);
         if (nmov)
-            ll_node_append(&_ctx->_movs, NODE_CAST(nmov));
+            dll_node_append(&_ctx->_movs, NODE_CAST(nmov));
         if (!nmov)
             aoc_err("Error parsing %s", _blk->_str);
     }
     return 0;
 }
 
-static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_object_t _head, aoc_2d_object_t _tail, AOC_2D_DIR _dir)
+static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_object_h _head, aoc_2d_object_h _tail, AOC_2D_DIR _dir)
 {
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
     coord_tracker_t *_npos = NULL;
 
     if (_ctx->_head == _head)
@@ -214,7 +214,7 @@ static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_object_t _
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     movement_t *nmov = NULL;
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
     LL_FOREACH(_node, _ctx->_movs)
     {
         nmov = MOV_CAST(_node);
@@ -224,7 +224,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
             _ctx->_lastMovedLink = _ctx->_head;
             LL_FOREACH(_node, _ctx->_tails)
             {
-                aoc_2d_object_t _tail = CAST(aoc_2d_object_t, _node);
+                aoc_2d_object_h _tail = CAST(aoc_2d_object_h, _node);
                 int_refresh_link(_blk, _ctx->_lastMovedLink, _tail, nmov->dir);
             } 
         }
@@ -235,7 +235,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
         coord_tracker_t *_npos = CAST(coord_tracker_t *, pos_node);
         engine_draw_symbol_at(_ctx->_eng, &_npos->_pos, "#");
     }
-    int result = aoc_ll_size(&_ctx->_tailPos);
+    int result = aoc_dll_size(&_ctx->_tailPos);
     aoc_ans("AOC 2022 %s solution is %d", _blk->_name, result);
 
     return result;
@@ -244,10 +244,10 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
     engine_free(_ctx->_eng);
-    ll_free_all(&_ctx->_tailPos, free);
-    ll_free_all(&_ctx->_movs, free); 
+    dll_free_all(&_ctx->_tailPos, free);
+    dll_free_all(&_ctx->_movs, free); 
     free(_blk->_data); 
 }
 

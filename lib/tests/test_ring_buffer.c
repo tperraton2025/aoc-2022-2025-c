@@ -32,7 +32,7 @@ int rb_suite_create()
 
 void rb_test_suite()
 {
-    aoc_ring_buffer_t _bf = aoc_ring_buffer(sizeof(_rb_test_struct_t), 10);
+    aoc_ring_buffer_h _bf = aoc_ring_buffer(sizeof(_rb_test_struct_t), 10);
     CU_ASSERT(NULL != _bf);
 
     _rb_test_struct_t _str1 = {.name = "foo 1"};

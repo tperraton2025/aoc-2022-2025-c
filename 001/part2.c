@@ -8,21 +8,21 @@
 
 struct elfCal_t
 {
-    struct ll_node_t _node;
+    struct dll_node _node;
     char *_name;
     int _count;
     int _calories;
 };
 
-struct context_t
+struct context
 {
-    struct ll_context_t _ll;
+    struct dll_head _ll;
 };
 
 #define ELF_CAST(_p) ((struct elfCal_t *)_p)
-#define CTX_CAST(_p) ((struct context_t *)_p->_data)
+#define CTX_CAST(_p) ((struct context *)_p->_data)
 
-static struct elfCal_t *elf_ctor(struct context_t *_ctx)
+static struct elfCal_t *elf_ctor(struct context *_ctx)
 {
     struct elfCal_t *_ret = malloc(sizeof(struct elfCal_t));
     if (!_ret)
@@ -35,7 +35,7 @@ static struct elfCal_t *elf_ctor(struct context_t *_ctx)
         goto cleanup;
     sprintf(_ret->_name, "elfo%3d", _ret->_count);
 
-    if (ll_node_append(&_ctx->_ll, (struct ll_node_t *)_ret))
+    if (dll_node_append(&_ctx->_ll, (struct dll_node *)_ret))
         goto name;
     return _ret;
 
@@ -58,13 +58,13 @@ static void freeElf(void *_data)
 static int prologue(struct solutionCtrlBlock_t *_blk)
 {
     int ret = 0;
-    _blk->_data = malloc(sizeof(struct context_t));
+    _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
-    memset(_blk->_data, 0, sizeof(struct context_t));
+    memset(_blk->_data, 0, sizeof(struct context));
     
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
-    ll_blk_init(&_ctx->_ll);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
+    dll_head_init(&_ctx->_ll);
 
     if (elf_ctor(_ctx))
         return 0;
@@ -73,7 +73,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk)
 
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
 
     int _cal = 0;
     if (sscanf(_blk->_str, "%d\n", &_cal))
@@ -84,8 +84,8 @@ static int handler(struct solutionCtrlBlock_t *_blk)
             {
                 if (ELF_CAST(_node)->_calories < ELF_CAST(_ctx->_ll._current)->_calories)
                 {
-                    ll_node_disconnect(&_ctx->_ll, _ctx->_ll._current);
-                    ll_node_insert(&_ctx->_ll, _ctx->_ll._current, _node);
+                    dll_node_disconnect(&_ctx->_ll, _ctx->_ll._current);
+                    dll_node_insert(&_ctx->_ll, _ctx->_ll._current, _node);
                     break;
                 }
             }
@@ -103,7 +103,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     int result = 0, count = 0;
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
 
     LL_FOREACH(_node, _ctx->_ll)
     {
@@ -116,9 +116,9 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
     struct data_t *_data = CAST(struct data_t *, _blk->_data);
-    ll_free_all(&_ctx->_ll, freeElf);
+    dll_free_all(&_ctx->_ll, freeElf);
     free(_blk->_data);
 }
 

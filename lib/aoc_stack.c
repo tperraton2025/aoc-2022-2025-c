@@ -1,7 +1,7 @@
 #include <aoc_stack.h>
 #include <errno.h>
 
-struct aoc_stack_t
+struct aoc_stack
 {
     size_t _size;
     size_t _count;
@@ -10,16 +10,16 @@ struct aoc_stack_t
     void (*_free)(void *args);
 };
 
-#define STK_CAST(_p) ((struct aoc_stack_t *)_p)
+#define STK_CAST(_p) ((struct aoc_stack *)_p)
 
-size_t aoc_stack_count(aoc_stack_handle_t _stkh) { return _stkh->_count; }
+size_t aoc_stack_count(aoc_stack_h _stkh) { return _stkh->_count; }
 
-aoc_stack_handle_t aoc_stack_init(void (*_free)(void *args), size_t _size)
+aoc_stack_h aoc_stack_init(void (*_free)(void *args), size_t _size)
 {
     if (!_free || !_size)
         return NULL;
 
-    struct aoc_stack_t *_ret = malloc(sizeof(struct aoc_stack_t));
+    struct aoc_stack *_ret = malloc(sizeof(struct aoc_stack));
     if (!_ret)
         return NULL;
     _ret->_base = NULL;
@@ -31,12 +31,12 @@ aoc_stack_handle_t aoc_stack_init(void (*_free)(void *args), size_t _size)
     return _ret;
 }
 
-int aoc_stack_push(aoc_stack_handle_t _stkh, void *_new)
+int aoc_stack_push(aoc_stack_h _stkh, void *_new)
 {
     if (!_stkh || !_new)
         return EINVAL;
 
-    struct aoc_stack_t *_stk = STK_CAST(_stkh);
+    struct aoc_stack *_stk = STK_CAST(_stkh);
     _stk->_count++;
 
     if (_stk->_base)
@@ -52,9 +52,9 @@ int aoc_stack_push(aoc_stack_handle_t _stkh, void *_new)
     return 0;
 }
 
-int aoc_stack_pop(aoc_stack_handle_t _stkh, void *_item)
+int aoc_stack_pop(aoc_stack_h _stkh, void *_item)
 {
-    struct aoc_stack_t *_stk = STK_CAST(_stkh);
+    struct aoc_stack *_stk = STK_CAST(_stkh);
 
     if (!_stkh)
         return EINVAL;
@@ -80,7 +80,7 @@ int aoc_stack_pop(aoc_stack_handle_t _stkh, void *_item)
 
 void aoc_stack_free(void *_stkh)
 {
-    struct aoc_stack_t *_stk = STK_CAST(_stkh);
+    struct aoc_stack *_stk = STK_CAST(_stkh);
 
     if (!_stkh)
         return;

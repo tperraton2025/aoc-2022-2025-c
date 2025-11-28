@@ -50,9 +50,9 @@ typedef struct
 {
     pthread_t _thr;
     _hQueue_t _xQueue;
-    aoc_2d_engine_t _eng;
-    aoc_2d_object_t _cur;
-    struct ll_context_t _objects_ll;
+    aoc_2d_engine_h _eng;
+    aoc_2d_object_h _cur;
+    struct dll_head _objects_ll;
     int _iRet;
 } graphics_t;
 
@@ -60,12 +60,12 @@ typedef struct
 {
     pthread_t _thr;
     _hQueue_t _xQueue;
-    aoc_ring_buffer_t _pxInputCharBuffer;
-    struct ll_context_t _inputs_ll;
+    aoc_ring_buffer_h _pxInputCharBuffer;
+    struct dll_head _inputs_ll;
     int _iRet;
 } inputs_t;
 
-struct context_t
+struct context
 {
     graphics_t _graphics;
     inputs_t _inputs;
@@ -74,7 +74,7 @@ struct context_t
     int result;
 };
 
-#define CTX_CAST(_p) ((struct context_t *)_p)
+#define CTX_CAST(_p) ((struct context *)_p)
 #define GRP_CAST(_p) ((graphics_t *)_p)
 #define INP_CAST(_p) ((inputs_t *)_p)
 #define THR_CAST(_p) ((thead_data_t *)_p)
@@ -91,7 +91,7 @@ void *inputs_routine(void *args);
 
 void sig_int_handler(int args)
 {
-    struct context_t *_ctx = CTX_CAST(privPart1._data);
+    struct context *_ctx = CTX_CAST(privPart1._data);
     aoc_warn("received signal %s", strsignal(args));
 
     if (SIGINT | SIGKILL | SIGABRT | SIGSTOP | SIGTSTP & args)
@@ -112,7 +112,7 @@ void sig_int_handler(int args)
     }
 }
 
-void queue_setup(struct context_t *_ctx, _hQueue_t *_pxQueue, const char *_name)
+void queue_setup(struct context *_ctx, _hQueue_t *_pxQueue, const char *_name)
 {
     size_t len = strnlen(_name, MQ_NAME_SIZE_UINT);
     _pxQueue->_sName = malloc(len + 1);
@@ -130,11 +130,11 @@ void queue_setup(struct context_t *_ctx, _hQueue_t *_pxQueue, const char *_name)
 static int prologue(struct solutionCtrlBlock_t *_blk)
 {
     int ret = 1;
-    _blk->_data = malloc(sizeof(struct context_t));
+    _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
-    memset(_ctx, 0, sizeof(struct context_t));
+    struct context *_ctx = CTX_CAST(_blk->_data);
+    memset(_ctx, 0, sizeof(struct context));
 
     _ctx->result = 0;
 
@@ -166,7 +166,7 @@ error:
 
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
     return 0;
 }
 
@@ -189,7 +189,7 @@ void *graphics_routine(void *args)
                                 ENOMEM,
                                 exit);
 
-    ll_blk_init(&_grp->_objects_ll);
+    dll_head_init(&_grp->_objects_ll);
 
     aoc_engine_resize_one_direction(_grp->_eng, MAP_MID_SIZE, AOC_DIR_RIGHT);
     aoc_engine_resize_one_direction(_grp->_eng, MAP_MID_SIZE, AOC_DIR_LEFT);

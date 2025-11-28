@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct command_t
+typedef struct command
 {
-    struct ll_node_t _node;
+    struct dll_node _node;
     size_t count;
     size_t from;
     size_t to;
@@ -13,26 +13,26 @@ typedef struct command_t
 
 static command_t *command_ctor(command_t *_ncmd)
 {
-    command_t *ret = malloc(sizeof(struct command_t));
+    command_t *ret = malloc(sizeof(struct command));
     if (!ret)
         return NULL;
-    memset(ret, 0, sizeof(struct command_t));
+    memset(ret, 0, sizeof(struct command));
     ret->count = _ncmd->count;
     ret->from = _ncmd->from;
     ret->to = _ncmd->to;
     return ret;
 }
 
-typedef struct aoc_2d_object_tracker_t
+typedef struct
 {
-    struct ll_node_t _node;
-    aoc_2d_object_t data;
+    struct dll_node _node;
+    aoc_2d_object_h data;
     int _blocked;
-} aoc_2d_object_tracker_t;
+} aoc_2d_object_hracker_t;
 
-static aoc_2d_object_tracker_t *aoc_2d_object_tracker(aoc_2d_object_t _obj)
+static aoc_2d_object_hracker_t *aoc_2d_object_hracker(aoc_2d_object_h _obj)
 {
-    aoc_2d_object_tracker_t *_ntracker = malloc(sizeof(aoc_2d_object_tracker_t));
+    aoc_2d_object_hracker_t *_ntracker = malloc(sizeof(aoc_2d_object_hracker_t));
     if (!_ntracker)
         return NULL;
     _ntracker->_node._prev = NULL;
@@ -42,8 +42,8 @@ static aoc_2d_object_tracker_t *aoc_2d_object_tracker(aoc_2d_object_t _obj)
     return _ntracker;
 }
 
-static void aoc_2d_object_tracker_free(void *arg)
+static void aoc_2d_object_hracker_free(void *arg)
 {
-    aoc_2d_object_tracker_t *_ntracker = CAST(aoc_2d_object_tracker_t *, arg);
+    aoc_2d_object_hracker_t *_ntracker = CAST(aoc_2d_object_hracker_t *, arg);
     free(_ntracker);
 }

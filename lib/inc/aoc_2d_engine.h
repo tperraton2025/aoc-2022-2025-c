@@ -47,49 +47,49 @@ typedef struct coord
     size_t _y;
 } coord_t;
 
-typedef struct engine_t *aoc_2d_engine_t;
-typedef struct object_t *aoc_2d_object_t;
+typedef struct ascii_2d_engine *aoc_2d_engine_h;
+typedef struct object *aoc_2d_object_h;
 
-aoc_2d_engine_t engine_create(coord_t _res, coord_t _spce, char _void_sym);
+aoc_2d_engine_h engine_create(coord_t _res, coord_t _spce, char _void_sym);
 void eng_obj_free(void *_data);
-int engine_draw_objects(aoc_2d_engine_t _eng, coord_t *_corner);
-int draw_object(struct engine_t *_eng, struct object_t *_obj, char *_fmt);
+int engine_draw_objects(aoc_2d_engine_h _eng, coord_t *_corner);
+int draw_object(struct ascii_2d_engine *_eng, struct object *_obj, char *_fmt);
 
-int aoc_engine_resize_one_direction(aoc_2d_engine_t _eng, size_t steps, AOC_2D_DIR _dir);
-void engine_free(aoc_2d_engine_t _eng);
-int engine_draw(aoc_2d_engine_t _eng);
+int aoc_engine_resize_one_direction(aoc_2d_engine_h _eng, size_t steps, AOC_2D_DIR _dir);
+void engine_free(aoc_2d_engine_h _eng);
+int engine_draw(aoc_2d_engine_h _eng);
 
-aoc_2d_object_t eng_obj_create(aoc_2d_engine_t _eng, const char *const _name, coord_t *_pos, char *_sym, size_t _props);
-int aoc_engine_append_obj(aoc_2d_engine_t _eng, aoc_2d_object_t _obj);
-aoc_2d_object_t aoc_engine_get_obj_my_name(aoc_2d_engine_t _eng, const char *name);
-aoc_2d_object_t aoc_engine_get_obj_by_position(aoc_2d_engine_t _eng, coord_t *_pos);
-const char *const aoc_engine_get_obj_name(aoc_2d_object_t _obj);
+aoc_2d_object_h eng_obj_create(aoc_2d_engine_h _eng, const char *const _name, coord_t *_pos, char *_sym, size_t _props);
+int aoc_engine_append_obj(aoc_2d_engine_h _eng, aoc_2d_object_h _obj);
+aoc_2d_object_h aoc_engine_get_obj_my_name(aoc_2d_engine_h _eng, const char *name);
+aoc_2d_object_h aoc_engine_get_obj_by_position(aoc_2d_engine_h _eng, coord_t *_pos);
+const char *const aoc_engine_get_obj_name(aoc_2d_object_h _obj);
 
-int aoc_engine_move_object(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, size_t _steps, AOC_2D_DIR dir);
-int aoc_engine_step_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, AOC_2D_DIR dir, char *_fmt);
-int aoc_engine_move_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, size_t steps, AOC_2D_DIR dir);
-int aoc_engine_put_object_and_redraw(aoc_2d_engine_t _eng, aoc_2d_object_t _obj, coord_t _npos);
+int aoc_engine_move_object(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t _steps, AOC_2D_DIR dir);
+int aoc_engine_step_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, AOC_2D_DIR dir, char *_fmt);
+int aoc_engine_move_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t steps, AOC_2D_DIR dir);
+int aoc_engine_put_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, coord_t _npos);
 
-coord_t aoc_engine_get_boundaries(aoc_2d_engine_t _eng);
-coord_t aoc_engine_get_object_position(aoc_2d_engine_t _eng, aoc_2d_object_t _obj);
-size_t aoc_engine_get_XY_moves_between_objects(aoc_2d_engine_t _eng, aoc_2d_object_t _a, aoc_2d_object_t _b);
-size_t aoc_engine_get_XYD_moves_between_objects(aoc_2d_engine_t _eng, aoc_2d_object_t _a, aoc_2d_object_t _b);
+coord_t aoc_engine_get_boundaries(aoc_2d_engine_h _eng);
+coord_t aoc_engine_get_object_position(aoc_2d_engine_h _eng, aoc_2d_object_h _obj);
+size_t aoc_engine_get_XY_moves_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b);
+size_t aoc_engine_get_XYD_moves_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b);
 
-void aoc_engine_list_objects(aoc_2d_engine_t _eng);
-int engine_put_cursor_in_footer_area(struct engine_t *_eng);
-int engine_cursor_user_next_stats(struct engine_t *_eng);
-int engine_cursor_user_stats(struct engine_t *_eng);
+void aoc_engine_list_objects(aoc_2d_engine_h _eng);
+int engine_put_cursor_in_footer_area(struct ascii_2d_engine *_eng);
+int engine_cursor_user_next_stats(struct ascii_2d_engine *_eng);
+int engine_cursor_user_stats(struct ascii_2d_engine *_eng);
 
-int engine_cursor_exit_drawing_area(struct engine_t *_eng);
+int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng);
 
-int engine_draw_symbol_at(aoc_2d_engine_t _eng, coord_t *_pos, char *_sym);
-size_t aoc_engine_get_dist_between_objects(aoc_2d_engine_t _eng, aoc_2d_object_t _a, aoc_2d_object_t _b);
-int aoc_engine_move_one_step_towards(aoc_2d_engine_t _eng, aoc_2d_object_t _a, coord_t _pos);
+int engine_draw_symbol_at(aoc_2d_engine_h _eng, coord_t *_pos, char *_sym);
+size_t aoc_engine_get_dist_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b);
+int aoc_engine_move_one_step_towards(aoc_2d_engine_h _eng, aoc_2d_object_h _a, coord_t _pos);
 
 void engine_clear_screen();
-void engine_activate_drawing(aoc_2d_engine_t _eng);
-void engine_deactivate_drawing(aoc_2d_engine_t _eng);
-int move_pos(aoc_2d_engine_t _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir);
+void engine_activate_drawing(aoc_2d_engine_h _eng);
+void engine_deactivate_drawing(aoc_2d_engine_h _eng);
+int move_pos(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir);
 
 int aoc_inputs_ansi_to_dir(const char *const _str, AOC_2D_DIR *_dir);
-void aoc_engine_prompt(aoc_2d_engine_t _eng, const size_t _sleep, size_t _count, ...);
+void aoc_engine_prompt(aoc_2d_engine_h _eng, const size_t _sleep, size_t _count, ...);

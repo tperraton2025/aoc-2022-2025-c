@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <assert.h>
 
-void ll_blk_init(aoc_linked_list_handle_t _blk)
+void dll_head_init(aoc_ll_head_h _blk)
 {
     _blk->_first = NULL;
     _blk->_current = NULL;
@@ -11,13 +11,13 @@ void ll_blk_init(aoc_linked_list_handle_t _blk)
     _blk->_size = 0;
 }
 
-void ll_free_all(aoc_linked_list_handle_t _blk, void (*_caller)(void *_data))
+void dll_free_all(aoc_ll_head_h _blk, void (*_caller)(void *_data))
 {
     assert(_blk && "Linked list context is NULL");
-    struct ll_node_t *_current = _blk->_first;
+    struct dll_node *_current = _blk->_first;
     if (!_current)
         goto end;
-    struct ll_node_t *_next = _current->_next;
+    struct dll_node *_next = _current->_next;
     while (_current)
     {
         _next = _current->_next;
@@ -33,15 +33,15 @@ end:
     assert(_blk->_size == 0 && "the link list was probably broken");
 }
 
-size_t aoc_ll_size(aoc_linked_list_handle_t _ctx)
+size_t aoc_dll_size(aoc_ll_head_h _ctx)
 {
     assert(_ctx);
     return _ctx->_size;
 }
 
-int ll_node_append(aoc_linked_list_handle_t _blk, struct ll_node_t *_new)
+int dll_node_append(aoc_ll_head_h _blk, struct dll_node *_new)
 {
-    assert(_blk && _new && "NULL pointer in ll_node_append");
+    assert(_blk && _new && "NULL pointer in dll_node_append");
     assert(_blk->_size < LL_MAX_LEN);
 
     _blk->_size++;
@@ -62,10 +62,10 @@ int ll_node_append(aoc_linked_list_handle_t _blk, struct ll_node_t *_new)
     return 0;
 }
 
-void ll_node_permut(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a, struct ll_node_t *_b)
+void dll_node_permut(aoc_ll_head_h _ctx, struct dll_node *_a, struct dll_node *_b)
 {
-    struct ll_node_t *_anext = _a->_next;
-    struct ll_node_t *_aprev = _a->_prev;
+    struct dll_node *_anext = _a->_next;
+    struct dll_node *_aprev = _a->_prev;
 
     if (_ctx->_first == _a || _ctx->_first == _b)
         _ctx->_first = _ctx->_first == _a ? _b : _a;
@@ -90,7 +90,7 @@ void ll_node_permut(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a, struct 
         _b->_next->_prev = _b;
 }
 
-void ll_node_insert(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a, struct ll_node_t *_b)
+void dll_node_insert(aoc_ll_head_h _ctx, struct dll_node *_a, struct dll_node *_b)
 {
     assert(_ctx && "Linked list _ctx NULL");
     assert(_a && "Linked list _a is NULL");
@@ -107,7 +107,7 @@ void ll_node_insert(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a, struct 
 }
 
 /*  Takes out node from the list without freeing its*/
-void ll_node_disconnect(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a)
+void dll_node_disconnect(aoc_ll_head_h _ctx, struct dll_node *_a)
 {
     assert(_ctx->_size != 0 && "attempt to remove link from an empty sinked list");
     assert(_a && "NULL pointer provided");
@@ -125,7 +125,7 @@ void ll_node_disconnect(aoc_linked_list_handle_t _ctx, struct ll_node_t *_a)
     _a->_next = NULL;
 }
 
-int ll_find_node(aoc_linked_list_handle_t _blk, struct ll_node_t *_a)
+int dll_find_node(aoc_ll_head_h _blk, struct dll_node *_a)
 {
     LL_FOREACH_P(_node, _blk)
     {
@@ -137,7 +137,7 @@ int ll_find_node(aoc_linked_list_handle_t _blk, struct ll_node_t *_a)
     return ENOENT;
 }
 
-size_t ll_count_nodes_by_property(aoc_linked_list_handle_t _blk, void *_prop, bool (*equal)(void *_a, void *_b))
+size_t dll_count_nodes_by_property(aoc_ll_head_h _blk, void *_prop, bool (*equal)(void *_a, void *_b))
 {
     size_t ret = 0;
     bool _found = false;
@@ -152,7 +152,7 @@ size_t ll_count_nodes_by_property(aoc_linked_list_handle_t _blk, void *_prop, bo
     return ret;
 }
 
-struct ll_node_t *ll_find_node_by_property(aoc_linked_list_handle_t _blk, void *_prop, bool (*equal)(void *_a, void *_b))
+struct dll_node *dll_find_node_by_property(aoc_ll_head_h _blk, void *_prop, bool (*equal)(void *_a, void *_b))
 {
     bool _found = false;
     if (!_blk || !equal)
@@ -167,13 +167,13 @@ struct ll_node_t *ll_find_node_by_property(aoc_linked_list_handle_t _blk, void *
 }
 
 // TODO: finish this
-void ll_blk_sort(aoc_linked_list_handle_t _blk, ll_compare(*comp))
+void dll_sort(aoc_ll_head_h _blk, ll_compare(*comp))
 {
     LL_FOREACH_P(_node, _blk)
     {
         if (!_node->_next)
             break;
         if (_node == comp(_node, _node->_next))
-            ll_node_permut(_blk, _node, _node->_next);
+            dll_node_permut(_blk, _node, _node->_next);
     }
 }

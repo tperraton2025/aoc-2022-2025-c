@@ -7,21 +7,21 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-struct context_t
+struct context
 {
     int result;
 };
 
-#define CTX_CAST(_p) ((struct context_t *)_p)
+#define CTX_CAST(_p) ((struct context *)_p)
 
 extern size_t score_ind_from_items(char mine, char his);
 
 static int prologue(struct solutionCtrlBlock_t *_blk)
 {
-    _blk->_data = malloc(sizeof(struct context_t));
+    _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
-    memset(_blk->_data, 0, sizeof(struct context_t));
+    memset(_blk->_data, 0, sizeof(struct context));
     CTX_CAST(_blk->_data)->result = 0;
     return 0;
 }
@@ -91,7 +91,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
     free(_blk->_data);
 }
 

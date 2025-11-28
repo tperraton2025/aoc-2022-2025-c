@@ -12,7 +12,7 @@ struct letter_map_t
     char _arr[('z' - 'a') + ('Z' - 'A') + 2];
 };
 
-struct context_t
+struct context
 {
     struct letter_map_t _a[3];
     struct letter_map_t *_p;
@@ -20,7 +20,7 @@ struct context_t
     int result;
 };
 
-#define CTX_CAST(_p) ((struct context_t *)_p)
+#define CTX_CAST(_p) ((struct context *)_p)
 #define TO_LTTR(_c) ((_c % ('z' - 'a' + 1)) + ((_c) > ('z' - 'a') ? 'A' : 'a'))
 
 static void print_arr(struct letter_map_t *_map)
@@ -42,11 +42,11 @@ static void print_arr(struct letter_map_t *_map)
 
 static int prologue(struct solutionCtrlBlock_t *_blk)
 {
-    _blk->_data = malloc(sizeof(struct context_t));
+    _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
-    memset(_blk->_data, 0, sizeof(struct context_t));
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    memset(_blk->_data, 0, sizeof(struct context));
+    struct context *_ctx = CTX_CAST(_blk->_data);
 
     memset(&_ctx->_a[0], 0, sizeof(struct letter_map_t));
     memset(&_ctx->_a[1], 0, sizeof(struct letter_map_t));
@@ -73,7 +73,7 @@ static void populate(struct letter_map_t *_map, const char *_str, const size_t _
 
 static char catchRepeat(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
     bool _caught = false;
     size_t _c = 0;
     for (_c = 0; _c < sizeof(struct letter_map_t); _c++)
@@ -90,7 +90,7 @@ static char catchRepeat(struct solutionCtrlBlock_t *_blk)
 
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data);
 
     memset(_ctx->_p, 0, sizeof(struct letter_map_t));
     size_t _len = strlen(_blk->_str);
@@ -116,7 +116,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
-    struct context_t *_ctx = CAST(struct context_t *, _blk->_data);
+    struct context *_ctx = CAST(struct context *, _blk->_data);
     free(_blk->_data);
 }
 

@@ -5,18 +5,18 @@
 
 void aoc_parser_free(void *_data)
 {
-    aoc_parser_t _pars = CAST(aoc_parser_t, _data);
+    aoc_parser_h _pars = CAST(aoc_parser_h, _data);
     FREE(_pars->_name);
     FREE(_pars);
 }
 
-int aoc_parser_append(aoc_linked_list_handle_t _ll, const aoc_parser_t const _prs)
+int aoc_parser_append(aoc_ll_head_h _ll, const aoc_parser_h const _prs)
 {
     int ret = 0;
     if (!_prs || !_ll)
         return EINVAL;
 
-    aoc_parser_t _nprs = malloc(sizeof(struct parser_t));
+    aoc_parser_h _nprs = malloc(sizeof(struct parser));
     if (!_nprs)
         return ENOMEM;
 
@@ -28,10 +28,9 @@ int aoc_parser_append(aoc_linked_list_handle_t _ll, const aoc_parser_t const _pr
 
     sprintf(_nprs->_name, NAME_FMT, _prs->_name);
 
-    _nprs->_parseRegx = _prs->_parseRegx;
-    _nprs->_arg = _prs->_arg;
+    _nprs->_parseRegx = _prs->_parseRegx; 
 
-    ret = ll_node_append(_ll, NODE_CAST(_nprs));
+    ret = dll_node_append(_ll, NODE_CAST(_nprs));
     if (ret)
         goto error;
 

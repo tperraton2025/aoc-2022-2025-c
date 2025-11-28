@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct ring_buffer_t
+struct ring_buffer
 {
     //   aoc_linked_list_t _items;
     void **_pv_buff;
@@ -15,12 +15,12 @@ struct ring_buffer_t
     size_t _u_arr_dim;
 };
 
-aoc_ring_buffer_t aoc_ring_buffer(size_t _size, size_t _len)
+aoc_ring_buffer_h aoc_ring_buffer(size_t _size, size_t _len)
 {
     if (!_size || !_len)
         return NULL;
 
-    struct ring_buffer_t *_ret = malloc(sizeof(struct ring_buffer_t));
+    struct ring_buffer *_ret = malloc(sizeof(struct ring_buffer));
     if (!_ret)
         return NULL;
 
@@ -55,7 +55,7 @@ error:
         FREE(_ret);
 }
 
-void aoc_ring_buffer_free(aoc_ring_buffer_t _pxRbuf)
+void aoc_ring_buffer_free(aoc_ring_buffer_h _pxRbuf)
 {
     assert(_pxRbuf && "NULL pointer provided");
     FOREACHCELL(_index, _pxRbuf)
@@ -67,7 +67,7 @@ void aoc_ring_buffer_free(aoc_ring_buffer_t _pxRbuf)
     free(_pxRbuf);
 }
 
-int aoc_ring_buffer_send_front(aoc_ring_buffer_t _pxRbuf, void *_item)
+int aoc_ring_buffer_send_front(aoc_ring_buffer_h _pxRbuf, void *_item)
 {
     assert(_pxRbuf && "NULL pointer provided");
     if (!_item)
@@ -83,7 +83,7 @@ int aoc_ring_buffer_send_front(aoc_ring_buffer_t _pxRbuf, void *_item)
     return 0;
 }
 
-int aoc_ring_buffer_send_back(aoc_ring_buffer_t _pxRbuf, void *_item)
+int aoc_ring_buffer_send_back(aoc_ring_buffer_h _pxRbuf, void *_item)
 {
     assert(_pxRbuf && "NULL pointer provided");
 
@@ -100,7 +100,7 @@ int aoc_ring_buffer_send_back(aoc_ring_buffer_t _pxRbuf, void *_item)
     return 0;
 }
 
-int aoc_ring_buffer_receive_front(aoc_ring_buffer_t _pxRbuf, void *_item)
+int aoc_ring_buffer_receive_front(aoc_ring_buffer_h _pxRbuf, void *_item)
 {
     assert(_pxRbuf && "NULL pointer provided");
     assert(_item && "NULL pointer provided");
@@ -114,7 +114,7 @@ int aoc_ring_buffer_receive_front(aoc_ring_buffer_t _pxRbuf, void *_item)
     return 0;
 }
 
-int aoc_ring_buffer_receive_back(aoc_ring_buffer_t _pxRbuf, void *_item)
+int aoc_ring_buffer_receive_back(aoc_ring_buffer_h _pxRbuf, void *_item)
 {
     assert(_pxRbuf && "NULL pointer provided");
     if (_pxRbuf->_u_available == _pxRbuf->_u_arr_dim)
@@ -127,16 +127,16 @@ int aoc_ring_buffer_receive_back(aoc_ring_buffer_t _pxRbuf, void *_item)
     return 0;
 }
 
-size_t aoc_ring_buffer_available(aoc_ring_buffer_t _rbuf)
+size_t aoc_ring_buffer_available(aoc_ring_buffer_h _rbuf)
 {
     assert(_rbuf && "NULL pointer provided");
-    struct ring_buffer_t *_rb = (struct ring_buffer_t *)_rbuf;
+    struct ring_buffer *_rb = (struct ring_buffer *)_rbuf;
     return _rb->_u_available;
 }
 
-size_t aoc_ring_buffer_item_size(aoc_ring_buffer_t _rbuf)
+size_t aoc_ring_buffer_item_size(aoc_ring_buffer_h _rbuf)
 {
     assert(_rbuf && "NULL pointer provided");
-    struct ring_buffer_t *_rb = (struct ring_buffer_t *)_rbuf;
+    struct ring_buffer *_rb = (struct ring_buffer *)_rbuf;
     return _rb->_u_cell_dim;
 }

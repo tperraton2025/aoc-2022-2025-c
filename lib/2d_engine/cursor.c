@@ -2,7 +2,7 @@
 #include "engine.h"
 #include <assert.h>
 
-int move_cursor_until(struct engine_t *_eng, AOC_2D_DIR _dir, size_t _steps, coord_t *limit)
+int move_cursor_until(struct ascii_2d_engine *_eng, AOC_2D_DIR _dir, size_t _steps, coord_t *limit)
 {
     int ret = 0;
     switch (_dir)
@@ -34,7 +34,7 @@ int move_cursor_until(struct engine_t *_eng, AOC_2D_DIR _dir, size_t _steps, coo
     return ret;
 }
 
-int move_symbol(aoc_2d_engine_t _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
+int move_symbol(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
 {
     switch (_dir)
     {
@@ -61,7 +61,7 @@ int move_symbol(aoc_2d_engine_t _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _
     return 0;
 }
 
-int is_within_boundaries(aoc_2d_engine_t _eng, coord_t *_pos)
+int is_within_boundaries(aoc_2d_engine_h _eng, coord_t *_pos)
 {
     if (!N_IN_RANGE(_pos->_y, 2, _eng->_boundaries._y))
         return ERANGE;
@@ -70,7 +70,7 @@ int is_within_boundaries(aoc_2d_engine_t _eng, coord_t *_pos)
     return 0;
 }
 
-int move_pos(aoc_2d_engine_t _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
+int move_pos(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
 {
     switch (_dir)
     {
@@ -101,7 +101,7 @@ int move_pos(aoc_2d_engine_t _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir
     return 0;
 }
 
-int put_pos(aoc_2d_engine_t _eng, coord_t *_pos, coord_t *_npos)
+int put_pos(aoc_2d_engine_h _eng, coord_t *_pos, coord_t *_npos)
 {
     int ret = is_within_boundaries(_eng, _npos);
     if (ret)
@@ -113,7 +113,7 @@ int put_pos(aoc_2d_engine_t _eng, coord_t *_pos, coord_t *_npos)
     return 0;
 }
 
-int put_symbol(aoc_2d_engine_t _eng, struct symbol_t *_sym, coord_t *_delta)
+int put_symbol(aoc_2d_engine_h _eng, struct symbol_t *_sym, coord_t *_delta)
 {
     if (!N_IN_RANGE(_delta->_y, 2, _eng->_boundaries._y))
         return ERANGE;
@@ -122,7 +122,7 @@ int put_symbol(aoc_2d_engine_t _eng, struct symbol_t *_sym, coord_t *_delta)
     return 0;
 }
 
-int engine_put_cursor_in_footer_area(struct engine_t *_eng)
+int engine_put_cursor_in_footer_area(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
@@ -131,7 +131,7 @@ int engine_put_cursor_in_footer_area(struct engine_t *_eng)
     return 0;
 }
 
-int engine_cursor_log(struct engine_t *_eng)
+int engine_cursor_log(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
@@ -139,7 +139,7 @@ int engine_cursor_log(struct engine_t *_eng)
     return 0;
 }
 
-int engine_cursor_stats(struct engine_t *_eng)
+int engine_cursor_stats(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
@@ -149,7 +149,7 @@ int engine_cursor_stats(struct engine_t *_eng)
     return 0;
 }
 
-int engine_cursor_user_stats(struct engine_t *_eng)
+int engine_cursor_user_stats(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
@@ -159,7 +159,7 @@ int engine_cursor_user_stats(struct engine_t *_eng)
     return 0;
 }
 
-int engine_cursor_private_next_stats(struct engine_t *_eng)
+int engine_cursor_private_next_stats(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
@@ -169,7 +169,7 @@ int engine_cursor_private_next_stats(struct engine_t *_eng)
     return 0;
 }
 
-int engine_cursor_user_next_stats(struct engine_t *_eng)
+int engine_cursor_user_next_stats(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
@@ -183,7 +183,7 @@ int engine_cursor_user_next_stats(struct engine_t *_eng)
     return 0;
 }
 
-int engine_cursor_exit_drawing_area(struct engine_t *_eng)
+int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;

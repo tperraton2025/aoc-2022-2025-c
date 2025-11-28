@@ -11,39 +11,39 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-struct context_t
+struct context
 {
-    aoc_2d_engine_t _eng;
-    aoc_2d_object_t _grippedBox;
+    aoc_2d_engine_h _eng;
+    aoc_2d_object_h _grippedBox;
     coord_t _pos;
-    struct ll_context_t _cmds;
+    struct dll_head _cmds;
     char* spelling;
     int result;
 };
  
 
-#define CTX_CAST(_p) ((struct context_t *)_p)
+#define CTX_CAST(_p) ((struct context *)_p)
 
-static int parse_all(aoc_context_t _ctx, char *_str);
-static int block_parser(aoc_context_t _ctx, char *_str);
-static int command_parser(aoc_context_t _ctx, char *_str);
+static int parse_all(aoc_context_h _ctx, char *_str);
+static int block_parser(aoc_context_h _ctx, char *_str);
+static int command_parser(aoc_context_h _ctx, char *_str);
 
-static int crate_lift(aoc_context_t _ctx, command_t *_cmd);
-static int crate_change_lane(aoc_context_t _ctx, command_t *_cmd);
-static int crate_deposit(aoc_context_t _ctx, command_t *_cmd);
-static int crane_action(aoc_context_t _ctx);
+static int crate_lift(aoc_context_h _ctx, command_t *_cmd);
+static int crate_change_lane(aoc_context_h _ctx, command_t *_cmd);
+static int crate_deposit(aoc_context_h _ctx, command_t *_cmd);
+static int crane_action(aoc_context_h _ctx);
 
 static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk);
 
-static struct parser_t _block = {._name = "block", ._parseRegx = "[%c]", ._func = block_parser};
-static struct parser_t _cmd = {._name = "command", ._parseRegx = "move %d from %d to %d", ._func = command_parser};
-static struct parser_t *_parsers[] = {&_block, &_cmd};
+static struct parser _block = {._name = "block", ._parseRegx = "[%c]", ._func = block_parser};
+static struct parser _cmd = {._name = "command", ._parseRegx = "move %d from %d to %d", ._func = command_parser};
+static struct parser *_parsers[] = {&_block, &_cmd};
 
-static int parse_all(aoc_context_t _ctx, char *_str)
+static int parse_all(aoc_context_h _ctx, char *_str)
 {
     for (size_t _ii = 0; _ii < ARRAY_DIM(_parsers); _ii++)
     {
-        struct parser_t *_prs = CAST(struct parser_t *, _parsers[_ii]);
+        struct parser *_prs = CAST(struct parser *, _parsers[_ii]);
         _prs->_parsed += _prs->_func(_ctx, _str);
         if (!_prs->_parsed)
             break;
@@ -52,7 +52,7 @@ static int parse_all(aoc_context_t _ctx, char *_str)
 }
  
 
-static int block_parser(aoc_context_t _ctx, char *_str)
+static int block_parser(aoc_context_h _ctx, char *_str)
 {
     int match = 0;
     int ret = 0;
@@ -72,7 +72,7 @@ static int block_parser(aoc_context_t _ctx, char *_str)
             continue;
         if (N_IN_RANGE(_buf[1], 'A', 'Z'))
         {
-            aoc_2d_object_t _nobj = eng_obj_create(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_PROPERTY_MOBILE);
+            aoc_2d_object_h _nobj = eng_obj_create(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_PROPERTY_MOBILE);
             ret = aoc_engine_append_obj(_ctx->_eng, _nobj);
             if (ret)
                 break;
@@ -83,7 +83,7 @@ static int block_parser(aoc_context_t _ctx, char *_str)
     return match ? 0 : -1;
 }
 
-static int command_parser(aoc_context_t _ctx, char *_str)
+static int command_parser(aoc_context_h _ctx, char *_str)
 {
     int match = 0;
     int ret = 0;
@@ -94,7 +94,7 @@ static int command_parser(aoc_context_t _ctx, char *_str)
         command_t *_pnc = command_ctor(&_nc);
         if (!_pnc)
             return ENOMEM;
-        ret = ll_node_append(&_ctx->_cmds, CAST(struct ll_node_t *, _pnc));
+        ret = dll_node_append(&_ctx->_cmds, CAST(struct dll_node *, _pnc));
         if (ret)
         {
             free(_pnc);

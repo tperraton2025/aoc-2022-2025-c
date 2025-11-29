@@ -25,12 +25,14 @@ set_target_properties(
 
 add_definitions(-DCONFIG_DAY="${ProjectId}")
 
-# TODO commented until complete unit tests include(CTest) add_test(NAME
-# ${ProjectId}test COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-# "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
-# add_test(NAME ${ProjectId}input COMMAND
-# "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}" "./data/input.txt" --exe
-# "${ProjectId}test")
-#
-# add_aoc_day_test_regex(${ProjectId}test "0" "0")
-# add_aoc_day_test_regex(${ProjectId}input "0" "0")
+include(CTest)
+add_test(
+  NAME ${ProjectId}test
+  COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
+add_test(NAME ${ProjectId}input
+         COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+                 "./data/input.txt" --exe "${ProjectId}test")
+
+add_aoc_day_test_regex(${ProjectId}test "95437" "24933642")
+add_aoc_day_test_regex(${ProjectId}input "1749646" "1498966")

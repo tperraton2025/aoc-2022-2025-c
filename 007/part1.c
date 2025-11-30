@@ -152,8 +152,8 @@ static int parse_all(aoc_context_h _ctx, char *_str)
 static int command_parser(aoc_context_h _ctx, char *_str)
 {
     int match = 0;
-    char _cmd[16] = {0};
-    char _arg[16] = {0};
+    char _cmd[MAX_NAME_LEN_AS_USIZE + 1] = {0};
+    char _arg[MAX_NAME_LEN_AS_USIZE + 1] = {0};
 
     if (sscanf(_str, "$ %" MAX_NAME_LEN_AS_STR "s %" MAX_NAME_LEN_AS_STR "s", _cmd, _arg) > 0)
     {

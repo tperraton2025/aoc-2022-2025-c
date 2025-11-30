@@ -19,7 +19,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     coord_t _reso = {3, 1};
     coord_t _spce = {1, 0};
-    _ctx->_eng = engine_create(_reso, _spce, '~');
+    _ctx->_eng = engine_create(_reso, _spce, '~', 0);
     if (_ctx->_eng)
         goto success;
     goto cleanup;

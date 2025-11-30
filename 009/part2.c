@@ -91,7 +91,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     coord_t resolution = {._x = 1, ._y = 1};
     coord_t spaceing = {._x = 1, ._y = 1};
-    _ctx->_eng = engine_create(resolution, spaceing, '.');
+    _ctx->_eng = engine_create(resolution, spaceing, '.', 0);
     engine_deactivate_drawing(_ctx->_eng);
 
     _ctx->_head = NULL;

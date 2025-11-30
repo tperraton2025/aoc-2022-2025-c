@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#include <time.h>
 #include <semaphore.h>
 #include <sys/stat.h>
 #include <pthread.h>
@@ -22,66 +23,62 @@ typedef enum
 {
     QUEUE_MSG_INPUT = 0,
     QUEUE_MSG_KILL,
+    QUEUE_MSG_KEYB,
     QUEUE_MSG_MAX
-} queue_msg_type_enum_t;
+} evt_e;
 
 #define MQ_MSG_MAX_SIZE (32)
 
 typedef struct
 {
-    queue_msg_type_enum_t _eType;
+    evt_e _eType;
     void *_vData;
 } queue_msg_t;
 
 typedef struct
 {
-    int _ret;
-    void *_arg;
-} thead_data_t;
-
-typedef struct
-{
-    mqd_t _iMqueue;
-    char *_sName;
+    mqd_t _mqid;
+    char *_mqname;
     struct mq_attr _attr;
-    mode_t _xMode;
-} _hQueue_t;
+    mode_t _xmode;
+} queue_t;
+
+typedef queue_t *queue_h;
 
 typedef struct
 {
     pthread_t _thr;
-    _hQueue_t _xQueue;
-    aoc_2d_engine_h _eng;
-    aoc_2d_object_h _cur;
+    struct timespec _timespec;
+    aoc_2d_engine_h _eng_h;
+    aoc_2d_object_h _cur_h;
     struct dll_head _objects_ll;
     int _iRet;
-} graphics_t;
+} gfx_task_t;
 
 typedef struct
 {
     pthread_t _thr;
-    _hQueue_t _xQueue;
+    struct timespec _timespec;
     aoc_ring_buffer_h _pxInputCharBuffer;
     struct dll_head _inputs_ll;
     int _iRet;
-} inputs_t;
+} keyb_task_t;
 
 struct context
 {
-    graphics_t _graphics;
-    inputs_t _inputs;
-    _hQueue_t *_hMqueues[8];
-    sem_t *_tasks_sem;
-    size_t _hMq_top;
-    int result;
+    pthread_t _threads[2];
+    gfx_task_t _gfxtask;
+    keyb_task_t _inputstask;
+    int _result;
 };
 
 #define CTX_CAST(_p) ((struct context *)_p)
-#define GRP_CAST(_p) ((graphics_t *)_p)
-#define INP_CAST(_p) ((inputs_t *)_p)
+#define GFX_CAST(_p) ((gfx_task_t *)_p)
+#define KEYB_CAST(_p) ((keyb_task_t *)_p)
 #define THR_CAST(_p) ((thead_data_t *)_p)
 
-#define MOV_CAST(_p) ((movement_t *)_p)
+#define THREAD_OF(_tsk_) (_ctx->_tsk_._thr)
+
 #define MAP_MID_SIZE (16)
 
 #define MQ_NAME_SIZE_UINT (8)

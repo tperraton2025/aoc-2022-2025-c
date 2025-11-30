@@ -1,89 +1,13 @@
-#include <aoc_helpers.h>
-#include <aoc_2d_engine.h>
-#include <aoc_input.h>
-#include <aoc_iterator.h>
-#include <aoc_threads_helpers.h>
-#include <aoc_ring_buffer.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdbool.h>
-#include <unistd.h>
+#include "part1.h"
+#include <termios.h>
 
-#include <sys/stat.h>
-#include <pthread.h>
-#include <mqueue.h>
-#include <signal.h>
+static pthread_t _threads[2] = {0};
+static sem_t _tasks_start_sem;
+static sem_t _tasks_kill_sem;
+static queue_t _evtqueue;
 
-typedef enum
-{
-    QUEUE_MSG_INPUT = 0,
-    QUEUE_MSG_KILL,
-    QUEUE_MSG_MAX
-} queue_msg_type_enum_t;
-
-#define MQ_MSG_MAX_SIZE (32)
-
-typedef struct
-{
-    queue_msg_type_enum_t _eType;
-    void *_vData;
-} queue_msg_t;
-
-typedef struct
-{
-    int _ret;
-    void *_arg;
-} thead_data_t;
-
-typedef struct
-{
-    mqd_t _iMqueue;
-    char *_sName;
-    struct mq_attr _attr;
-    mode_t _xMode;
-} _hQueue_t;
-
-typedef struct
-{
-    pthread_t _thr;
-    _hQueue_t _xQueue;
-    aoc_2d_engine_h _eng;
-    aoc_2d_object_h _cur;
-    struct dll_head _objects_ll;
-    int _iRet;
-} graphics_t;
-
-typedef struct
-{
-    pthread_t _thr;
-    _hQueue_t _xQueue;
-    aoc_ring_buffer_h _pxInputCharBuffer;
-    struct dll_head _inputs_ll;
-    int _iRet;
-} inputs_t;
-
-struct context
-{
-    graphics_t _graphics;
-    inputs_t _inputs;
-    _hQueue_t *_hMqueues[8];
-    size_t _hMq_top;
-    int result;
-};
-
-#define CTX_CAST(_p) ((struct context *)_p)
-#define GRP_CAST(_p) ((graphics_t *)_p)
-#define INP_CAST(_p) ((inputs_t *)_p)
-#define THR_CAST(_p) ((thead_data_t *)_p)
-
-#define MOV_CAST(_p) ((movement_t *)_p)
-#define MAP_MID_SIZE (16)
-
-#define MQ_NAME_SIZE_UINT (8)
-#define MQ_NAME_SIZE_FMT "16"
+#define EVT_QUEUE_LEN (256)
+#define EVT_SIZE_IN_BYTES (1)
 
 static struct solutionCtrlBlock_t privPart1;
 void *graphics_routine(void *args);
@@ -94,74 +18,75 @@ void sig_int_handler(int args)
     struct context *_ctx = CTX_CAST(privPart1._data);
     aoc_warn("received signal %s", strsignal(args));
 
-    if (SIGINT | SIGKILL | SIGABRT | SIGSTOP | SIGTSTP & args)
+    if (SIGINT & args)
     {
-        FOREACH_P_NONNULL(_ii, _ctx->_hMqueues)
+        for (size_t _itask = 0; _itask < 2; _itask++)
         {
-            _hQueue_t *_hmq = _ctx->_hMqueues[_ii];
-            queue_msg_t _xIntMsg = {._eType = QUEUE_MSG_KILL, ._vData = NULL};
-            char *_pcIntMsg = (char *)&_xIntMsg;
-
-            if (_hmq->_iMqueue)
-            {
-                int ret = mq_send(_hmq->_iMqueue, _pcIntMsg, sizeof(queue_msg_t), 1);
-                if (ret)
-                    aoc_warn("%s: mq_send %i: %s", _hmq->_sName, ret, strerror(ret));
-            }
+            sem_post(&_tasks_kill_sem);
         }
     }
 }
 
-void queue_setup(struct context *_ctx, _hQueue_t *_pxQueue, const char *_name)
+static void queue_setup(queue_h mq_h, const char *_name, size_t mqlen, size_t msgsize)
 {
-    size_t len = strnlen(_name, MQ_NAME_SIZE_UINT);
-    _pxQueue->_sName = malloc(len + 1);
-    snprintf(_pxQueue->_sName, MQ_NAME_SIZE_UINT, "%s", _name);
-    printf("%s\n", _pxQueue->_sName);
-    _pxQueue->_xMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-    _pxQueue->_attr.mq_curmsgs = 0;
-    _pxQueue->_attr.mq_flags = 0;
-    _pxQueue->_attr.mq_maxmsg = 10;
-    _pxQueue->_attr.mq_msgsize = sizeof(queue_msg_t);
+    size_t _namelen = strnlen(_name, MQ_NAME_SIZE_UINT);
+    mq_h->_mqname = malloc(_namelen + 1);
+    snprintf(mq_h->_mqname, MQ_NAME_SIZE_UINT, "%s", _name);
+    mq_h->_xmode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+    mq_h->_attr.mq_curmsgs = 0;
+    mq_h->_attr.mq_flags = 0;
+    mq_h->_attr.mq_maxmsg = mqlen;
+    mq_h->_attr.mq_msgsize = msgsize;
 
-    _ctx->_hMqueues[_ctx->_hMq_top++] = _pxQueue;
+    mq_h->_mqid = mq_open(mq_h->_mqname, O_RDWR | O_NONBLOCK | O_CREAT, mq_h->_xmode, &mq_h->_attr);
 }
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    int ret = 1;
+    int _ret = 1;
     _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
     struct context *_ctx = CTX_CAST(_blk->_data);
     memset(_ctx, 0, sizeof(struct context));
 
-    _ctx->result = 0;
+    _ctx->_result = 0; 
 
-    queue_setup(_ctx, &_ctx->_graphics._xQueue, "/grap_mq");
-    queue_setup(_ctx, &_ctx->_inputs._xQueue, "/input_mq");
+    _ret = sem_init(&_tasks_start_sem, 0, 0);
+    if (_ret)
+        goto error;
 
-    pthread_create(&_ctx->_graphics._thr, NULL, graphics_routine, &_ctx->_graphics);
-    pthread_create(&_ctx->_inputs._thr, NULL, inputs_routine, &_ctx->_inputs);
+    _ret = sem_init(&_tasks_kill_sem, 0, 0);
+    if (_ret)
+        goto error;
 
     signal(SIGINT, sig_int_handler);
-    signal(SIGKILL, sig_int_handler);
-    signal(SIGABRT, sig_int_handler);
-    signal(SIGSTOP, sig_int_handler);
-    signal(SIGTSTP, sig_int_handler);
+    queue_setup(&_evtqueue, "/inmq", EVT_QUEUE_LEN, EVT_SIZE_IN_BYTES);
 
-    pthread_join(_ctx->_graphics._thr, NULL);
-    pthread_join(_ctx->_inputs._thr, NULL);
+    for (size_t i = 0; i < 1; i++)
+    {
+        /* code */
+    }
+    
+    pthread_create(&THREAD_OF(_gfxtask), NULL, graphics_routine, &_ctx->_gfxtask);
+    pthread_create(&THREAD_OF(_inputstask), NULL, inputs_routine, &_ctx->_inputstask);
 
-    free(_ctx->_graphics._xQueue._sName);
-    free(_ctx->_inputs._xQueue._sName);
-    mq_close(_ctx->_graphics._xQueue._iMqueue);
-    mq_close(_ctx->_inputs._xQueue._iMqueue);
+    for (size_t _itask = 0; _itask < ARRAY_DIM(_threads); _itask++)
+    {
+        sem_post(&_tasks_start_sem);
+    }
+
+    pthread_join(_ctx->_gfxtask._thr, NULL);
+    pthread_join(_ctx->_inputstask._thr, NULL);
+
+    sem_destroy(&_tasks_start_sem);
+    sem_destroy(&_tasks_kill_sem);
+    free(_evtqueue._mqname);
     return 0;
 
 error:
     free(_blk->_data);
-    return ret;
+    return _ret;
 }
 
 static int handler(struct solutionCtrlBlock_t *_blk)
@@ -179,107 +104,159 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 void *graphics_routine(void *args)
 {
-    graphics_t *_grp = GRP_CAST(args);
+    gfx_task_t *_gfxtask = GFX_CAST(args);
 
     coord_t resolution = {._x = 1, ._y = 1};
-    coord_t spaceing = {._x = 1, ._y = 1};
+    coord_t spaceing = {._x = 0, ._y = 0};
 
-    ALLOCATE_AND_RETURN_IF_NULL(_grp->_eng, engine_create(resolution, spaceing, '.'),
-                                _grp->_iRet,
+    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, engine_create(resolution, spaceing, '.', 0),
+                                _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
 
-    dll_head_init(&_grp->_objects_ll);
+    dll_head_init(&_gfxtask->_objects_ll);
 
-    aoc_engine_resize_one_direction(_grp->_eng, MAP_MID_SIZE, AOC_DIR_RIGHT);
-    aoc_engine_resize_one_direction(_grp->_eng, MAP_MID_SIZE, AOC_DIR_LEFT);
-    aoc_engine_resize_one_direction(_grp->_eng, MAP_MID_SIZE, AOC_DIR_UP);
-    aoc_engine_resize_one_direction(_grp->_eng, MAP_MID_SIZE, AOC_DIR_DOWN);
+    aoc_engine_resize_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_DIR_RIGHT);
+    aoc_engine_resize_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_DIR_LEFT);
+    aoc_engine_resize_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_DIR_UP);
+    aoc_engine_resize_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_DIR_DOWN);
 
-    ALLOCATE_AND_RETURN_IF_NULL(_grp->_cur,
-                                eng_obj_create(_grp->_eng, "cursor", NULL, "H", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE),
-                                _grp->_iRet,
+    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_cur_h,
+                                eng_obj_create(_gfxtask->_eng_h, "cursor", NULL, "H", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE),
+                                _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
 
-    ASSIGN_AND_RETURN_IF_NOT_0(_grp->_iRet,
-                               aoc_engine_append_obj(_grp->_eng, _grp->_cur),
+    ASSIGN_AND_RETURN_IF_NOT_0(_gfxtask->_iRet,
+                               aoc_engine_append_obj(_gfxtask->_eng_h, _gfxtask->_cur_h),
                                free_object);
 
-    _hQueue_t *_hMq = &_grp->_xQueue;
-
-    _hMq->_iMqueue = mq_open(_hMq->_sName, O_RDWR | O_NONBLOCK | O_CREAT, _hMq->_xMode, &_hMq->_attr);
-    if (0 > _hMq->_iMqueue)
-        goto exit;
-
-    engine_deactivate_drawing(_grp->_eng);
-    // engine_draw(_grp->_eng);
-    usleep(100 * 1000);
+    engine_draw(_gfxtask->_eng_h);
 
     char _cMsgQueueBuffer[sizeof(queue_msg_t) + 1] = {0};
-    int mq_ret = mq_receive(_hMq->_iMqueue, _cMsgQueueBuffer, sizeof(_cMsgQueueBuffer), NULL);
-    while (!_cMsgQueueBuffer[0])
+
+    int keystrokeprio = 1;
+    int _ret = sem_wait(&_tasks_start_sem);
+
+    int mq_ret = mq_receive(_evtqueue._mqid, _cMsgQueueBuffer, 1, &keystrokeprio);
+
+
+    while (sem_trywait(&_tasks_kill_sem))
     {
-        usleep(100 * 1000);
-        _cMsgQueueBuffer[0] = 'c';
-        mq_ret = mq_receive(_hMq->_iMqueue, _cMsgQueueBuffer, sizeof(_cMsgQueueBuffer), NULL);
+        mq_ret = mq_receive(_evtqueue._mqid, _cMsgQueueBuffer, 1, NULL);
+        if (mq_ret > 0)
+        {
+            if (AOC_DIR_UP == _cMsgQueueBuffer[0])
+            {
+                sprintf(_cMsgQueueBuffer, "UP");
+                aoc_engine_move_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1, AOC_DIR_UP);
+            }
+            else if (AOC_DIR_DOWN == _cMsgQueueBuffer[0])
+            {
+                sprintf(_cMsgQueueBuffer, "DOWN");
+                aoc_engine_move_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1, AOC_DIR_DOWN);
+            }
+            else if (AOC_DIR_RIGHT == _cMsgQueueBuffer[0])
+            {
+                sprintf(_cMsgQueueBuffer, "RIGHT");
+                aoc_engine_move_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1, AOC_DIR_LEFT);
+            }
+            else if (AOC_DIR_LEFT == _cMsgQueueBuffer[0])
+            {
+                sprintf(_cMsgQueueBuffer, "LEFT");
+                aoc_engine_move_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1, AOC_DIR_RIGHT);
+            }
+            aoc_engine_prompt(_gfxtask->_eng_h, 0, 2, "got mq", _cMsgQueueBuffer);
+            printf("\n");
+            mq_ret = 0;
+        }
+        usleep(5 * 1000);
     }
+
     goto exit;
 
 free_object:
-    if (_grp->_cur)
-        eng_obj_free(_grp->_cur);
+    if (_gfxtask->_cur_h)
+        eng_obj_free(_gfxtask->_cur_h);
 exit:
-    mq_unlink(_hMq->_sName);
-    if (_grp->_eng)
-        engine_free(_grp->_eng);
+    mq_unlink(_evtqueue._mqname);
+    if (_gfxtask->_eng_h)
+        engine_free(_gfxtask->_eng_h);
 
-    aoc_info("%s exited normally" RESET, __func__);
+    mq_close(_evtqueue._mqid);
+    aoc_info("%s exited with code: %i (%s)" RESET, __func__, _ret, strerror(_ret));
     pthread_exit(NULL);
+}
+
+void set_termios()
+{
+    struct termios term;
+    tcgetattr(fileno(stdin), &term);
+    term.c_lflag &= ~(ECHO | ICANON);
+    tcsetattr(fileno(stdin), 0, &term);
+}
+
+void restore_termios()
+{
+    struct termios term;
+    tcgetattr(fileno(stdin), &term);
+    term.c_lflag |= (ECHO | ICANON);
+    tcsetattr(fileno(stdin), 0, &term);
 }
 
 void *inputs_routine(void *args)
 {
-    inputs_t *_inp = INP_CAST(args);
+    set_termios();
+    atexit(restore_termios);
 
-    fcntl(stdin->_fileno, F_SETFL, O_NONBLOCK);
+    keyb_task_t *_inp = KEYB_CAST(args);
+    int _ret = fcntl(0, F_SETFL, fcntl(0, F_GETFL) | O_NONBLOCK);
+    if (_ret)
+        goto error;
 
     char _cByte = ' ';
     _inp->_pxInputCharBuffer = aoc_ring_buffer(sizeof(char), 64);
-    _hQueue_t *_hMq = &_inp->_xQueue;
+    _ret = sem_wait(&_tasks_start_sem);
 
-    _hMq->_iMqueue = mq_open(_hMq->_sName, O_RDWR | O_NONBLOCK | O_CREAT, _hMq->_xMode, &_hMq->_attr);
-    if (0 > _hMq->_iMqueue)
-        goto error;
-
-    usleep(100 * 1000);
-
-    char _cMsgQueueBuffer[sizeof(queue_msg_t) + 1] = {0};
-    int mq_ret = mq_receive(_hMq->_iMqueue, _cMsgQueueBuffer, sizeof(_cMsgQueueBuffer), NULL);
-
-    bool _bMustQuit = false;
-    while (!_cMsgQueueBuffer[0])
+    char _nchar[5] = {0};
+    while (sem_trywait(&_tasks_kill_sem))
     {
-        usleep(10 * 1000);
-        char c[16] = {0};
-        _cMsgQueueBuffer[0] = 'c';
-        char cret = 0;
-        read(stdin->_fileno, &cret, 1);
-        if (cret)
+        int _char_cnt = 0;
+        _char_cnt = read(0, _nchar, 3);
+        if (_char_cnt == 3)
         {
-            printf(RED "%c" RESET, cret);
-            cret = 0;
+            if (0 == strncmp("\e[A", _nchar, 3))
+            {
+                char _msg = AOC_DIR_UP;
+                mq_send(_evtqueue._mqid, &_msg, 1, 0);
+            }
+            else if (0 == strncmp("\e[B", _nchar, 3))
+            {
+                char _msg = AOC_DIR_DOWN;
+                mq_send(_evtqueue._mqid, &_msg, 1, 0);
+            }
+            else if (0 == strncmp("\e[C", _nchar, 3))
+            {
+                char _msg = AOC_DIR_LEFT;
+                mq_send(_evtqueue._mqid, &_msg, 1, 0);
+            }
+            else if (0 == strncmp("\e[D", _nchar, 3))
+            {
+                char _msg = AOC_DIR_RIGHT;
+                mq_send(_evtqueue._mqid, &_msg, 1, 0);
+            }
         }
-        mq_ret = mq_receive(_hMq->_iMqueue, _cMsgQueueBuffer, sizeof(_cMsgQueueBuffer), NULL);
+        usleep(100 * 1000);
     }
 
 error:
-    if (0 < _hMq->_iMqueue)
-        mq_unlink(_hMq->_sName);
+    if (0 < _evtqueue._mqid)
+        mq_unlink(_evtqueue._mqname);
     if (_inp->_pxInputCharBuffer)
         aoc_ring_buffer_free(_inp->_pxInputCharBuffer);
 
-    aoc_info("%s exited normally" RESET, __func__);
+    mq_close(_evtqueue._mqid);
+    aoc_info("%s exited with code: %i (%s)" RESET, __func__, _ret, strerror(_ret));
     pthread_exit(NULL);
 }
 

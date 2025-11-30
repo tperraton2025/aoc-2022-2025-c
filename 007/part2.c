@@ -50,7 +50,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
     get_mem(&_ctx->_root->path);
-    // aoc_tree_foreach_node(&_ctx->_root->path, ls); 
+    // aoc_tree_foreach_node(&_ctx->_root->path, ls);
 
     size_t available_mem = 70000000 - _ctx->_root->size;
     size_t mem_to_free = available_mem < 30000000 ? 30000000 - available_mem : 0;
@@ -78,8 +78,8 @@ struct solutionCtrlBlock_t *part2 = &privPart2;
 static int command_parser(aoc_context_h _ctx, char *_str)
 {
     int match = 0;
-    char _cmd[16] = {0};
-    char _arg[16] = {0};
+    char _cmd[MAX_NAME_LEN_AS_USIZE + 1] = {0};
+    char _arg[MAX_NAME_LEN_AS_USIZE + 1] = {0};
 
     if (sscanf(_str, "$ %" MAX_NAME_LEN_AS_STR "s %" MAX_NAME_LEN_AS_STR "s", _cmd, _arg) > 0)
     {

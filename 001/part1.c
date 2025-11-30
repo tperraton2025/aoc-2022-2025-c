@@ -1,34 +1,34 @@
 #include <aoc_helpers.h>
 #include <aoc_linked_list.h>
+#include <aoc_ranges.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
 
-struct elfCal_t
+typedef struct elfCal
 {
-    LL_DECLARE(elfCal_t)
+    struct dll_node _node;
     char *_name;
     int _count;
     int _calories;
-};
+} elfCal_t;
 
-struct data_t
+typedef struct context
 {
-    struct elfCal_t *_first;
-    struct elfCal_t *_current;
+    aoc_ll_head_t _head;
     int _maxCalories;
-};
+} context_t;
 
-LL_CTOR(elfCal_t, elfNodeCtor);
+DLL_CTOR(elfCal_t, elfNodeCtor);
 
-static struct elfCal_t *elfCtor(struct elfCal_t *_prev)
+static elfCal_t *elfCtor(aoc_ll_head_h head)
 {
-    struct elfCal_t *_ret = elfNodeCtor(_prev);
+    elfCal_t *_ret = elfNodeCtor(head);
     if (!_ret)
         return NULL;
-    _ret->_count = _prev ? _prev->_count + 1 : 0;
+    _ret->_count = aoc_dll_size(head);
     _ret->_calories = 0;
     _ret->_name = malloc(sizeof("elfo 999"));
     if (!_ret->_name)
@@ -41,72 +41,50 @@ static struct elfCal_t *elfCtor(struct elfCal_t *_prev)
     return _ret;
 }
 
-static void freeElf(struct elfCal_t *_elf)
+static void freeElf(void *arg)
 {
-    assert(_elf);
-    assert(_elf->_name);
-    FREE(_elf->_name);
-    FREE(_elf);
-}
-
-static void freeAllElves(struct elfCal_t *_first)
-{
-    if (!_first)
-        return;
-    struct elfCal_t *_elf = _first;
-    struct elfCal_t *_next = _elf->_prev;
-    assert(_elf);
-    assert(_next);
-    while (_elf)
-    {
-        _next = _elf->_prev;
-        freeElf(_elf);
-        _elf = _next;
-    }
+    elfCal_t *_elf = CAST(elfCal_t *, arg);
+    if (_elf->_name)
+        FREE(_elf->_name);
+    if (_elf)
+        FREE(_elf);
 }
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    _blk->_data = malloc(sizeof(struct data_t));
-    if (!_blk->_data)
+    _blk->_data = malloc(sizeof(context_t));
+    context_t *_ctx = CAST(context_t *, _blk->_data);
+    if (!_ctx)
         return ENOMEM;
-    memset(_blk->_data, 0, sizeof(struct data_t));
-    struct data_t *_pd = CAST(struct data_t *, _blk->_data);
-    _pd->_first = elfCtor(NULL);
-    if (!_pd->_first)
-    {
-        free(_blk->_data);
-        return ENOMEM;
-    }
-    _pd->_current = _pd->_first;
+    memset(_ctx, 0, sizeof(context_t));
+
+    dll_head_init(&_ctx->_head);
+    elfCtor(&_ctx->_head);
     return 0;
 }
 
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
-    struct data_t *_pdata = CAST(struct data_t *, _blk->_data);
-    struct elfCal_t *_p_last_elf = CAST(struct elfCal_t *, _pdata->_current);
+    context_t *_ctx = CAST(context_t *, _blk->_data);
+    elfCal_t *_lastelf = CAST(elfCal_t *, _ctx->_head._last);
 
     int _cal = 0;
     if (sscanf(_blk->_str, "%d\n", &_cal))
         if (_cal)
         {
-            _p_last_elf->_calories += _cal;
-            _pdata->_maxCalories = _p_last_elf->_calories > _pdata->_maxCalories ? _p_last_elf->_calories : _pdata->_maxCalories;
+            _lastelf->_calories += _cal;
+            _ctx->_maxCalories = HIGHEST(_lastelf->_calories, _ctx->_maxCalories);
         }
         else
         {
-            _p_last_elf->_next = elfCtor(_p_last_elf);
-            if (!_p_last_elf->_next)
-                return ENOMEM;
-            _pdata->_current = _p_last_elf->_next;
+            elfCtor(&_ctx->_head);
         }
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct data_t *_data = CAST(struct data_t *, _blk->_data);
+    context_t *_data = CAST(context_t *, _blk->_data);
     int result = _data->_maxCalories;
     aoc_ans("AOC 2022 %s solution is %d", _blk->_name, result);
     return result;
@@ -114,9 +92,9 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
-    struct data_t *_data = CAST(struct data_t *, _blk->_data);
+    context_t *_ctx = CAST(context_t *, _blk->_data);
 
-    freeAllElves(_data->_current);
+    dll_free_all(&_ctx->_head, freeElf);
     free(_blk->_data);
 }
 

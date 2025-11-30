@@ -18,6 +18,7 @@ struct dll_head
 };
 
 typedef struct dll_head *aoc_ll_head_h;
+typedef struct dll_head aoc_ll_head_t;
 
 struct dll_node
 {
@@ -36,12 +37,12 @@ typedef struct dll_node *(dll_compare)(struct dll_node * _a, struct dll_node *_b
 
 typedef struct string_dll_node *string_dll_node_h;
 
-void dll_head_init(aoc_ll_head_h _blk);
-void dll_sort(aoc_ll_head_h _blk, dll_compare(*comp));
-void dll_free_all(aoc_ll_head_h _blk, void (*_caller)(void *_data));
+void dll_head_init(aoc_ll_head_h head);
+void dll_sort(aoc_ll_head_h head, dll_compare(*comp));
+void dll_free_all(aoc_ll_head_h head, void (*_caller)(void *_data));
 
-int dll_node_append(aoc_ll_head_h _blk, struct dll_node *_new);
-int dll_find_node(aoc_ll_head_h _blk, struct dll_node *_a);
+int dll_node_append(aoc_ll_head_h head, struct dll_node *_new);
+int dll_find_node(aoc_ll_head_h head, struct dll_node *_a);
 int dll_node_sorted_insert(aoc_ll_head_h head, struct dll_node *_new, dll_compare sort);
 
 void dll_node_permut(aoc_ll_head_h head, struct dll_node *_a, struct dll_node *_b);
@@ -49,23 +50,23 @@ void dll_node_insert(aoc_ll_head_h head, struct dll_node *_a, struct dll_node *_
 void dll_node_disconnect(aoc_ll_head_h head, struct dll_node *_a);
 
 size_t aoc_dll_size(aoc_ll_head_h head);
-size_t dll_count_nodes_by_property(aoc_ll_head_h _blk, void *_prop, bool (*equal)(void *_a, void *_b));
+size_t dll_count_nodes_by_property(aoc_ll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b));
 
-struct dll_node *dll_find_node_by_property(aoc_ll_head_h _blk, void *_prop, bool (*equal)(void *_a, void *_b));
+struct dll_node *dll_find_node_by_property(aoc_ll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b));
 
-#define LL_DECLARE(_type) \
-    struct _type *_prev;  \
-    struct _type *_next;
+#define DLL_DECLARE(_type) \
+    struct dll_node _node;
 
-#define LL_CTOR(_type, _name)                              \
-    static struct _type *_name(struct _type *_prev)        \
-    {                                                      \
-        struct _type *_ret = malloc(sizeof(struct _type)); \
-        _ret->_prev = _prev;                               \
-        if (_prev)                                         \
-            _prev->_next = _ret;                           \
-        _ret->_next = NULL;                                \
-        return _ret;                                       \
+#define DLL_CTOR(_type, _name)               \
+    static _type *_name(aoc_ll_head_h head)  \
+    {                                        \
+        _type *_ret = malloc(sizeof(_type)); \
+        if (!_ret)                           \
+            return NULL;                     \
+        dll_node_append(head, &_ret->_node); \
+        _ret->_node._prev = NULL;            \
+        _ret->_node._next = NULL;            \
+        return _ret;                         \
     }
 
 #define LL_FOREACH_P_EXT(_it, _head_h)                         \
@@ -94,7 +95,7 @@ struct dll_node *dll_find_node_by_property(aoc_ll_head_h _blk, void *_prop, bool
     struct dll_node *_it;          \
     LL_FOREACH_LAST_EXT(_it, _blk)
 
-void string_dll_free(void* string);
+void string_dll_free(void *string);
 
 string_dll_node_h string_dll(const char *const name);
 

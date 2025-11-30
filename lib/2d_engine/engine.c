@@ -12,7 +12,7 @@ void engine_free(aoc_2d_engine_h _eng)
     FREE(_eng);
 }
 
-aoc_2d_engine_h engine_create(coord_t _res, coord_t _spce, char _void_sym)
+aoc_2d_engine_h engine_create(coord_t _res, coord_t _spce, char _void_sym, size_t delay)
 {
     aoc_2d_engine_h _ret = malloc(sizeof(struct ascii_2d_engine));
 
@@ -21,6 +21,8 @@ aoc_2d_engine_h engine_create(coord_t _res, coord_t _spce, char _void_sym)
     coord_t _boundary_MAX = {._x = ABSOLUTE_MAX_X, ._y = ABSOLUTE_MAX_Y};
 
     dll_head_init(&_ret->_objects);
+    
+    _ret->_delay = delay;
 
     if (BOUNDARY_CHECK(_res, _boundary_MAX) && BOUNDARY_CHECK(_spce, _boundary_MAX))
     {
@@ -81,21 +83,21 @@ int engine_draw_symbol_at(aoc_2d_engine_h _eng, coord_t *_pos, char *_sym)
 
 int engine_draw(struct ascii_2d_engine *_eng)
 {
+    printf(ERASE_DISPLAY);
     if (_eng->_mustDraw)
     {
         int ret = 0;
-        printf(ERASE_DISPLAY);
         engine_draw_box(_eng);
         engine_fill_drawing_area(_eng);
         coord_t _pos = {0};
         aoc_engine_prompt_stats(_eng);
         return engine_draw_objects(_eng, &_pos);
     }
+    return 0;
 }
 
 int engine_draw_objects(aoc_2d_engine_h _eng, coord_t *_corner)
 {
-    int ret = 0;
     if (_eng->_mustDraw)
     {
         printf("\n");
@@ -107,7 +109,7 @@ int engine_draw_objects(aoc_2d_engine_h _eng, coord_t *_corner)
         printf("\n");
         usleep(1000 * _eng->_delay);
     }
-    return ret;
+    return 0;
 }
 
 int aoc_engine_append_obj(aoc_2d_engine_h _eng, aoc_2d_object_h _obj)

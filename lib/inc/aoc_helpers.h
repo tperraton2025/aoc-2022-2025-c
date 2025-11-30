@@ -8,13 +8,18 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define FREE(_p) \
-    free(_p);    \
-    _p = NULL;
+#define FREE(_p)   \
+    do             \
+    {              \
+        free(_p);  \
+        _p = NULL; \
+    } while (0)
 
 #define ARRAY_DIM(_arr) (sizeof(_arr) / sizeof(_arr[0]))
 #define CAST(_t, _p) ((_t)_p)
 #define MAX_LINE_LEN (1024)
+
+#define ARR_FOREACH(_it, _arr) for (size_t _it = 0; _it < ARR_DIM(_arr); _it++)
 
 #define aoc_info(_fmt, ...) printf(_fmt "\r\n", __VA_ARGS__);
 #define aoc_err(_fmt, ...) printf(RED _fmt RESET "\r\n", __VA_ARGS__);

@@ -50,7 +50,7 @@ typedef struct coord
 typedef struct ascii_2d_engine *aoc_2d_engine_h;
 typedef struct object *aoc_2d_object_h;
 
-aoc_2d_engine_h engine_create(coord_t _res, coord_t _spce, char _void_sym);
+aoc_2d_engine_h engine_create(coord_t _res, coord_t _spce, char _void_sym, size_t delay);
 void eng_obj_free(void *_data);
 void eng_set_refresh_delay(aoc_2d_engine_h _eng, size_t delay);
 int engine_draw_objects(aoc_2d_engine_h _eng, coord_t *_corner);

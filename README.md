@@ -5,16 +5,23 @@ Since recurent problems involve data structures, algorithms and 2d puzzles, I cr
 
 
 To run : 
-> cmake ./CMakeLists.txt
-then
-> make all
-then 
-> make test
 
+    $ cmake ./CMakeLists.txt
+
+then
+
+    $ make all
+
+then
+
+    $ make test
+    
 ascii 2d graphics is in use in days 005 009 and 099
 each puzzle can be invoked by calling the executables:
 ex: 2022 day 001
-$ cd 2022/001
-$ build/bin/2022day001 2022/001/data/test1.txt --draw-delay 50
+
+    $ cd 2022/001
+
+    $ build/bin/2022day001 2022/001/data/test1.txt --draw-delay 50
 
 to have time to see the puzzle unfold, --draw-delay x must be specified (in ms)

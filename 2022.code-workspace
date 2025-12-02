@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../perso/FreeRtos"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"aoc_2d_engine.h": "c",
+			"mqueue.h": "c",
+			"errno.h": "c",
+			"ansi_cmd.h": "c",
+			"aoc_ring_buf.h": "c",
+			"string.h": "c",
+			"aoc_input.h": "c",
+			"aoc_helpers.h": "c",
+			"assert.h": "c",
+			"aoc_linked_list.h": "c",
+			"stdlib.h": "c",
+			"aoc_tree.h": "c",
+			"unistd.h": "c",
+			"functional": "c",
+			"algorithm": "c"
+		}
+	}
+}

@@ -99,7 +99,7 @@ static test_string_t *test_string(aoc_tree_node_h _parent, const char *const _st
 static void test_string_free(void *arg)
 {
     test_string_t *_ntree = (test_string_t *)arg;
-    free(_ntree->_str);
+    FREE_AND_CLEAR_P(_ntree->_str);
 }
 
 static bool string_node_equal(void *_a, void *_b)

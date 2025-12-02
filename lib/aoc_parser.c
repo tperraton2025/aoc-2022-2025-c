@@ -6,8 +6,8 @@
 void aoc_parser_free(void *_data)
 {
     aoc_parser_h _pars = CAST(aoc_parser_h, _data);
-    FREE(_pars->_name);
-    FREE(_pars);
+    FREE_AND_CLEAR_P(_pars->_name);
+    FREE_AND_CLEAR_P(_pars);
 }
 
 int aoc_parser_append(aoc_ll_head_h _ll, const aoc_parser_h const _prs)
@@ -37,9 +37,9 @@ int aoc_parser_append(aoc_ll_head_h _ll, const aoc_parser_h const _prs)
     return 0;
 error:
     if (_nprs->_name)
-        FREE(_nprs->_name);
+        FREE_AND_CLEAR_P(_nprs->_name);
     if (_nprs)
-        FREE(_nprs);
+        FREE_AND_CLEAR_P(_nprs);
 
     return ret;
 }

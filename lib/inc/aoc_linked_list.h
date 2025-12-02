@@ -57,16 +57,16 @@ struct dll_node *dll_find_node_by_property(aoc_ll_head_h head, void *_prop, bool
 #define DLL_DECLARE(_type) \
     struct dll_node _node;
 
-#define DLL_CTOR(_type, _name)               \
-    static _type *_name(aoc_ll_head_h head)  \
-    {                                        \
-        _type *_ret = malloc(sizeof(_type)); \
-        if (!_ret)                           \
-            return NULL;                     \
-        dll_node_append(head, &_ret->_node); \
-        _ret->_node._prev = NULL;            \
-        _ret->_node._next = NULL;            \
-        return _ret;                         \
+#define DLL_NODE_CTOR(_type, _name)           \
+    static _type *_name(void)                 \
+    {                                         \
+        _type *_ret = NULL;                   \
+        TRY_RAII_MALLOC(_ret, sizeof(_type)); \
+        if (!_ret)                            \
+            return NULL;                      \
+        _ret->_node._prev = NULL;             \
+        _ret->_node._next = NULL;             \
+        return _ret;                          \
     }
 
 #define LL_FOREACH_P_EXT(_it, _head_h)                         \

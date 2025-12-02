@@ -4,137 +4,169 @@
 
 const char defaultName[] = "no name";
 
-struct symbol_t *eng_sym_create(struct object *_obj, coord_t *_rpos, char _c)
+/* creates a part that will be attached to an object.
+a part has :
+-   coordinates
+-   can be used for collision detection when moving the object
+-   its own symbol to represent the part itself
+-   a format (color/underline/bold...)
+*/
+
+part_h eng_part_create(struct object *obj, coord_t *sympos, char sym, char *fmt)
 {
-    struct symbol_t *ret = malloc(sizeof(struct symbol_t));
+    part_h ret = malloc(sizeof(struct part));
     if (!ret)
         return NULL;
-    ret->_pos._x = _rpos->_x;
-    ret->_pos._y = _rpos->_y;
-    ret->_sym = _c;
+    memset(ret, 0, sizeof(struct part));
+    if (fmt)
+    {
+        ret->_fmt = malloc(strnlen(fmt, ABSOLUTE_MAX_PART_FMT_LEN));
+        if (!ret->_fmt)
+            goto error;
+    }
+    ret->_pos._x = sympos->_x;
+    ret->_pos._y = sympos->_y;
+    ret->_sym = sym;
     return ret;
+error:
+    FREE_AND_CLEAR_P(ret);
+    return NULL;
 }
 
-void eng_free_sym(void *_data)
+void aoc_engine_free_part(void *arg)
 {
-    FREE(_data);
+    part_h _parth = (part_h)arg;
+    if (_parth->_fmt)
+        FREE_AND_CLEAR_P(_parth->_fmt);
+    FREE_AND_CLEAR_P(_parth);
 }
 
-aoc_2d_object_h eng_obj_create(aoc_2d_engine_h _eng, const char *const _name, coord_t *_pos, char *_sym, size_t _props)
+aoc_2d_object_h aoc_engine_object(aoc_2d_engine_h eng, const char *const name, coord_t *pos, char *sym, size_t props)
 {
-    struct object *ret = malloc(sizeof(struct object));
-    if (!ret)
+    struct object *_ret = malloc(sizeof(struct object));
+    if (!_ret)
         return NULL;
 
-    size_t _nameLen = strnlen(_name, ABSOLUTE_MAX_NAME_LEN) + 1;
-    ret->_name = malloc(_nameLen);
-    if (!ret->_name)
+    size_t _nameLen = strnlen(name, ABSOLUTE_MAX_NAME_LEN) + 1;
+    _ret->_name = malloc(_nameLen);
+    if (!_ret->_name)
         goto free_rt;
 
-    strncpy(ret->_name, _name, _nameLen);
+    strncpy(_ret->_name, name, _nameLen);
 
-    char _buf[ABSOLUTE_MAX_SYM_CNT] = "";
+    char _buf[ABSOLUTE_MAX_PART_CNT] = {0};
     char *_pc;
 
-    strncpy(_buf, _sym, ABSOLUTE_MAX_SYM_CNT - 1);
-    dll_head_init(&ret->_symbols);
+    strncpy(_buf, sym, ABSOLUTE_MAX_PART_CNT - 1);
+    dll_head_init(&_ret->_parts);
 
     _pc = strtok(_buf, "\n");
 
-    coord_t _rpos = {._x = 0, ._y = 0};
+    coord_t _rpos = {._x = pos->_x, ._y = pos->_y};
     while (_pc)
     {
-        size_t _ii = 0;
-        size_t _len = 0;
-        _len = strnlen(_buf, ABSOLUTE_MAX_SYM_CNT);
-        while (_ii < _len)
+        size_t _partiter = 0;
+        size_t _partlistlen = 0;
+        _partlistlen = strnlen(_buf, ABSOLUTE_MAX_PART_CNT);
+        while (_partiter < _partlistlen)
         {
-            if (_buf[_ii] != ' ')
+            if (_buf[_partiter] != ' ')
             {
-                struct symbol_t *_pns = eng_sym_create(ret, &_rpos, _buf[_ii]);
-                if (dll_node_append(&ret->_symbols, NODE_CAST(_pns)))
+                part_h _pns = eng_part_create(_ret, &_rpos, _buf[_partiter], NULL);
+                if (dll_node_append(&_ret->_parts, NODE_CAST(_pns)))
                     goto free_ll;
             }
             _rpos._x += 1;
-            _ii++;
+            _partiter++;
         }
         _rpos._y += 1;
         _rpos._x = 0;
         _pc = strtok(NULL, "\n");
     }
-    ret->_props = _props;
+    _ret->_props = props;
 
-    if (_pos)
+    if (pos)
     {
-        ret->_pos._x = _pos->_x;
-        ret->_pos._y = _pos->_y;
+        _ret->_pos._x = pos->_x;
+        _ret->_pos._y = pos->_y;
     }
     else
     {
-        //! should have a collisiont test.
-        ret->_pos._x = _eng->_boundaries._x - 1;
-        ret->_pos._y = _eng->_boundaries._y - 1;
+        //! should have a collision test.
+        _ret->_pos._x = eng->_partboundaries._min._x;
+        _ret->_pos._y = eng->_partboundaries._min._y;
     }
 
-    return ret;
+    aoc_engine_calculate_object_position(_ret);
+
+    return _ret;
 
 free_ll:
-    dll_free_all(&ret->_symbols, eng_free_sym);
+    dll_free_all(&_ret->_parts, aoc_engine_free_part);
 free_name:
-    FREE(ret->_name);
+    FREE_AND_CLEAR_P(_ret->_name);
 free_rt:
-    FREE(ret);
+    FREE_AND_CLEAR_P(_ret);
     return NULL;
 }
 
-void eng_obj_free(void *_data)
+void aoc_engine_free_object(void *_data)
 {
     aoc_2d_object_h _obj = (aoc_2d_object_h)_data;
-    FREE(_obj->_name);
-    dll_free_all(&_obj->_symbols, eng_free_sym);
-    FREE(_obj);
+    FREE_AND_CLEAR_P(_obj->_name);
+    dll_free_all(&_obj->_parts, aoc_engine_free_part);
+    FREE_AND_CLEAR_P(_obj);
 }
 
-int draw_object(struct ascii_2d_engine *_eng, struct object *_obj, char *_fmt)
+int aoc_engine_draw_object(struct ascii_2d_engine *eng, struct object *obj, char *specfmt)
 {
     int ret = 0;
 
-    if (_eng->_mustDraw)
+    if (eng->_enabledraw)
     {
-        struct dll_node *_sym_node;
-        struct symbol_t *_sym;
-        LL_FOREACH_EXT(_sym_node, _obj->_symbols)
+        struct dll_node *_partdllnode;
+        part_h _part;
+        LL_FOREACH_EXT(_partdllnode, obj->_parts)
         {
-            _sym = CAST(struct symbol_t *, _sym_node);
-            coord_t _sympos = {._x = 0, ._y = 0};
-            _sympos._y = ((_obj->_pos._y - 1) * _eng->_cellDim._y) + _sym->_pos._y + 2;
-            _sympos._x = ((_obj->_pos._x - 1) * _eng->_cellDim._x) + _sym->_pos._x + 2;
-            printf(MCUR_FMT "%s%c" RESET, _sympos._y, _sympos._x, _fmt ? _fmt : "", _sym->_sym);
+            _part = CAST(part_h, _partdllnode);
+            printf(MCUR_FMT "%s", _part->_pos._y + eng->_partboundaries._min._y, _part->_pos._x + eng->_partboundaries._min._x, specfmt ? specfmt : "");
+            printf("%s", _part->_fmt ? _part->_fmt : "");
+            printf("%c" RESET, _part->_sym);
         }
-        usleep(1000 * _eng->_delay);
+        usleep(1000 * eng->_delay);
     }
     return ret;
 }
 
-int erase_object(struct ascii_2d_engine *_eng, struct object *_obj)
+int aoc_engine_draw_part(struct ascii_2d_engine *eng, part_h part, char *specfmt)
 {
     int ret = 0;
-
-    if (_eng->_mustDraw)
+    if (eng->_enabledraw)
     {
-        struct dll_node *_sym_node;
-        struct symbol_t *_sym;
-        LL_FOREACH_EXT(_sym_node, _obj->_symbols)
-        {
-            _sym = CAST(struct symbol_t *, _sym_node);
-            coord_t _sympos = {._x = 0, ._y = 0};
-            _sympos._y = (_obj->_pos._y - 1) * _eng->_cellDim._y + _sym->_pos._y + 2;
-            _sympos._x = (_obj->_pos._x - 1) * _eng->_cellDim._x + _sym->_pos._x + 2;
-            printf(MCUR_FMT "%c", _sympos._y, _sympos._x, _eng->_void_sym);
-        }
-        engine_cursor_exit_drawing_area(_eng);
+        printf(MCUR_FMT "%s", part->_pos._y + eng->_partboundaries._min._y, part->_pos._x + eng->_partboundaries._min._y, specfmt ? specfmt : "");
+        printf("%s", part->_fmt ? part->_fmt : "");
+        printf("%s", specfmt ? specfmt : "");
+        printf("%c" RESET, part->_sym);
     }
     return ret;
+}
+
+int aoc_engine_erase_object(struct ascii_2d_engine *eng, struct object *obj)
+{
+    int _ret = 0;
+
+    if (eng->_enabledraw)
+    {
+        struct dll_node *_part_node;
+        part_h _sym;
+        LL_FOREACH_EXT(_part_node, obj->_parts)
+        {
+            _sym = CAST(part_h, _part_node);
+            printf(MCUR_FMT "%c", _sym->_pos._y + eng->_partboundaries._min._y, _sym->_pos._x + eng->_partboundaries._min._x, eng->_voidsym);
+        }
+        engine_cursor_exit_drawing_area(eng);
+    }
+    return _ret;
 }
 
 aoc_2d_object_h aoc_engine_get_obj_my_name(aoc_2d_engine_h _eng, const char *name)
@@ -152,4 +184,126 @@ const char *const aoc_engine_get_obj_name(aoc_2d_object_h _obj)
     if (!_obj)
         return defaultName;
     return _obj->_name;
+}
+
+int aoc_engine_move_each_part(aoc_2d_engine_h eng, aoc_2d_object_h obj, size_t steps, AOC_2D_DIR dir)
+{
+    LL_FOREACH(_partnode, obj->_parts)
+    {
+        part_h _part = (part_h)_partnode;
+        coord_t _prevpos = {._x = _part->_pos._x, ._y = _part->_pos._y};
+
+        move_within_box(eng, &_part->_pos, steps, dir);
+
+        part_h other = aoc_engine_get_part_by_position(eng, &_prevpos);
+        if (other)
+            aoc_engine_draw_part(eng, other, NULL);
+    }
+    return 0;
+}
+
+int aoc_engine_put_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, coord_t _npos)
+{
+    if (!_eng || !_obj)
+        return EINVAL;
+
+    int ret = is_position_in_box(_eng, &_npos);
+    if (ret)
+        return ret;
+
+    ret = aoc_engine_collision_at(_eng, &_npos);
+    if (ret)
+        return ret;
+
+    aoc_engine_erase_object(_eng, _obj);
+    put_pos(_eng, &_obj->_pos, &_npos);
+    aoc_engine_draw_object(_eng, _obj, NULL);
+    engine_put_cursor_in_footer_area(_eng);
+    return 0;
+}
+
+part_h aoc_engine_get_part_by_position(aoc_2d_engine_h eng, coord_t *pos)
+{
+    LL_FOREACH(_objnode, eng->_objects)
+    {
+        object_h _obj = (object_h)_objnode;
+        LL_FOREACH(_partnode, _obj->_parts)
+        {
+            part_h _part = (part_h)_partnode;
+            if (pos->_x == _part->_pos._x && pos->_x == _part->_pos._x)
+                return _part;
+        }
+    }
+    return NULL;
+}
+
+int aoc_engine_check_all_parts_fit_in_box(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t steps, AOC_2D_DIR dir)
+{
+    int ret = 0;
+    LL_FOREACH(_partnode, _obj->_parts)
+    {
+        part_h _part = (part_h)_partnode;
+        coord_t _testpos = {._x = _part->_pos._x, ._y = _part->_pos._y};
+        ret = move_within_box(_eng, &_testpos, steps, dir);
+        if (ret)
+            return ret;
+        ret = aoc_engine_collision_at(_eng, &_testpos);
+        if (ret)
+            return ret;
+    }
+}
+
+int aoc_engine_step_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t steps, AOC_2D_DIR dir, char *fmt)
+{
+    int _ret = aoc_engine_check_all_parts_fit_in_box(_eng, _obj, steps, dir);
+    if (_ret)
+        return _ret;
+    aoc_engine_erase_object(_eng, _obj);
+
+    aoc_engine_move_each_part(_eng, _obj, steps, dir);
+    move_within_box(_eng, &_obj->_pos, steps, dir);
+    aoc_engine_draw_object(_eng, _obj, fmt);
+
+    engine_put_cursor_in_footer_area(_eng);
+    return _ret;
+}
+
+int aoc_engine_calculate_object_position(aoc_2d_object_h obj)
+{
+    if (!obj)
+        return EINVAL;
+    coord_t _averagecoord = {0};
+    LL_FOREACH(_partnode, obj->_parts)
+    {
+        part_h _part = (part_h)_partnode;
+        _averagecoord._x += _part->_pos._x;
+        _averagecoord._y += _part->_pos._y;
+    }
+    obj->_pos._x = _averagecoord._x / obj->_parts._size;
+    obj->_pos._y = _averagecoord._y / obj->_parts._size;
+    return 0;
+}
+
+coord_t aoc_engine_get_object_position(aoc_2d_engine_h _eng, aoc_2d_object_h _obj)
+{
+    coord_t _pos = {._x = 0, ._y = 0};
+    assert(_eng && _obj && "NULL pointers");
+    _pos._x = _obj->_pos._x;
+    _pos._y = _obj->_pos._y;
+    return _pos;
+}
+
+int aoc_engine_move_one_step_towards(aoc_2d_engine_h _eng, aoc_2d_object_h _a, coord_t _pos)
+{
+    int ret = 0;
+    coord_t current = aoc_engine_get_object_position(_eng, _a);
+    if (current._x < _pos._x)
+        ret = aoc_engine_step_object_and_redraw(_eng, _a, 1LU, AOC_DIR_RIGHT, NULL);
+    if (current._x > _pos._x && !ret)
+        ret = aoc_engine_step_object_and_redraw(_eng, _a, 1LU, AOC_DIR_LEFT, NULL);
+    if (current._y < _pos._y && !ret)
+        ret = aoc_engine_step_object_and_redraw(_eng, _a, 1LU, AOC_DIR_DOWN, NULL);
+    if (current._y > _pos._y && !ret)
+        ret = aoc_engine_step_object_and_redraw(_eng, _a, 1LU, AOC_DIR_UP, NULL);
+    return ret;
 }

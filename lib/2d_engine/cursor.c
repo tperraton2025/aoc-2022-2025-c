@@ -34,63 +34,27 @@ int move_cursor_until(struct ascii_2d_engine *_eng, AOC_2D_DIR _dir, size_t _ste
     return ret;
 }
 
-int move_symbol(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
+int move_within_box(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
 {
     switch (_dir)
     {
     case AOC_DIR_UP:
-        if (_pos->_y < _eng->_cellDim._y * _steps)
-            return ERANGE;
-        _pos->_y -= _eng->_cellDim._y * _steps;
-        break;
-    case AOC_DIR_DOWN:
-        _pos->_y += _eng->_cellDim._y * _steps;
-        break;
-    case AOC_DIR_LEFT:
-        if (_pos->_x < _eng->_cellDim._x * _steps)
-            return ERANGE;
-        _pos->_x -= _eng->_cellDim._x * _steps;
-        break;
-    case AOC_DIR_RIGHT:
-        _pos->_x += _eng->_cellDim._x * _steps;
-        break;
-
-    default:
-        return EINVAL;
-    }
-    return 0;
-}
-
-int is_within_boundaries(aoc_2d_engine_h _eng, coord_t *_pos)
-{
-    if (!N_IN_RANGE(_pos->_y, 2, _eng->_boundaries._y))
-        return ERANGE;
-    if (!N_IN_RANGE(_pos->_x, 1, _eng->_boundaries._x))
-        return ERANGE;
-    return 0;
-}
-
-int move_pos(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
-{
-    switch (_dir)
-    {
-    case AOC_DIR_UP:
-        if (!N_IN_RANGE(_pos->_y - _steps, 2, _eng->_boundaries._y))
+        if (!N_IN_RANGE(_pos->_y - _steps, _eng->_partboundaries._min._y, _eng->_partboundaries._max._y))
             return ERANGE;
         _pos->_y -= _steps;
         break;
     case AOC_DIR_DOWN:
-        if (!N_IN_RANGE(_pos->_y + _steps, 1, _eng->_boundaries._y))
+        if (!N_IN_RANGE(_pos->_y + _steps, _eng->_partboundaries._min._y, _eng->_partboundaries._max._y))
             return ERANGE;
         _pos->_y += _steps;
         break;
     case AOC_DIR_LEFT:
-        if (!N_IN_RANGE(_pos->_x - _steps, 1, _eng->_boundaries._x))
+        if (!N_IN_RANGE(_pos->_x - _steps, _eng->_partboundaries._min._x, _eng->_partboundaries._max._x))
             return ERANGE;
         _pos->_x -= _steps;
         break;
     case AOC_DIR_RIGHT:
-        if (!N_IN_RANGE(_pos->_x + _steps, 1, _eng->_boundaries._x))
+        if (!N_IN_RANGE(_pos->_x + _steps, _eng->_partboundaries._min._x, _eng->_partboundaries._max._x))
             return ERANGE;
         _pos->_x += _steps;
         break;
@@ -101,11 +65,51 @@ int move_pos(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir
     return 0;
 }
 
+int move_within_window(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
+{
+    switch (_dir)
+    {
+    case AOC_DIR_UP:
+        if (!N_IN_RANGE(_pos->_y - _steps, _eng->_drawboundaries._min._y, _eng->_drawboundaries._max._y))
+            return ERANGE;
+        _pos->_y -= _steps;
+        break;
+    case AOC_DIR_DOWN:
+        if (!N_IN_RANGE(_pos->_y + _steps, _eng->_drawboundaries._min._y, _eng->_drawboundaries._max._y))
+            return ERANGE;
+        _pos->_y += _steps;
+        break;
+    case AOC_DIR_LEFT:
+        if (!N_IN_RANGE(_pos->_x - _steps, _eng->_drawboundaries._min._x, _eng->_drawboundaries._max._x))
+            return ERANGE;
+        _pos->_x -= _steps;
+        break;
+    case AOC_DIR_RIGHT:
+        if (!N_IN_RANGE(_pos->_x + _steps, _eng->_drawboundaries._min._x, _eng->_drawboundaries._max._x))
+            return ERANGE;
+        _pos->_x += _steps;
+        break;
+
+    default:
+        return EINVAL;
+    }
+    return 0;
+}
+
+int is_position_in_box(aoc_2d_engine_h _eng, coord_t *_pos)
+{
+    if (!N_IN_RANGE(_pos->_y, _eng->_partboundaries._min._y, _eng->_partboundaries._max._y))
+        return ERANGE;
+    if (!N_IN_RANGE(_pos->_x, _eng->_partboundaries._min._x, _eng->_partboundaries._max._x))
+        return ERANGE;
+    return 0;
+}
+
 int put_pos(aoc_2d_engine_h _eng, coord_t *_pos, coord_t *_npos)
 {
-    int ret = is_within_boundaries(_eng, _npos);
-    if (ret)
-        return ret;
+    int _ret = is_position_in_box(_eng, _npos);
+    if (_ret)
+        return _ret; 
 
     _pos->_y = _npos->_y;
     _pos->_x = _npos->_x;
@@ -113,11 +117,11 @@ int put_pos(aoc_2d_engine_h _eng, coord_t *_pos, coord_t *_npos)
     return 0;
 }
 
-int put_symbol(aoc_2d_engine_h _eng, struct symbol_t *_sym, coord_t *_delta)
+int put_part(aoc_2d_engine_h _eng, part_h _sym, coord_t *_delta)
 {
-    if (!N_IN_RANGE(_delta->_y, 2, _eng->_boundaries._y))
+    if (!N_IN_RANGE(_delta->_y, _eng->_partboundaries._min._x, _eng->_partboundaries._max._y))
         return ERANGE;
-    if (!N_IN_RANGE(_delta->_x, 1, _eng->_boundaries._x))
+    if (!N_IN_RANGE(_delta->_x, _eng->_partboundaries._min._x, _eng->_partboundaries._max._x))
         return ERANGE;
     return 0;
 }
@@ -126,8 +130,7 @@ int engine_put_cursor_in_footer_area(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
-    _eng->_prompter = 0;
-    printf(MCUR_FMT ERASE_LINE_FROM_CR, (_eng->_boundaries._y * _eng->_cellDim._y) + 3, (size_t)0);
+    printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_drawboundaries._max._y + 1LU, 1LU);
     return 0;
 }
 
@@ -135,7 +138,7 @@ int engine_cursor_log(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
-    printf(MCUR_FMT ERASE_LINE_FROM_CR, (_eng->_boundaries._y * _eng->_cellDim._y), (size_t)0);
+    printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_drawboundaries._max._y + 2LU, 0LU);
     return 0;
 }
 
@@ -144,8 +147,8 @@ int engine_cursor_stats(struct ascii_2d_engine *_eng)
     if (!_eng)
         return EINVAL;
     _eng->_statLine = 2;
-    if (_eng->_mustDraw)
-        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, ((_eng->_boundaries._x + 3) * _eng->_cellDim._x));
+    if (_eng->_enabledraw)
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, _eng->_drawboundaries._max._x + 1);
     return 0;
 }
 
@@ -154,8 +157,8 @@ int engine_cursor_user_stats(struct ascii_2d_engine *_eng)
     if (!_eng)
         return EINVAL;
     _eng->_statLine = _eng->_PrivStatLine;
-    if (_eng->_mustDraw)
-        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, ((_eng->_boundaries._x + 3) * _eng->_cellDim._x));
+    if (_eng->_enabledraw)
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, _eng->_drawboundaries._max._x + 1);
     return 0;
 }
 
@@ -163,8 +166,8 @@ int engine_cursor_private_next_stats(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
-    if (_eng->_mustDraw)
-        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, ((_eng->_boundaries._x + 3) * _eng->_cellDim._x));
+    if (_eng->_enabledraw)
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, _eng->_drawboundaries._max._x + 1);
     _eng->_PrivStatLine = _eng->_statLine + 1;
     return 0;
 }
@@ -173,13 +176,12 @@ int engine_cursor_user_next_stats(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
-    if (_eng->_mustDraw)
-        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, ((_eng->_boundaries._x + 3) * _eng->_cellDim._x));
+    if (_eng->_enabledraw)
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, _eng->_drawboundaries._max._x + 1);
     else
-        printf(MCUR_FMT ERASE_LINE_FROM_CR, (size_t)4, (size_t)2);
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, 4LU, 2LU);
 
-    if (_eng->_statLine >= _eng->_boundaries._y * _eng->_cellDim._y)
-        _eng->_statLine = _eng->_PrivStatLine + 1;
+    _eng->_statLine = (_eng->_PrivStatLine) % _eng->_drawboundaries._max._y;
     return 0;
 }
 
@@ -187,6 +189,6 @@ int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
-    printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_boundaries._y * _eng->_cellDim._y + 10, (size_t)0);
+    printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_drawboundaries._max._y + 10, 0LU);
     return 0;
 }

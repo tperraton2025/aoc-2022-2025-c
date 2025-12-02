@@ -8,12 +8,19 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define FREE(_p)   \
-    do             \
-    {              \
-        free(_p);  \
-        _p = NULL; \
-    } while (0)
+#define FREE_AND_CLEAR_P(_p) \
+    {                        \
+        if (_p)              \
+            free(_p);        \
+        _p = NULL;           \
+    }
+
+#define TRY_RAII_MALLOC(_p, _s) \
+    {                           \
+        _p = malloc(_s);        \
+        if (_p)                 \
+            memset(_p, 0, _s);  \
+    }
 
 #define ARRAY_DIM(_arr) (sizeof(_arr) / sizeof(_arr[0]))
 #define CAST(_t, _p) ((_t)_p)

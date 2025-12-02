@@ -19,8 +19,6 @@ int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
     assert(_sol->_prologue && "NULL _prologue function provided by user");
     assert(_sol->_epilogue && "NULL _epilogue function provided by user");
 
-    signal(SIGINT, signal_int_handler);
-
     FILE *_pxfile = fopen(argv[1], "r");
     if (_pxfile == NULL)
     {
@@ -30,7 +28,45 @@ int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
 
     char _ins[MAX_LINE_LEN] = {0};
 
-    aoc_info("Welcome to AOC 2022 %s", _sol->_name);
+    if (_sol->_prologue(_sol, argc, argv))
+        goto error;
+    while (fgets(_ins, sizeof(_ins), _pxfile))
+    {
+        _sol->_str = _ins;
+        ret = _sol->_handler(_sol);
+        if (ret)
+            goto error;
+    }
+    fclose(_pxfile);
+    _sol->_epilogue(_sol);
+    _sol->_free(_sol);
+    aoc_info("AOC 2022 %s exited with code %d", _sol->_name, ret);
+    return ret;
+error:
+    fclose(_pxfile);
+    _sol->_free(_sol);
+    aoc_err("AOC 2022 %s failed with error %d", _sol->_name, ret);
+}
+
+
+int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
+{
+    int ret = 0;
+    assert(_sol && "NULL solutionCtrlBlk provided by user");
+    assert(_sol->_name && "NULL solution name provided by user");
+    assert(_sol->_handler && "NULL _handler function provided by user");
+    assert(_sol->_prologue && "NULL _prologue function provided by user");
+    assert(_sol->_epilogue && "NULL _epilogue function provided by user");
+
+    FILE *_pxfile = fopen(argv[1], "r");
+    if (_pxfile == NULL)
+    {
+        aoc_err("%s:%d: Error opening %s!", __func__, __LINE__, argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    char _ins[MAX_LINE_LEN] = {0};
+ 
     if (_sol->_prologue(_sol, argc, argv))
         goto error;
     while (fgets(_ins, sizeof(_ins), _pxfile))

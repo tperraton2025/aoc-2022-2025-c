@@ -6,7 +6,7 @@ static sem_t _tasks_start_sem;
 static sem_t _tasks_kill_sem;
 static queue_t _evtqueue;
 
-#define EVT_QUEUE_LEN (256)
+#define EVT_QUEUE_LEN (8)
 #define EVT_SIZE_IN_BYTES (1)
 
 static struct solutionCtrlBlock_t privPart1;
@@ -20,6 +20,8 @@ void sig_int_handler(int args)
 
     if (SIGINT & args)
     {
+        printf(ERASE_DISPLAY);
+        printf(HOME);
         for (size_t _itask = 0; _itask < 2; _itask++)
         {
             sem_post(&_tasks_kill_sem);
@@ -27,7 +29,7 @@ void sig_int_handler(int args)
     }
 }
 
-static void queue_setup(queue_h mq_h, const char *_name, size_t mqlen, size_t msgsize)
+static int queue_setup(queue_h mq_h, const char *_name, size_t mqlen, size_t msgsize)
 {
     size_t _namelen = strnlen(_name, MQ_NAME_SIZE_UINT);
     mq_h->_mqname = malloc(_namelen + 1);
@@ -39,10 +41,12 @@ static void queue_setup(queue_h mq_h, const char *_name, size_t mqlen, size_t ms
     mq_h->_attr.mq_msgsize = msgsize;
 
     mq_h->_mqid = mq_open(mq_h->_mqname, O_RDWR | O_NONBLOCK | O_CREAT, mq_h->_xmode, &mq_h->_attr);
+    return mq_h->_mqid < 0;
 }
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
+    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
     int _ret = 1;
     _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
@@ -50,7 +54,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     struct context *_ctx = CTX_CAST(_blk->_data);
     memset(_ctx, 0, sizeof(struct context));
 
-    _ctx->_result = 0; 
+    _ctx->_result = 0;
 
     _ret = sem_init(&_tasks_start_sem, 0, 0);
     if (_ret)
@@ -61,13 +65,10 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
         goto error;
 
     signal(SIGINT, sig_int_handler);
-    queue_setup(&_evtqueue, "/inmq", EVT_QUEUE_LEN, EVT_SIZE_IN_BYTES);
+    _ret = queue_setup(&_evtqueue, "/inmq", EVT_QUEUE_LEN, EVT_SIZE_IN_BYTES);
+    if (_ret)
+        goto error;
 
-    for (size_t i = 0; i < 1; i++)
-    {
-        /* code */
-    }
-    
     pthread_create(&THREAD_OF(_gfxtask), NULL, graphics_routine, &_ctx->_gfxtask);
     pthread_create(&THREAD_OF(_inputstask), NULL, inputs_routine, &_ctx->_inputstask);
 
@@ -81,11 +82,13 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     sem_destroy(&_tasks_start_sem);
     sem_destroy(&_tasks_kill_sem);
-    free(_evtqueue._mqname);
+    FREE_AND_CLEAR_P(_evtqueue._mqname);
     return 0;
 
 error:
-    free(_blk->_data);
+    aoc_err("%s exited with code: %i (%s)" RESET, __func__, _ret, strerror(_ret));
+    aoc_err("%s errno set to : %i (%s)" RESET, __func__, errno, strerror(errno));
+    FREE_AND_CLEAR_P(_blk->_data);
     return _ret;
 }
 
@@ -97,8 +100,8 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    aoc_ans("AOC 2022 %s solution is %d", _blk->_name, 0);
-    free(_blk->_data);
+    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, 0);
+    FREE_AND_CLEAR_P(_blk->_data);
     return 0;
 }
 
@@ -106,23 +109,20 @@ void *graphics_routine(void *args)
 {
     gfx_task_t *_gfxtask = GFX_CAST(args);
 
-    coord_t resolution = {._x = 1, ._y = 1};
-    coord_t spaceing = {._x = 0, ._y = 0};
+    coord_t windowarea = {._x = 24, ._y = 32};
 
-    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, engine_create(resolution, spaceing, '.', 0),
+    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, engine_create(windowarea, '.', 0),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
 
     dll_head_init(&_gfxtask->_objects_ll);
 
-    aoc_engine_resize_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_DIR_RIGHT);
-    aoc_engine_resize_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_DIR_LEFT);
-    aoc_engine_resize_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_DIR_UP);
-    aoc_engine_resize_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_DIR_DOWN);
+    aoc_engine_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_DIR_RIGHT);
+    aoc_engine_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_DIR_DOWN);
 
     ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_cur_h,
-                                eng_obj_create(_gfxtask->_eng_h, "cursor", NULL, "H", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE),
+                                aoc_engine_object(_gfxtask->_eng_h, "cursor", NULL, "[H]", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
@@ -136,48 +136,48 @@ void *graphics_routine(void *args)
     char _cMsgQueueBuffer[sizeof(queue_msg_t) + 1] = {0};
 
     int keystrokeprio = 1;
-    int _ret = sem_wait(&_tasks_start_sem);
+    int _ret = 0; // sem_wait(&_tasks_start_sem);
 
-    int mq_ret = mq_receive(_evtqueue._mqid, _cMsgQueueBuffer, 1, &keystrokeprio);
-
+    int mq_ret = mq_receive(_evtqueue._mqid, _cMsgQueueBuffer, EVT_SIZE_IN_BYTES, &keystrokeprio);
 
     while (sem_trywait(&_tasks_kill_sem))
     {
-        mq_ret = mq_receive(_evtqueue._mqid, _cMsgQueueBuffer, 1, NULL);
+        mq_ret = mq_receive(_evtqueue._mqid, _cMsgQueueBuffer, EVT_SIZE_IN_BYTES, &keystrokeprio);
         if (mq_ret > 0)
         {
             if (AOC_DIR_UP == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "UP");
-                aoc_engine_move_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1, AOC_DIR_UP);
+                aoc_engine_step_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_UP, NULL);
             }
             else if (AOC_DIR_DOWN == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "DOWN");
-                aoc_engine_move_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1, AOC_DIR_DOWN);
+                aoc_engine_step_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_DOWN, NULL);
             }
             else if (AOC_DIR_RIGHT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "RIGHT");
-                aoc_engine_move_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1, AOC_DIR_LEFT);
+                aoc_engine_step_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_LEFT, NULL);
             }
             else if (AOC_DIR_LEFT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "LEFT");
-                aoc_engine_move_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1, AOC_DIR_RIGHT);
+                aoc_engine_step_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_RIGHT, NULL);
             }
             aoc_engine_prompt(_gfxtask->_eng_h, 0, 2, "got mq", _cMsgQueueBuffer);
+            aoc_engine_list_objects(_gfxtask->_eng_h);
             printf("\n");
             mq_ret = 0;
         }
-        usleep(5 * 1000);
+        usleep(35 * 1000);
     }
 
     goto exit;
 
 free_object:
     if (_gfxtask->_cur_h)
-        eng_obj_free(_gfxtask->_cur_h);
+        aoc_engine_free_object(_gfxtask->_cur_h);
 exit:
     mq_unlink(_evtqueue._mqname);
     if (_gfxtask->_eng_h)
@@ -216,7 +216,7 @@ void *inputs_routine(void *args)
 
     char _cByte = ' ';
     _inp->_pxInputCharBuffer = aoc_ring_buffer(sizeof(char), 64);
-    _ret = sem_wait(&_tasks_start_sem);
+    // /_ret = sem_wait(&_tasks_start_sem);
 
     char _nchar[5] = {0};
     while (sem_trywait(&_tasks_kill_sem))

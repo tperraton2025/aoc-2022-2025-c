@@ -212,15 +212,15 @@ string_dll_node_h string_dll(const char *const name)
     return _ret;
 
 abort:
-    free(_ret);
+    FREE_AND_CLEAR_P(_ret);
     return NULL;
 }
 
 void string_dll_free(void *string)
 {
     string_dll_node_h _stringh = (string_dll_node_h)string;
-    free(_stringh->_str);
-    free(_stringh);
+    FREE_AND_CLEAR_P(_stringh->_str);
+    FREE_AND_CLEAR_P(_stringh);
 }
 
 struct dll_node *string_dll_compare(struct dll_node *_a, struct dll_node *_b)
@@ -239,7 +239,7 @@ int string_dll_rename(string_dll_node_h node, const char *const name)
     char *_nname = malloc(strnlen(name, MAX_STR_DLL_LEN) + 1);
     if (!_nname)
         return ENOMEM;
-    free(node->_str);
+    FREE_AND_CLEAR_P(node->_str);
     sprintf(_nname, "%s", name);
     node->_str = _nname;
     return 0;

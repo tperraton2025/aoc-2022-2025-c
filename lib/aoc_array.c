@@ -91,6 +91,6 @@ void aoc_array_free(void *_stkh)
     for (size_t _ii = _stk->_count; _ii; _ii--)
         aoc_array_pop(_stk, NULL);
 
-    FREE_AND_CLEAR_P(_stk->_base);
-    FREE_AND_CLEAR_P(_stk);
+    FREE(_stk->_base);
+    FREE(_stk);
 }

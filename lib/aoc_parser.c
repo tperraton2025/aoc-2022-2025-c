@@ -6,8 +6,8 @@
 void parser_free(void *_data)
 {
     parser_h _pars = CAST(parser_h, _data);
-    FREE_AND_CLEAR_P(_pars->_name);
-    FREE_AND_CLEAR_P(_pars);
+    FREE(_pars->_name);
+    FREE(_pars);
 }
 
 int parser_append(dll_head_h _ll, parser_h parser, void *arg)

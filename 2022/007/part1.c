@@ -35,8 +35,8 @@ cmd_t *command(char *name)
 void free_cmd(void *arg)
 {
     cmd_t *cmd = (cmd_t *)arg;
-    FREE_AND_CLEAR_P(cmd->_name);
-    FREE_AND_CLEAR_P(cmd);
+    FREE(cmd->_name);
+    FREE(cmd);
 }
 
 #define CTX_CAST(_p) ((struct context *)_p)
@@ -95,8 +95,8 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CAST(struct context *, _blk->_data);
     aoc_tree_free(&_ctx->_root->path);
     dll_free_all(&_ctx->_cmds, free_cmd);
-    FREE_AND_CLEAR_P(_ctx->_root);
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_ctx->_root);
+    FREE(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart1 = {._name = CONFIG_DAY " part 1", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = free_solution};

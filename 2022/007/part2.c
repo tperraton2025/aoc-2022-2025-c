@@ -65,8 +65,8 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CAST(struct context *, _blk->_data);
     aoc_tree_free(&_ctx->_root->path);
-    FREE_AND_CLEAR_P(_ctx->_root);
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_ctx->_root);
+    FREE(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart2 = {._name = CONFIG_DAY " part 2", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = free_solution};

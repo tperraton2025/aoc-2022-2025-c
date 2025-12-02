@@ -82,13 +82,13 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     sem_destroy(&_tasks_start_sem);
     sem_destroy(&_tasks_kill_sem);
-    FREE_AND_CLEAR_P(_evtqueue._mqname);
+    FREE(_evtqueue._mqname);
     return 0;
 
 error:
     aoc_err("%s exited with code: %i (%s)" RESET, __func__, _ret, strerror(_ret));
     aoc_err("%s errno set to : %i (%s)" RESET, __func__, errno, strerror(errno));
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
     return _ret;
 }
 
@@ -101,7 +101,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, 0);
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
     return 0;
 }
 

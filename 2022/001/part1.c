@@ -33,7 +33,7 @@ static elfCal_t *elfCtor(dll_head_h head)
     _ret->_name = malloc(sizeof("elfo 999"));
     if (!_ret->_name)
     {
-        FREE_AND_CLEAR_P(_ret);
+        FREE(_ret);
         return NULL;
     }
     sprintf(_ret->_name, "elfo%3d", _ret->_count);
@@ -45,9 +45,9 @@ static void freeElf(void *arg)
 {
     elfCal_t *_elf = CAST(elfCal_t *, arg);
     if (_elf->_name)
-        FREE_AND_CLEAR_P(_elf->_name);
+        FREE(_elf->_name);
     if (_elf)
-        FREE_AND_CLEAR_P(_elf);
+        FREE(_elf);
 }
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
@@ -98,7 +98,7 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
     context_t *_ctx = CAST(context_t *, _blk->_data);
 
     dll_free_all(&_ctx->_head, freeElf);
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart1 = {._name = CONFIG_DAY " part 1", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = free_solution};

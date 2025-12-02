@@ -150,7 +150,7 @@ static void uglyls(aoc_tree_node_h _dir)
         sprintf(_fname, "%ld %s", _f->size, _f->name);
         string_dll_node_h _nName = string_dll(_fname);
         dll_node_sorted_insert(&namelist, &_nName->_node, uglyls_compare);
-        FREE_AND_CLEAR_P(_fname);
+        FREE(_fname);
     }
     LL_FOREACH(_dllsubdirs, _fsp->path._dllchildren)
     {
@@ -159,7 +159,7 @@ static void uglyls(aoc_tree_node_h _dir)
         sprintf(_dname, "dir %s", _d->name);
         string_dll_node_h _nName = string_dll(_dname);
         dll_node_sorted_insert(&namelist, &_nName->_node, uglyls_compare);
-        FREE_AND_CLEAR_P(_dname);
+        FREE(_dname);
     }
     LL_FOREACH(_sdll, namelist)
     {
@@ -219,14 +219,14 @@ static int dir_exists_in_cdir(fdir_h fdir, fdir_h cdir)
 static void delete_file(void *arg)
 {
     file_t *_file = (file_t *)arg;
-    FREE_AND_CLEAR_P(_file->name);
-    FREE_AND_CLEAR_P(_file);
+    FREE(_file->name);
+    FREE(_file);
 }
 static void delete_dir(void *arg)
 {
     fdir_t *_dir = (fdir_t *)arg;
     dll_free_all(&_dir->_content, delete_file);
-    FREE_AND_CLEAR_P(_dir->name);
+    FREE(_dir->name);
 }
 
 static fdir_t *dir(const char *const name, fdir_t *parent)
@@ -251,9 +251,9 @@ static fdir_t *dir(const char *const name, fdir_t *parent)
 
 abort:
     aoc_err("aborting %s creation: %s", name, strerror(ret));
-    FREE_AND_CLEAR_P(_ndir->name);
+    FREE(_ndir->name);
 abort_dir:
-    FREE_AND_CLEAR_P(_ndir);
+    FREE(_ndir);
     return _ndir;
 }
 static file_t *file(char *name, size_t size, fdir_t *dir)
@@ -266,7 +266,7 @@ static file_t *file(char *name, size_t size, fdir_t *dir)
     _nfile->name = malloc(strnlen(name, MAX_NAME_LEN_AS_USIZE) + 1);
     if (!_nfile->name)
     {
-        FREE_AND_CLEAR_P(_nfile);
+        FREE(_nfile);
         return NULL;
     }
     sprintf(_nfile->name, "%s", name);

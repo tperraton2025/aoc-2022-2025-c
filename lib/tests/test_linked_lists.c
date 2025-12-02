@@ -127,9 +127,9 @@ static _string_test_t *_string_ll_test(const char *const _str)
 static void free_test_string(void *_node)
 {
     _string_test_t *_nstr = (_string_test_t *)_node;
-    FREE_AND_CLEAR_P(_nstr->_str);
+    FREE(_nstr->_str);
     _nstr->_str = NULL;
-    FREE_AND_CLEAR_P(_node);
+    FREE(_node);
     _node = NULL;
 }
 

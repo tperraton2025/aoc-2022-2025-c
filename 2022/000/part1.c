@@ -41,7 +41,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void freeSolution(struct solutionCtrlBlock_t *_blk)
 {
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart1 = {._name = CONFIG_DAY " part 1", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = freeSolution};

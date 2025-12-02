@@ -56,7 +56,7 @@ void aoc_tree_free_all_children(aoc_tree_node_h _start)
         _node = _nxtNode;
     }
     _start->_free(_start);
-    FREE_AND_CLEAR_P(_start);
+    FREE(_start);
 }
 
 void aoc_tree_free(aoc_tree_node_h _start)

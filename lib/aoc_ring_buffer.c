@@ -50,9 +50,9 @@ free_arr:
 error:
 
     if (_ret->_pv_buff)
-        FREE_AND_CLEAR_P(_ret->_pv_buff);
+        FREE(_ret->_pv_buff);
     if (_ret)
-        FREE_AND_CLEAR_P(_ret);
+        FREE(_ret);
 }
 
 void aoc_ring_buffer_free(aoc_ring_buffer_h _pxRbuf)
@@ -61,10 +61,10 @@ void aoc_ring_buffer_free(aoc_ring_buffer_h _pxRbuf)
     FOREACHCELL(_index, _pxRbuf)
     {
         if (_pxRbuf->_pv_buff[_index])
-            FREE_AND_CLEAR_P(_pxRbuf->_pv_buff[_index]);
+            FREE(_pxRbuf->_pv_buff[_index]);
     }
-    FREE_AND_CLEAR_P(_pxRbuf->_pv_buff);
-    FREE_AND_CLEAR_P(_pxRbuf);
+    FREE(_pxRbuf->_pv_buff);
+    FREE(_pxRbuf);
 }
 
 int aoc_ring_buffer_send_front(aoc_ring_buffer_h _pxRbuf, void *_item)

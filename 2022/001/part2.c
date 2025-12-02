@@ -40,9 +40,9 @@ static struct elfCal_t *elf_ctor(struct context *_ctx)
     return _ret;
 
 name:
-    FREE_AND_CLEAR_P(_ret->_name);
+    FREE(_ret->_name);
 cleanup:
-    FREE_AND_CLEAR_P(_ret);
+    FREE(_ret);
     return NULL;
 }
 
@@ -51,8 +51,8 @@ static void freeElf(void *_data)
     struct elfCal_t *_elf = ELF_CAST(_data);
     assert(_elf);
     assert(_elf->_name);
-    FREE_AND_CLEAR_P(_elf->_name);
-    FREE_AND_CLEAR_P(_elf);
+    FREE(_elf->_name);
+    FREE(_elf);
 }
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
@@ -119,7 +119,7 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CAST(struct context *, _blk->_data);
     struct data_t *_data = CAST(struct data_t *, _blk->_data);
     dll_free_all(&_ctx->_ll, freeElf);
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart2 = {._name = CONFIG_DAY " part 2", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = free_solution};

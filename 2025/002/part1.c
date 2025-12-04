@@ -1,5 +1,6 @@
 #include <aoc_helpers.h>
 #include <aoc_linked_list.h>
+#include <aoc_numeric.h>
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
@@ -9,13 +10,6 @@
 
 #define MAX_SSTR_LEN (1024)
 
-typedef struct base10
-{
-    char _digits[20];
-    size_t _lastdigit;
-    size_t _val;
-} base10_t;
-typedef struct base10 *base10_h;
 
 struct context
 {
@@ -24,12 +18,10 @@ struct context
 };
 
 #define CTX_CAST(_p) ((struct context *)_p)
-static void print_base10(base10_h base10);
-static base10_h base_10_conversion(size_t luint);
+
+
 static int base_10_has_pattern_alt(base10_h base10);
 static int base_10_has_pattern(base10_h base10);
-static int base_10_increment(base10_h base10);
-static size_t base_10_reverse_conversion(base10_h base10);
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
@@ -98,50 +90,7 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
 
 static struct solutionCtrlBlock_t privPart1 = {._name = CONFIG_DAY " part 1", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = freeSolution};
 struct solutionCtrlBlock_t *part1 = &privPart1;
-
-static base10_h base_10_conversion(size_t luint)
-{
-    base10_h _base10 = malloc(sizeof(base10_t));
-    if (!_base10)
-        return NULL;
-    memset(_base10, 0, sizeof(base10_t));
-    _base10->_val = luint;
-    for (size_t _ii = 0; _ii < ARRAY_DIM(_base10->_digits) && luint; _ii++)
-    {
-        _base10->_lastdigit++;
-        _base10->_digits[_ii] = (char)(luint % 10);
-        luint = luint / 10;
-    }
-    size_t rconv = base_10_reverse_conversion(_base10);
-    if (_base10->_val != rconv)
-    {
-        aoc_err("initial conv failed with %ld != %ld", _base10->_val, rconv);
-    }
-    return _base10;
-}
-
-static size_t base_10_reverse_conversion(base10_h base10)
-{
-    size_t _ret = 0;
-    size_t _pow = 1;
-    for (size_t _ii = 0; _ii < base10->_lastdigit; _ii++)
-    {
-        _ret += base10->_digits[_ii] * (_pow);
-        _pow *= 10;
-    }
-    return _ret;
-}
-
-static void print_base10(base10_h base10)
-{
-    base10_t _dummy = {0};
-
-    for (size_t _ii = 0; _ii <= base10->_lastdigit; _ii++)
-    {
-        _dummy._digits[_ii] = base10->_digits[_ii] + '0';
-    }
-    aoc_info("%lu = %s", base10->_val, &_dummy._digits[0]);
-}
+ 
 
 static int base_10_has_pattern(base10_h base10)
 {
@@ -163,8 +112,8 @@ static int base_10_has_pattern(base10_h base10)
         strncpy(bot, _dummy._digits + _len, _len);
         if (0 == strncmp(top, bot, _len))
             _ret = 1;
-        FREE_AND_CLEAR_P(bot);
-        FREE_AND_CLEAR_P(top);
+        FREE(bot);
+        FREE(top);
         return _ret;
     }
     else
@@ -191,29 +140,4 @@ static int base_10_has_pattern_alt(base10_h base10)
     }
     return 0;
 }
-
-static int base_10_increment(base10_h base10)
-{
-    base10->_val++;
-    for (size_t _ii = 0; _ii < ARRAY_DIM(base10->_digits); _ii++)
-    {
-        if (++base10->_digits[_ii] >= 10)
-        {
-            if (_ii >= base10->_lastdigit - 1)
-                base10->_lastdigit++;
-
-            base10->_digits[_ii] %= 10;
-            if (_ii == ARRAY_DIM(base10->_digits) - 1)
-                return EOVERFLOW;
-        }
-        else
-            break;
-    }
-
-    size_t rconv = base_10_reverse_conversion(base10);
-    if (base10->_val != rconv)
-    {
-        aoc_err("increment failed with %ld != %ld", base10->_val, rconv);
-    }
-    return 0;
-}
+ 

@@ -154,7 +154,7 @@ static int parsecommand(void *arg, char *_str)
 
         if (0 == strncmp("cd", _cmd, MAX_NAME_LEN_AS_USIZE))
         {
-            aoc_tree_node_h _npwd = NULL;
+            tree_node_h _npwd = NULL;
             if (0 == strncmp("..", _arg, MAX_NAME_LEN_AS_USIZE))
             {
                 _npwd = _ctx->_cdir->path._parent;
@@ -167,7 +167,7 @@ static int parsecommand(void *arg, char *_str)
             {
                 LL_FOREACH(_subdir, _ctx->_cdir->path._dllchildren)
                 {
-                    aoc_tree_node_h _stdir = (aoc_tree_node_h)_subdir;
+                    tree_node_h _stdir = (tree_node_h)_subdir;
                     _npwd = find_dir_by_name(_stdir, _arg) ? _stdir : NULL;
                     if (_npwd)
                         break;
@@ -193,7 +193,7 @@ static int command_executor(aoc_context_h _ctx, char *_str)
         if (0 == strncmp("cd", _cmd, 15))
             _ctx->_cdir = cd(_ctx->_cdir, _arg);
         // else if (0 == strncmp("ls", _cmd, 15))
-        //     uglyls((aoc_tree_node_h)_ctx->_cdir);
+        //     uglyls((tree_node_h)_ctx->_cdir);
         assert(_ctx->_cdir);
     }
     return EINVAL;

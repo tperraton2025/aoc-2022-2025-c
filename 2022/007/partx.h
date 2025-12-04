@@ -76,7 +76,7 @@ static void pwd(fdir_t *_dir)
     dll_free_all(&path, free);
 }
 
-static size_t get_mem(aoc_tree_node_h _dir)
+static size_t get_mem(tree_node_h _dir)
 {
     size_t _mem = 0;
     fdir_t *_fsp = (fdir_t *)_dir;
@@ -99,7 +99,7 @@ static fdir_t *cd(fdir_h _fsp, char *_str)
     if (!_fsp || !_str)
         return _fsp;
 
-    aoc_tree_node_h _tnode = (aoc_tree_node_h)_fsp;
+    tree_node_h _tnode = (tree_node_h)_fsp;
     fdir_t *_npwd = NULL;
     if (0 == strncmp("..", _str, MAX_NAME_LEN_AS_USIZE))
         _npwd = (fdir_t *)_tnode->_parent;
@@ -109,7 +109,7 @@ static fdir_t *cd(fdir_h _fsp, char *_str)
     {
         LL_FOREACH(_node, _tnode->_dllchildren)
         {
-            aoc_tree_node_h _stnode = (aoc_tree_node_h)_node;
+            tree_node_h _stnode = (tree_node_h)_node;
             _npwd = (fdir_t *)(find_dir_by_name(_stnode, _str) ? _stnode : NULL);
             if (_npwd)
                 break;
@@ -124,7 +124,7 @@ static fdir_t *cd(fdir_h _fsp, char *_str)
     return _fsp;
 }
 
-static struct dll_node *uglyls_compare(struct dll_node *_a, struct dll_node *_b)
+static dll_node_h uglyls_compare(dll_node_h _a, dll_node_h _b)
 {
     string_dll_node_h _string_a = (string_dll_node_h)_a;
     string_dll_node_h _string_b = (string_dll_node_h)_b;
@@ -138,7 +138,7 @@ static struct dll_node *uglyls_compare(struct dll_node *_a, struct dll_node *_b)
         return _a;
 }
 
-static void uglyls(aoc_tree_node_h _dir)
+static void uglyls(tree_node_h _dir)
 {
     struct dll_head namelist = {0};
     fdir_t *_fsp = (fdir_t *)_dir;
@@ -168,7 +168,7 @@ static void uglyls(aoc_tree_node_h _dir)
     dll_free_all(&namelist, string_dll_free);
 }
 
-static void ls(aoc_tree_node_h _dir)
+static void ls(tree_node_h _dir)
 {
     fdir_t *_fsp = (fdir_t *)_dir;
     pwd(_fsp);
@@ -286,7 +286,7 @@ abort:
     _nfile = NULL;
     return _nfile;
 }
-static void sum_files_above_mem_lim(void *arg, aoc_tree_node_h _a)
+static void sum_files_above_mem_lim(void *arg, tree_node_h _a)
 {
     filesearch_t *_tot = (filesearch_t *)arg;
     fdir_t *_fsp = (fdir_t *)_a;
@@ -298,7 +298,7 @@ static void sum_files_above_mem_lim(void *arg, aoc_tree_node_h _a)
         _tot->totalMem += _f->size;
     }
 }
-static void sum_dirs_below_mem_lim(void *arg, aoc_tree_node_h _a)
+static void sum_dirs_below_mem_lim(void *arg, tree_node_h _a)
 {
     filesearch_t *_tot = (filesearch_t *)arg;
     fdir_t *_fsp = (fdir_t *)_a;
@@ -310,7 +310,7 @@ static void sum_dirs_below_mem_lim(void *arg, aoc_tree_node_h _a)
             _tot->totalMem += _d->size;
     }
 }
-static void get_smallest_dir_above_mem_lim(void *arg, aoc_tree_node_h _a)
+static void get_smallest_dir_above_mem_lim(void *arg, tree_node_h _a)
 {
     filesearch_t *_tot = (filesearch_t *)arg;
     fdir_t *_fsp = (fdir_t *)_a;

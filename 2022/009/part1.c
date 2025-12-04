@@ -76,7 +76,7 @@ static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
     if (NULL == dll_find_node_by_property(&_ctx->_tailPos, (void *)_npos, coord_compare))
         return dll_node_append(&_ctx->_tailPos, NODE_CAST(_npos));
     else
-        FREE_AND_CLEAR_P(_npos);
+        FREE(_npos);
     return EALREADY;
 }
 
@@ -110,7 +110,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
                 sscanf(argv[_iarg + 1], "%3lu", &canvassize);
         }
 
-    _ctx->_eng = engine_create(_prelcoordmaxima, '.', 0);
+    _ctx->_eng = engine_create(&_prelcoordmaxima, '.', 0);
     if (!_ctx->_eng)
         goto error;
 
@@ -153,11 +153,11 @@ error:
     else
     {
         if (_ctx->_head)
-            FREE_AND_CLEAR_P(_ctx->_head);
+            FREE(_ctx->_head);
         if (_ctx->_tail)
-            FREE_AND_CLEAR_P(_ctx->_tail);
+            FREE(_ctx->_tail);
     }
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
     return ret;
 }
 
@@ -182,7 +182,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
         return 0;
     error:
         aoc_err("Error parsing %s", _blk->_str);
-        FREE_AND_CLEAR_P(nmov);
+        FREE(nmov);
         return 1;
     }
     return 0;
@@ -197,7 +197,7 @@ static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_object_h _
     {
         _ctx->_lastMovedLink = _head;
         _ctx->_prevPosFromLastMovedLink = aoc_engine_get_object_position(_ctx->_eng, _ctx->_lastMovedLink);
-        if (aoc_engine_step_object_and_redraw(_ctx->_eng, _head, 1LU, _dir, NULL))
+        if (aoc_engine_step_object(_ctx->_eng, _head, 1LU, _dir, NULL))
             aoc_engine_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_engine_get_obj_name(_head));
     }
     if (1 < aoc_engine_get_dist_between_objects(_ctx->_eng, _head, _tail))
@@ -233,7 +233,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
         engine_draw_part_at(_ctx->_eng, &_npos->_pos, "#");
     }
 
-    _ctx->result = aoc_dll_size(&_ctx->_tailPos);
+    _ctx->result = dll_size(&_ctx->_tailPos);
     aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, _ctx->result);
     return 0;
 }
@@ -243,9 +243,9 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CAST(struct context *, _blk->_data);
     engine_free(_ctx->_eng);
     dll_free_all(&_ctx->_movs, free);
-    _ctx->result = aoc_dll_size(&_ctx->_tailPos);
+    _ctx->result = dll_size(&_ctx->_tailPos);
     dll_free_all(&_ctx->_tailPos, free);
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart1 = {._name = CONFIG_DAY " part 1", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = free_solution};

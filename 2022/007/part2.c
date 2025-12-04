@@ -83,7 +83,7 @@ static int parsecommand(void *arg, char *_str)
     {
         if (0 == strncmp("cd", _cmd, MAX_NAME_LEN_AS_USIZE))
         {
-            aoc_tree_node_h _npwd = NULL;
+            tree_node_h _npwd = NULL;
             if (0 == strncmp("..", _arg, MAX_NAME_LEN_AS_USIZE))
             {
                 _npwd = _ctx->_cdir->path._parent;
@@ -96,7 +96,7 @@ static int parsecommand(void *arg, char *_str)
             {
                 LL_FOREACH(_subdir, _ctx->_cdir->path._dllchildren)
                 {
-                    _npwd = find_dir_by_name((aoc_tree_node_h)_subdir, _arg) ? (aoc_tree_node_h)_subdir : NULL;
+                    _npwd = find_dir_by_name((tree_node_h)_subdir, _arg) ? (tree_node_h)_subdir : NULL;
                     if (_npwd)
                         break;
                 }

@@ -111,7 +111,7 @@ void *graphics_routine(void *args)
 
     coord_t windowarea = {._x = 24, ._y = 32};
 
-    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, engine_create(windowarea, '.', 0),
+    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, engine_create(&windowarea, '.', 0),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
@@ -148,22 +148,22 @@ void *graphics_routine(void *args)
             if (AOC_DIR_UP == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "UP");
-                aoc_engine_step_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_UP, NULL);
+                aoc_engine_step_object(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_UP, NULL);
             }
             else if (AOC_DIR_DOWN == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "DOWN");
-                aoc_engine_step_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_DOWN, NULL);
+                aoc_engine_step_object(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_DOWN, NULL);
             }
             else if (AOC_DIR_RIGHT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "RIGHT");
-                aoc_engine_step_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_LEFT, NULL);
+                aoc_engine_step_object(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_LEFT, NULL);
             }
             else if (AOC_DIR_LEFT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "LEFT");
-                aoc_engine_step_object_and_redraw(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_RIGHT, NULL);
+                aoc_engine_step_object(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_RIGHT, NULL);
             }
             aoc_engine_prompt(_gfxtask->_eng_h, 0, 2, "got mq", _cMsgQueueBuffer);
             aoc_engine_list_objects(_gfxtask->_eng_h);

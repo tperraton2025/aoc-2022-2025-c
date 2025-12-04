@@ -1,11 +1,4 @@
-#include <aoc_helpers.h>
-#include <aoc_linked_list.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
+#include"partx.h"
 
 struct context
 {
@@ -42,6 +35,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void freeSolution(struct solutionCtrlBlock_t *_blk)
 {
+    struct context *_ctx = CTX_CAST(_blk->_data);
+    (void)_ctx;
     free(_blk->_data);
 }
 

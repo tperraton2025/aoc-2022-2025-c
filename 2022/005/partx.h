@@ -38,11 +38,11 @@ static bool has_same_column(void *arga, void *argb)
     return _pos->_x == (size_t)arga;
 }
 
-static struct dll_node *highest_column(struct dll_node *arga, struct dll_node *argb)
+static dll_node_h highest_column(dll_node_h arga, dll_node_h argb)
 {
     coord_t *_posa = (coord_t *)arga;
     coord_t *_posb = (coord_t *)argb;
-    return (struct dll_node *)(_posa->_x > _posb->_x ? _posa : _posb);
+    return (dll_node_h )(_posa->_x > _posb->_x ? _posa : _posb);
 }
  
 static int parseblock(void *arg, char *_str);

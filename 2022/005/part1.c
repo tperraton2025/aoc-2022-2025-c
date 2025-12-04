@@ -2,7 +2,7 @@
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
+    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
@@ -18,10 +18,14 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     dll_head_init(&_ctx->_cmds);
     dll_head_init(&_ctx->_columns);
+    dll_head_init(&_ctx->_parsers);
+
+    parser_append(&_ctx->_parsers, &blockparser, _ctx);
+    parser_append(&_ctx->_parsers, &commandparser, &_ctx->_cmds);
 
     bool _drawingenabled = true;
     size_t delay = 0;
-    coord_t _prelcoordmaxima = {._x = 3, ._y = 20};
+    coord_t _prelcoordmaxima = {._x = 2, ._y = 2};
 
     if (argc >= 2)
         for (int _iarg = 0; _iarg < argc; _iarg++)
@@ -32,7 +36,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
                 sscanf(argv[_iarg + 1], "%3lu", &delay);
         }
 
-    _ctx->_eng = engine_create(_prelcoordmaxima, '~', 0);
+    _ctx->_eng = engine_create(&_prelcoordmaxima, '~', 0);
 
     if (!_ctx->_eng)
         goto cleanup;
@@ -44,7 +48,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     return 0;
 
 cleanup:
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
 error:
     return ENOMEM;
 }
@@ -52,7 +56,7 @@ error:
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
-    parse_all(_ctx, _blk->_str);
+    parse_all(&_ctx->_parsers, _blk->_str);
     return 0;
 }
 
@@ -61,8 +65,10 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     char test[16] = {0};
 
-    aoc_engine_extend_one_direction(_ctx->_eng, 50, AOC_DIR_DOWN);
+    aoc_engine_extend_one_direction(_ctx->_eng, 20, AOC_DIR_UP);
     engine_draw(_ctx->_eng);
+
+    block();
     crane_action(_ctx);
     aoc_spell_ans(_blk);
 
@@ -75,7 +81,7 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CAST(struct context *, _blk->_data);
 
     engine_free(_ctx->_eng);
-    FREE_AND_CLEAR_P(_blk->_data);
+    FREE(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart1 = {._name = CONFIG_DAY " part 1", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = free_solution};
@@ -90,11 +96,9 @@ static int crate_lift(struct context *_ctx, command_t *_cmd)
         _ctx->_grippedBox = aoc_engine_get_obj_by_position(_ctx->_eng, &_gripper);
         if (_ctx->_grippedBox)
         {
-            while (!aoc_engine_step_object_and_redraw(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_UP, GREEN))
-            {
+            aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "gripped", aoc_engine_get_obj_name(_ctx->_grippedBox));
+            while (!aoc_engine_step_object(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_UP, GREEN))
                 aoc_engine_list_objects(_ctx->_eng);
-                aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "gripped", aoc_engine_get_obj_name(_ctx->_grippedBox));
-            }
             return 0;
         }
     }
@@ -113,9 +117,12 @@ static int crate_change_lane(struct context *_ctx, command_t *_cmd)
     for (; (_ii < 100) && (_ctx->_pos._x != _cmd->to); _ii++)
     {
         AOC_2D_DIR dir = _ctx->_pos._x > _cmd->to ? AOC_DIR_LEFT : AOC_DIR_RIGHT;
-        _ctx->_pos._x = _ctx->_pos._x > _cmd->to ? _ctx->_pos._x-- : _ctx->_pos._x++;
-        
-        aoc_engine_step_object_and_redraw(_ctx->_eng, _ctx->_grippedBox, 1LU, dir, GREEN);
+        _ctx->_pos._x = _ctx->_pos._x > _cmd->to ? _ctx->_pos._x - 1 : _ctx->_pos._x + 1;
+
+        if (aoc_engine_step_object(_ctx->_eng, _ctx->_grippedBox, 1LU, dir, GREEN))
+        {
+            aoc_engine_prompt_extra_stats_as_err(_ctx->_eng, "moving %s failed", aoc_engine_get_obj_name(_ctx->_grippedBox));
+        }
         aoc_engine_list_objects(_ctx->_eng);
 
         char _dest_col_str[4] = "";
@@ -128,7 +135,7 @@ static int crate_change_lane(struct context *_ctx, command_t *_cmd)
 
 static int crate_deposit(struct context *_ctx, command_t *_cmd)
 {
-    while (!aoc_engine_step_object_and_redraw(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_DOWN, GREEN))
+    while (!aoc_engine_step_object(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_DOWN, GREEN))
     {
         aoc_engine_list_objects(_ctx->_eng);
         aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "depositing", aoc_engine_get_obj_name(_ctx->_grippedBox));
@@ -176,13 +183,13 @@ static int crane_action(struct context *_ctx)
 static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CAST(struct context *, _blk->_data);
-    size_t _colCount = aoc_engine_get_parts_boundaries(_ctx->_eng)._max._x + 1;
+    size_t _colCount = _ctx->_columns._size + 1;
     _ctx->spelling = malloc(_colCount);
     char *_p = _ctx->spelling;
     memset(_ctx->spelling, '\0', _colCount);
     for (size_t _col = 0; _col < _colCount; _col++)
     {
-        command_t _spell1 = {.count = 1, .from = _col, .to = _col};
+        command_t _spell1 = {.count = 1, .from = _col * 4, .to = _col * 4};
         crate_lift(_ctx, &_spell1);
         if (!_ctx->_grippedBox)
             continue;
@@ -191,5 +198,68 @@ static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
     }
     aoc_ans("AOC 2022 %s solution is %s", _blk->_name, _ctx->spelling);
 
-    FREE_AND_CLEAR_P(_ctx->spelling);
+    FREE(_ctx->spelling);
+}
+
+static int parsecommand(void *arg, char *_str)
+{
+    dll_head_h _cmds = (dll_head_h)arg;
+    int match = 0;
+    int ret = 0;
+    command_t _nc = {0};
+    match = sscanf(_str, "move %ld from %ld to %ld", &_nc.count, &_nc.from, &_nc.to);
+    if (3 == match)
+    {
+        _nc.from *= 4;
+        _nc.to *= 4;
+        command_t *_pnc = command_ctor(&_nc);
+        if (!_pnc)
+            return ENOMEM;
+        ret = dll_node_append(_cmds, CAST(dll_node_h, _pnc));
+        if (ret)
+        {
+            FREE(_pnc);
+            return ENOMEM;
+        }
+        return 0;
+    }
+    return -1;
+}
+
+static int parseblock(void *arg, char *_str)
+{
+    aoc_context_h _ctx = (aoc_context_h)arg;
+    int match = 0;
+    int ret = 0;
+    size_t _len = strnlen(_str, MAX_LINE_LEN);
+    if (_len <= 3)
+        return -1;
+    _ctx->_pos._x = 1;
+
+    char _buf[] = "[A]";
+
+    for (char *_ss = strchr(_str, '['); _ss; _ss = strchr(_ss + 1, '['))
+    {
+        _ctx->_pos._x = (_ss - _str);
+        memcpy(_buf, _ss, 3);
+        match += sscanf(_buf, "[%c]", &_buf[1]);
+        if (!match)
+            continue;
+        if (N_IN_RANGE(_buf[1], 'A', 'Z'))
+        {
+            aoc_2d_object_h _nobj = aoc_engine_object(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_PROPERTY_MOBILE);
+            ret = aoc_engine_append_obj(_ctx->_eng, _nobj);
+            if (ret)
+                break;
+        }
+        if (!dll_find_node_by_property(&_ctx->_columns, &_ctx->_pos._x, has_same_column))
+        {
+            coord_tracker_t *_trck = coord_tracker();
+            _trck->_coord._x = _ctx->_pos._x;
+            dll_node_sorted_insert(&_ctx->_columns, NODE_CAST(_trck), highest_column);
+        }
+        _ctx->_pos._x++;
+    }
+    _ctx->_pos._y++;
+    return match ? 0 : -1;
 }

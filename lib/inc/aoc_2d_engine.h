@@ -98,7 +98,7 @@ coord_t aoc_engine_get_object_position(aoc_2d_engine_h _eng, aoc_2d_object_h _ob
 size_t aoc_engine_get_XY_moves_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b);
 size_t aoc_engine_get_XYD_moves_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b);
 
-void aoc_engine_list_objects(aoc_2d_engine_h _eng);
+void aoc_engine_prompt_obj_list(aoc_2d_engine_h _eng);
 int engine_put_cursor_in_footer_area(struct ascii_2d_engine *_eng);
 int engine_cursor_user_next_stats(struct ascii_2d_engine *_eng);
 int engine_cursor_user_stats(struct ascii_2d_engine *_eng);
@@ -118,6 +118,8 @@ int move_within_window(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2
 int aoc_inputs_ansi_to_dir(const char *const _str, AOC_2D_DIR *_dir);
 void aoc_engine_prompt(aoc_2d_engine_h _eng, const size_t _sleep, size_t _count, ...);
 
+int aoc_engine_foreach_object_arg(aoc_2d_engine_h _eng, void *arg, void func(coord_t *pos, void *arg));
+
 typedef struct aoc_2d_object_ref
 {
     struct dll_node _node;
@@ -130,10 +132,23 @@ typedef struct aoc_2d_object_ref *aoc_2d_object_ref_h;
 aoc_2d_object_ref_h aoc_2d_object_ref(aoc_2d_object_h _obj);
 void aoc_2d_object_ref_free(void *arg);
 
-struct dll_head *aoc_engine_list_objects_with_a_part_at_position(aoc_2d_engine_h _eng, coord_t *_pos);
+struct dll_head *aoc_engine_prompt_obj_list_with_a_part_at_position(aoc_2d_engine_h _eng, coord_t *_pos);
 
 char *strpos(coord_t *pos);
 char *strobjcnt(aoc_2d_engine_h _eng);
 
 void engine_add_line(aoc_2d_engine_h _eng);
-size_t engine_last_line(aoc_2d_engine_h _eng); 
+size_t engine_last_line(aoc_2d_engine_h _eng);
+
+dll_head_h engine_get_objects_positions(aoc_2d_engine_h _eng);
+
+typedef struct coord_tracker
+{
+    struct dll_node _node;
+    coord_t _coord;
+} coord_tracker_t;
+
+DLL_NODE_CTOR(coord_tracker_t, coord_tracker);
+
+bool coord_compare(void *_a, void *_b);
+int engine_remove_object(aoc_2d_engine_h eng, aoc_2d_object_h obj);

@@ -52,7 +52,7 @@ int dll_node_insert(dll_head_h head, dll_node_h _a, dll_node_h _b);
 int dll_node_sorted_insert(dll_head_h head, dll_node_h _new, dll_compare sort);
 int dll_trim_nodes(dll_head_h head, bool (*ifeq)(void *_a), void(free)(void *arg));
 
-dll_head_h dll_clone_trimmed(dll_head_h head, size_t nodesize, void *_prop, bool (*ifeq)(void *arg, void *prop));
+dll_head_h dll_clone_trimmed(dll_head_h head, size_t nodesize, void *_prop, bool (*remiftrue)(void *arg, void *prop));
 void dll_node_swap(dll_head_h head, dll_node_h _a, dll_node_h _b);
 void dll_node_disconnect(dll_head_h head, dll_node_h _a);
 

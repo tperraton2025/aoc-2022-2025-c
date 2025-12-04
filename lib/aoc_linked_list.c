@@ -150,6 +150,8 @@ void dll_node_disconnect(dll_head_h head, dll_node_h _a)
         _a->_next->_prev = _a->_prev;
     else
         head->_last = _a->_prev;
+
+    /* make a a floating node */
     _a->_prev = NULL;
     _a->_next = NULL;
 }
@@ -263,9 +265,9 @@ int dll_trimm(dll_head_h head, void *_prop, bool (*ifeq)(void *arg, void *prop),
     return 0;
 }
 
-dll_head_h dll_clone_trimmed(dll_head_h head, size_t nodesize, void *_prop, bool (*ifeq)(void *arg, void *prop))
+dll_head_h dll_clone_trimmed(dll_head_h head, size_t nodesize, void *_prop, bool (*remiftrue)(void *arg, void *prop))
 {
-    if (!head || !ifeq)
+    if (!head || !remiftrue)
         return NULL;
 
     dll_head_h _trimhead = malloc(sizeof(dll_head_t));
@@ -273,7 +275,7 @@ dll_head_h dll_clone_trimmed(dll_head_h head, size_t nodesize, void *_prop, bool
 
     LL_FOREACH_P(_node, head)
     {
-        if (ifeq((void *)_node, _prop))
+        if (remiftrue((void *)_node, _prop))
             continue;
         dll_node_h _nnode = malloc(nodesize);
         memcpy(_nnode, _node, nodesize);

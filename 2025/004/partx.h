@@ -35,3 +35,42 @@ static int parserolls(void *arg, char *str)
 }
 
 static struct parser blockparser = {._name = "roll parsers", ._func = parserolls};
+
+static dll_head_h enumeraterollsatproximity(dll_head_h allpos)
+{
+    dll_head_h _tomark = malloc(sizeof(dll_head_t));
+    dll_head_init(_tomark);
+
+    LL_FOREACH_P(_posn, allpos)
+    {
+        size_t _limit = 0;
+        coord_tracker_t _pos = {0};
+        coord_tracker_t *_trkh = (coord_tracker_t *)_posn;
+        coord_t *_posh = &_trkh->_coord;
+
+        size_t startx = _posh->_x ? _posh->_x - 1 : _posh->_x;
+        size_t starty = _posh->_y ? _posh->_y - 1 : _posh->_y;
+
+
+        for (_pos._coord._x = startx; _pos._coord._x < (_posh->_x + 2); _pos._coord._x++)
+        {
+            for (_pos._coord._y = starty; _pos._coord._y < (_posh->_y + 2); _pos._coord._y++)
+            {
+                if ((_pos._coord._x == _posh->_x) && (_pos._coord._y == _posh->_y)) 
+                    continue; 
+                if (dll_find_node_by_property(allpos, &_pos, coord_compare))
+                    _limit += 1;
+            }
+        }
+        if (_limit < 4)
+        {
+            coord_tracker_t *_ntr = coord_tracker();
+            _ntr->_coord._x = _posh->_x;
+            _ntr->_coord._y = _posh->_y;
+            dll_node_append(_tomark, &_ntr->_node);
+        }
+    }
+    return _tomark;
+}
+
+static void markfreerolls(struct context *_ctx);

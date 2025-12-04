@@ -122,7 +122,7 @@ int engine_draw(struct ascii_2d_engine *_eng)
         engine_fill_drawing_area(_eng);
         coord_t _pos = {0};
         aoc_engine_prompt_stats(_eng);
-        aoc_engine_list_objects(_eng);
+        aoc_engine_prompt_obj_list(_eng);
         engine_draw_objects(_eng, &_pos);
         engine_put_cursor_in_footer_area(_eng);
     }
@@ -187,22 +187,26 @@ aoc_2d_object_h aoc_engine_get_obj_by_position(aoc_2d_engine_h _eng, coord_t *_p
     LL_FOREACH(_objNode, _eng->_objects)
     {
         aoc_2d_object_h _object = CAST(aoc_2d_object_h, _objNode);
-
-        LL_FOREACH(_partnode, _object->_parts)
+        if (_object->_pos._x == _pos->_x && _object->_pos._y == _pos->_y)
         {
-            part_h part = (part_h)_partnode;
-            coord_t *_partpos = &part->_pos;
-            if (_partpos->_x == _pos->_x && _partpos->_y == _pos->_y)
-            {
-                return _object;
-            }
+            return _object;
         }
+
+        // LL_FOREACH(_partnode, _object->_parts)
+        //{
+        //     part_h part = (part_h)_partnode;
+        //     coord_t *_partpos = &part->_pos;
+        //     if (_partpos->_x == _pos->_x && _partpos->_y == _pos->_y)
+        //     {
+        //         return _object;
+        //     }
+        // }
     }
     return NULL;
 }
 
 /* will implement 2 methods, one by map and this one by objects linked list */
-struct dll_head *aoc_engine_list_objects_with_a_part_at_position(aoc_2d_engine_h _eng, coord_t *_pos)
+struct dll_head *aoc_engine_prompt_obj_list_with_a_part_at_position(aoc_2d_engine_h _eng, coord_t *_pos)
 {
     struct dll_head *_list;
     dll_head_init(_list);
@@ -266,7 +270,6 @@ int aoc_engine_adapt_objects_to_extension(aoc_2d_engine_h _eng, size_t steps, AO
             {
                 engine_put_cursor_in_footer_area(_eng);
                 aoc_err("aoc_engine_step_object:%s %s", _objh->_name, strerror(_ret));
-                block();
             }
         }
     }
@@ -346,4 +349,40 @@ void engine_add_line(aoc_2d_engine_h _eng)
 size_t engine_last_line(aoc_2d_engine_h _eng)
 {
     return _eng->_newlinecnt % ABSOLUTE_MAX_Y;
+}
+
+int aoc_engine_foreach_object_arg(aoc_2d_engine_h _eng, void *arg, void func(coord_t *pos, void *arg))
+{
+    LL_FOREACH(_it, _eng->_objects)
+    {
+        aoc_2d_object_h _objh = (aoc_2d_object_h)_it;
+        func(&_objh->_pos, arg);
+    }
+}
+
+dll_head_h engine_get_objects_positions(aoc_2d_engine_h _eng)
+{
+
+    dll_head_h _poslists = malloc(sizeof(dll_head_t));
+    dll_head_init(_poslists);
+
+    LL_FOREACH(_objn, _eng->_objects)
+    {
+        aoc_2d_object_h _objh = (aoc_2d_object_h)_objn;
+        coord_tracker_t *_ntr = coord_tracker();
+        _ntr->_coord._x = _objh->_pos._x;
+        _ntr->_coord._y = _objh->_pos._y;
+        dll_node_append(_poslists, &_ntr->_node);
+    }
+    return _poslists;
+}
+
+int engine_remove_object(aoc_2d_engine_h eng, aoc_2d_object_h obj)
+{
+    if (!eng || !obj)
+        return EINVAL;
+    aoc_engine_erase_object(eng, obj);
+    dll_node_disconnect(&eng->_objects, &obj->_node);
+    aoc_engine_free_object(&obj->_node);
+    return 0;
 }

@@ -198,6 +198,6 @@ int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng)
 /*! warning: not thread safe */
 char *strpos(coord_t *pos)
 {
-    snprintf(_strposbuf, ARRAY_DIM(_strposbuf), "[%lux%lu]", pos->_x, pos->_y);
+    snprintf(_strposbuf, ARRAY_DIM(_strposbuf), "[%lux%lu]", pos->_x % 10000, pos->_y % 10000);
     return _strposbuf;
 }

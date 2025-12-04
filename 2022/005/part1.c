@@ -67,8 +67,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     aoc_engine_extend_one_direction(_ctx->_eng, 20, AOC_DIR_UP);
     engine_draw(_ctx->_eng);
-
-    block();
+ 
     crane_action(_ctx);
     aoc_spell_ans(_blk);
 

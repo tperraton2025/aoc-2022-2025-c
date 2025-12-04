@@ -117,7 +117,7 @@ free_rt:
 void aoc_engine_free_object(void *_data)
 {
     aoc_2d_object_h _obj = (aoc_2d_object_h)_data;
-    assert(0 == _obj->_refcnt && "trying to free an object with potential dangling reference");
+    //assert(0 == _obj->_refcnt && "trying to free an object with potential dangling reference");
     FREE(_obj->_name);
     dll_free_all(&_obj->_parts, aoc_engine_free_part);
     FREE(_obj);

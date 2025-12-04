@@ -73,7 +73,7 @@ int engine_fill_hv_line(struct ascii_2d_engine *_eng, coord_t *_start, coord_t *
     return 0;
 }
 
-void aoc_engine_list_objects(aoc_2d_engine_h _eng)
+void aoc_engine_prompt_obj_list(aoc_2d_engine_h _eng)
 {
     if (_eng->_enabledraw)
     {
@@ -94,7 +94,7 @@ void aoc_engine_prompt_stats(aoc_2d_engine_h _eng)
     engine_cursor_stats(_eng);
     aoc_info("objects %ld", _eng->_objects._size);
     engine_cursor_private_next_stats(_eng);
-    aoc_info("box size %s", strpos(&_eng->_coordlimits._max)); 
+    aoc_info("box size %s", strpos(&_eng->_coordlimits._max));
     engine_cursor_private_next_stats(_eng);
 }
 
@@ -117,4 +117,11 @@ void aoc_engine_prompt(aoc_2d_engine_h _eng, const size_t _sleep, size_t _count,
         if (_sleep)
             usleep(_sleep * 1000);
     }
+}
+
+bool coord_compare(void *_a, void *_b)
+{
+    coord_tracker_t *_aNode = CAST(coord_tracker_t *, _a);
+    coord_tracker_t *_bNode = CAST(coord_tracker_t *, _b);
+    return (_aNode->_coord._x == _bNode->_coord._x) && (_aNode->_coord._y == _bNode->_coord._y);
 }

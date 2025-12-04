@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define FREE_AND_CLEAR_P(_p) \
+#define FREE(_p) \
     {                        \
         if (_p)              \
             free(_p);        \
@@ -26,7 +26,7 @@
 #define CAST(_t, _p) ((_t)_p)
 #define MAX_LINE_LEN (1024)
 
-#define ARR_FOREACH(_it, _arr) for (size_t _it = 0; _it < ARR_DIM(_arr); _it++)
+#define ARR_FOREACH(_it, _arr) for (size_t _it = 0; _it < ARRAY_DIM(_arr); _it++)
 
 #define aoc_info(_fmt, ...) printf(_fmt "\r\n", __VA_ARGS__);
 #define aoc_err(_fmt, ...) printf(RED _fmt RESET "\r\n", __VA_ARGS__);
@@ -35,7 +35,7 @@
 
 #define block()                                               \
     {                                                         \
-        aoc_info("%s %s:%ld", "blocked", __FILE__, __LINE__); \
+        aoc_info("%s %s:%i", "blocked", __FILE__, __LINE__); \
         scanf("%*c");                                         \
     }
 

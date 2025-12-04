@@ -16,6 +16,7 @@ int parser_append(dll_head_h _ll, parser_h parser, void *arg)
     if (!parser || !_ll)
         return EINVAL;
 
+    assert(arg && "NULL pointer");
     parser->arg = arg;
     ret = dll_node_append(_ll, &parser->_node);
     if (ret)

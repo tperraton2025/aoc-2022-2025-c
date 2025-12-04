@@ -5,9 +5,6 @@
 #include "aoc_ranges.h"
 #include "aoc_linked_list.h"
 
-#define NAME_FMT "%16s"
-#define ABSOLUTE_MAX_PART_CNT (32)
-#define ABSOLUTE_MAX_NAME_LEN (16)
 
 typedef struct context *aoc_context_h;
 

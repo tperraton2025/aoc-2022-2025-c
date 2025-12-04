@@ -4,7 +4,9 @@
 #include "aoc_ranges.h"
 #include "aoc_linked_list.h"
 
-#define OBJ_NAME_FMT "%16s"
+#define MAX_NAME_LEN_LUI (16LU)
+#define MAX_NAME_LEN_STR "16"
+#define OBJ_NAME_FMT "%" MAX_NAME_LEN_STR "s"
 
 #define ABSOLUTE_MAX_X (4096)
 #define ABSOLUTE_MAX_Y (4096)
@@ -14,11 +16,12 @@
 
 #define ABSOLUTE_MAX_PART_CNT (32)
 #define ABSOLUTE_MAX_PART_FMT_LEN (16)
-#define ABSOLUTE_MAX_NAME_LEN (16)
-#define ABSOLUTE_MAX_STAT_LEN (128)
+
+#define ABSOLUTE_MAX_STAT_LEN (128) f
 #define ABSOLUTE_MAX_STATS_LINES (128)
 
 #define COORD_RANGE_CHECK(_coord, _range) (N_IN_RANGE(_coord._x, _range._min._x, _range._max._x) && N_IN_RANGE(_coord._y, _range._min._y, _range._max._y))
+#define COORD_RANGE_CHECK_P(_coord, _range) (N_IN_RANGE(_coord->_x, _range._min._x, _range._max._x) && N_IN_RANGE(_coord->_y, _range._min._y, _range._max._y))
 
 #define COORD_MAXIMA_CHECK(_a, _b) (_a._x <= _b._x) && (_a._y <= _b._y)
 #define BOUNDARY_CHECK_P(_a, _b) (_a->_x <= _b->_x) && (_a->_y <= _b->_y)
@@ -67,7 +70,7 @@ typedef struct move
 typedef struct ascii_2d_engine *aoc_2d_engine_h;
 typedef struct object *aoc_2d_object_h;
 
-aoc_2d_engine_h engine_create(coord_t partcoordmaxima, char _voidsym, size_t delay);
+aoc_2d_engine_h engine_create(coord_t *partcoordmaxima, char _voidsym, size_t delay);
 void aoc_engine_free_object(void *_data);
 void eng_set_refresh_delay(aoc_2d_engine_h _eng, size_t delay);
 int engine_draw_objects(aoc_2d_engine_h _eng, coord_t *_corner);
@@ -81,13 +84,14 @@ aoc_2d_object_h aoc_engine_object(aoc_2d_engine_h eng, const char *const name, c
 int aoc_engine_append_obj(aoc_2d_engine_h _eng, aoc_2d_object_h _obj);
 aoc_2d_object_h aoc_engine_get_obj_my_name(aoc_2d_engine_h _eng, const char *name);
 aoc_2d_object_h aoc_engine_get_obj_by_position(aoc_2d_engine_h _eng, coord_t *_pos);
+size_t aoc_engine_get_object_count(aoc_2d_engine_h _eng);
 const char *const aoc_engine_get_obj_name(aoc_2d_object_h _obj);
 
 int aoc_engine_move_object(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t _steps, AOC_2D_DIR dir);
-int aoc_engine_step_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t steps, AOC_2D_DIR dir, char *_fmt);
+int aoc_engine_step_object(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t steps, AOC_2D_DIR dir, char *_fmt);
 int aoc_engine_move_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, size_t steps, AOC_2D_DIR dir);
 int aoc_engine_put_object_and_redraw(aoc_2d_engine_h _eng, aoc_2d_object_h _obj, coord_t _npos);
-int aoc_engine_collision_at(aoc_2d_engine_h _eng, coord_t *_pos);
+int aoc_engine_collision_at(aoc_2d_engine_h _eng, aoc_2d_object_h excl, coord_t *_pos);
 
 coordboundaries_t aoc_engine_get_parts_boundaries(aoc_2d_engine_h _eng);
 coord_t aoc_engine_get_object_position(aoc_2d_engine_h _eng, aoc_2d_object_h _obj);
@@ -102,6 +106,7 @@ int engine_cursor_user_stats(struct ascii_2d_engine *_eng);
 int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng);
 
 int engine_draw_part_at(aoc_2d_engine_h _eng, coord_t *_pos, char *_sym);
+int engine_draw_symbol_at(aoc_2d_engine_h eng, coord_t *_pos, const char *_sym);
 size_t aoc_engine_get_dist_between_objects(aoc_2d_engine_h _eng, aoc_2d_object_h _a, aoc_2d_object_h _b);
 int aoc_engine_move_one_step_towards(aoc_2d_engine_h _eng, aoc_2d_object_h _a, coord_t _pos);
 
@@ -112,3 +117,23 @@ int move_within_window(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2
 
 int aoc_inputs_ansi_to_dir(const char *const _str, AOC_2D_DIR *_dir);
 void aoc_engine_prompt(aoc_2d_engine_h _eng, const size_t _sleep, size_t _count, ...);
+
+typedef struct aoc_2d_object_ref
+{
+    struct dll_node _node;
+    aoc_2d_object_h data;
+    int _blocked;
+} aoc_2d_object_ref_t;
+
+typedef struct aoc_2d_object_ref *aoc_2d_object_ref_h;
+
+aoc_2d_object_ref_h aoc_2d_object_ref(aoc_2d_object_h _obj);
+void aoc_2d_object_ref_free(void *arg);
+
+struct dll_head *aoc_engine_list_objects_with_a_part_at_position(aoc_2d_engine_h _eng, coord_t *_pos);
+
+char *strpos(coord_t *pos);
+char *strobjcnt(aoc_2d_engine_h _eng);
+
+void engine_add_line(aoc_2d_engine_h _eng);
+size_t engine_last_line(aoc_2d_engine_h _eng); 

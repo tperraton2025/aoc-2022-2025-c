@@ -19,6 +19,7 @@ add_library(
   aoc_stack.c
   aoc_ring_buffer.c
   aoc_tree.c
+  aoc_numeric.c
   ${2D_ENGINE_SRCS})
 set(CMAKE_BUILD_TYPE DEBUG)
 

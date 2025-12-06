@@ -12,7 +12,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-struct context
+typedef struct context
 {
     aoc_2d_engine_h _eng;
     struct dll_head _grippedBoxes;
@@ -23,7 +23,8 @@ struct context
     coord_t _pos;
     char *spelling;
     int result;
-};
+}context_t; 
+typedef context_t *aoc_context_h;
 
 #define CTX_CAST(_p) ((struct context *)_p)
 

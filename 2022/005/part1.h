@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-struct context
+typedef struct context
 {
     aoc_2d_engine_h _eng;
     aoc_2d_object_h _grippedBox;
@@ -21,10 +21,11 @@ struct context
     struct dll_head _cmds;
     char *spelling;
     int result;
-};
+} context_t;
+
+typedef context_t *aoc_context_h;
 
 #define CTX_CAST(_p) ((struct context *)_p)
-  
 
 static int crate_lift(aoc_context_h _ctx, command_t *_cmd);
 static int crate_change_lane(aoc_context_h _ctx, command_t *_cmd);
@@ -32,4 +33,3 @@ static int crate_deposit(aoc_context_h _ctx, command_t *_cmd);
 static int crane_action(aoc_context_h _ctx);
 
 static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk);
-

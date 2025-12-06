@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-struct context
+typedef struct context
 {
     dll_head_t _parsers;
     size_t _usedmem;
@@ -15,7 +15,7 @@ struct context
     size_t _memcheck;
     struct dll_head _cmds;
     int result;
-};
+} context_t;
 
 typedef struct cmd
 {

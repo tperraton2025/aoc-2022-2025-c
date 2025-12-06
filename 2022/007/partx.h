@@ -11,6 +11,7 @@
 
 #define PART1_MEM_LIM (100000)
 
+typedef struct context *aoc_context_h;
 typedef struct
 {
     struct tree_node path;

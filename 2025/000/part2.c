@@ -1,4 +1,4 @@
-#include"partx.h"
+#include "partx.h"
 
 typedef struct context
 {
@@ -7,14 +7,14 @@ typedef struct context
 
 typedef context_t *context_h;
 
-#define CTX_CAST(_p) ((context_h )_p)
+#define CTX_CAST(_p) ((context_h)_p)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
     aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
-        return ENOMEM; 
+        return ENOMEM;
     context_h _ctx = CTX_CAST(_blk->_data);
     _ctx->result = 0;
     return 0;

@@ -2,7 +2,7 @@
 #include "engine.h"
 #include <assert.h>
 
-static char _strposbuf[] = "[00000x00000]";
+static char _strpos[] = "[00000x00000]";
 
 int move_cursor_until(struct ascii_2d_engine *_eng, AOC_2D_DIR _dir, size_t _steps, coord_t *limit)
 {
@@ -198,6 +198,6 @@ int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng)
 /*! warning: not thread safe */
 char *strpos(coord_t *pos)
 {
-    snprintf(_strposbuf, ARRAY_DIM(_strposbuf), "[%lux%lu]", pos->_x % 10000, pos->_y % 10000);
-    return _strposbuf;
+    snprintf(_strpos, ARRAY_DIM(_strpos), "[%lux%lu]", pos->_x % 10000, pos->_y % 10000);
+    return _strpos;
 }

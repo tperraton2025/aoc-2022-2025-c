@@ -1,11 +1,5 @@
 #include "partx.h"
-
-struct context
-{
-    joltchoice_h _origin;
-    joltchoice_h _current;
-    long long unsigned result;
-};
+ 
 
 #define CTX_CAST(_p) ((struct context *)_p)
 
@@ -17,34 +11,21 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
         return ENOMEM;
     memset(_blk->_data, 0, sizeof(struct context));
     struct context *_ctx = CTX_CAST(_blk->_data);
-    _ctx->result = 0;
+    _ctx->_result = 0;
     return 0;
 }
 
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
-
-    _ctx->_origin = newjoltchoice(NULL);
-    _ctx->_current = _ctx->_origin;
-
-    populatejoltageratings(_ctx->_origin->_joltages, _blk->_str);
-    joltage_h _jolth = (joltage_h)_ctx->_origin->_joltages->_first;
-
-    joltchoice_h _subchoice = makenextjoltchoice(_ctx->_current, _jolth);
-
-    aoc_ans("result for %s %lu", strtok(_blk->_str, "\n"), _ctx->_origin->_conversion->_val);
-
-    _ctx->result += _ctx->_origin->_conversion->_val;
-    aoc_tree_free(&_ctx->_origin->_treenode);
-    free(_ctx->_origin);
+ 
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
-    aoc_ans("AOC %s %s solution is %llu", CONFIG_YEAR, _blk->_name, _ctx->result);
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

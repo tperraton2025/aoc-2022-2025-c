@@ -48,8 +48,7 @@ error:
     aoc_err("AOC 2022 %s failed with error %d", _sol->_name, ret);
 }
 
-
-int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
+int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[], char **input)
 {
     int ret = 0;
     assert(_sol && "NULL solutionCtrlBlk provided by user");
@@ -58,31 +57,31 @@ int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[]
     assert(_sol->_prologue && "NULL _prologue function provided by user");
     assert(_sol->_epilogue && "NULL _epilogue function provided by user");
 
-    FILE *_pxfile = fopen(argv[1], "r");
-    if (_pxfile == NULL)
+    if (argv[1] == NULL)
     {
-        aoc_err("%s:%d: Error opening %s!", __func__, __LINE__, argv[1]);
+        aoc_err("%s", "error finding input data");
         exit(EXIT_FAILURE);
     }
 
     char _ins[MAX_LINE_LEN] = {0};
- 
+
     if (_sol->_prologue(_sol, argc, argv))
         goto error;
-    while (fgets(_ins, sizeof(_ins), _pxfile))
+
+    size_t _it = 0;
+    while (input[_it])
     {
-        _sol->_str = _ins;
+        _sol->_str = input[_it++];
         ret = _sol->_handler(_sol);
         if (ret)
             goto error;
     }
-    fclose(_pxfile);
+
     _sol->_epilogue(_sol);
     _sol->_free(_sol);
     aoc_info("AOC 2022 %s exited with code %d", _sol->_name, ret);
     return ret;
 error:
-    fclose(_pxfile);
     _sol->_free(_sol);
     aoc_err("AOC 2022 %s failed with error %d", _sol->_name, ret);
 }

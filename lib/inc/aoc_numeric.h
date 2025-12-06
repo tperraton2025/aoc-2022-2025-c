@@ -18,6 +18,10 @@ void print_base10(base10_h base10);
 base10_h base_10_conversion(size_t luint);
 int base_10_increment(base10_h base10);
 size_t base_10_reverse_conversion(base10_h base10);
+void base_10_clear(base10_h base10);
+
 char *string_base10(base10_h base10);
-char *string_reverse(char *_str);
+char *strconv(base10_h base10);
+
+char *strrev(char *_str);
 #endif

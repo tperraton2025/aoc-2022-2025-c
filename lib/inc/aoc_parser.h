@@ -5,8 +5,6 @@
 #include "aoc_ranges.h"
 #include "aoc_linked_list.h"
 
-typedef struct context *aoc_context_h;
-
 /**
  * Text input parsers
  */

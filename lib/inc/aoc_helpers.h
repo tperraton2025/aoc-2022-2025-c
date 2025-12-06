@@ -11,12 +11,11 @@
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
-
-#define FREE(_p) \
-    {                        \
-        if (_p)              \
-            free(_p);        \
-        _p = NULL;           \
+#define FREE(_p)      \
+    {                 \
+        if (_p)       \
+            free(_p); \
+        _p = NULL;    \
     }
 
 #define TRY_RAII_MALLOC(_p, _s) \
@@ -32,15 +31,18 @@
 
 #define ARR_FOREACH(_it, _arr) for (size_t _it = 0; _it < ARRAY_DIM(_arr); _it++)
 
+/* array of usize max size are deemed not possible */
+#define ARR_FOREACH_REV(_it, _arr) for (size_t _it = ARRAY_DIM(_arr) - 1; _it < __SIZE_MAX__; _it--)
+
 #define aoc_info(_fmt, ...) printf(_fmt "\r\n", __VA_ARGS__);
 #define aoc_err(_fmt, ...) printf(RED _fmt RESET "\r\n", __VA_ARGS__);
 #define aoc_warn(_fmt, ...) printf(YELLOW _fmt RESET "\r\n", __VA_ARGS__);
 #define aoc_ans(_fmt, ...) printf(UGREEN _fmt RESET "\r\n", __VA_ARGS__);
 
-#define block()                                               \
-    {                                                         \
+#define block()                                              \
+    {                                                        \
         aoc_info("%s %s:%i", "blocked", __FILE__, __LINE__); \
-        scanf("%*c");                                         \
+        scanf("%*c");                                        \
     }
 
 struct solutionCtrlBlock_t
@@ -64,5 +66,8 @@ struct solutionCtrlBlock_t
  * @param _func     : int returning function pointer
  */
 extern int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[]);
+
+/*  when I am too tired to parse, like 2025 day 006 */
+int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[], char** input);
 
 #endif

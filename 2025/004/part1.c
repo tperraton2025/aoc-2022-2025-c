@@ -1,13 +1,14 @@
 #include "partx.h"
 
-struct context
+typedef struct context
 {
     aoc_2d_engine_h _engine;
     dll_head_h _rolls;
     dll_head_h _freerolls;
     dll_head_t _parsers;
     size_t result;
-};
+}context_t;
+
 
 #define CTX_CAST(_p) ((struct context *)_p)
 

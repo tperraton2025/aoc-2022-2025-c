@@ -72,5 +72,5 @@ static dll_head_h enumeraterollsatproximity(dll_head_h allpos)
     }
     return _tomark;
 }
-
+typedef struct context *aoc_context_h;
 static void markfreerolls(struct context *_ctx);

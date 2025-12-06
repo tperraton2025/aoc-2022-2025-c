@@ -25,13 +25,47 @@ size_t base_10_reverse_conversion(base10_h base10)
 {
     size_t _ret = 0;
     size_t _pow = 1;
-    for (size_t _ii = 0; _ii < base10->_lastdigit; _ii++)
+    for (size_t _ii = 0; _ii < ARRAY_DIM(base10->_digits); _ii++)
     {
         _ret += base10->_digits[_ii] * (_pow);
         _pow *= 10;
+        if (base10->_digits[_ii] && _ii > base10->_lastdigit)
+            base10->_lastdigit = _ii;
     }
     base10->_val = _ret;
     return _ret;
+}
+
+void base_10_clear(base10_h base10)
+{
+    memset(base10->_digits, 0, ARRAY_DIM(base10->_digits));
+    base10->_val = 0;
+}
+
+static char _strconv[1024] = {0};
+
+char *strconv(base10_h base10)
+{
+
+    base10_t _dummy = {0};
+    _dummy._val = base10->_val;
+    _dummy._lastdigit = base10->_lastdigit;
+
+    for (size_t _ii = 0; _ii <= ARRAY_DIM(base10->_digits); _ii++)
+    {
+        _dummy._digits[_ii] = base10->_digits[_ii] + '0';
+    }
+
+    char *_at = _strconv;
+    _at += sprintf(_at, "╔══════════════════════════╗\n");
+    _at += sprintf(_at, "║value: %18ld ║\n", _dummy._val);
+    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", _dummy._digits);
+    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[16]);
+    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[32]);
+    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[48]);
+    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[48]);
+    _at += sprintf(_at, "╚══════════════════════════╝\n");
+    return _strconv;
 }
 
 void print_base10(base10_h base10)
@@ -45,7 +79,18 @@ void print_base10(base10_h base10)
     aoc_info("%lu = %s", base10->_val, &_dummy._digits[0]);
 }
 
-char *string_reverse(char *_str)
+void base10_endianness_flip(base10_h conv)
+{
+    size_t _len = ARRAY_DIM(conv->_digits);
+    for (size_t _ii = 0; _ii < _len >> 1; _ii++)
+    {
+        conv->_digits[_ii] = conv->_digits[_len - 1 - _ii] ^ conv->_digits[_ii];
+        conv->_digits[_len - 1 - _ii] = conv->_digits[_ii] ^ conv->_digits[_len - 1 - _ii];
+        conv->_digits[_ii] = conv->_digits[_len - 1 - _ii] ^ conv->_digits[_ii];
+    }
+}
+
+char *strrev(char *_str)
 {
     size_t _len = strlen(_str);
     for (size_t _ii = 0; _ii < _len >> 1; _ii++)
@@ -54,6 +99,7 @@ char *string_reverse(char *_str)
         _str[_len - 1 - _ii] = _str[_ii] ^ _str[_len - 1 - _ii];
         _str[_ii] = _str[_len - 1 - _ii] ^ _str[_ii];
     }
+    _str[_len + 1] = '\0';
     return _str;
 }
 

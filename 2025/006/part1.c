@@ -78,6 +78,13 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
         dll_free_all(&_ctx->_prob._params[_it], intlistnode_free);
     }
     dll_free_all(&_ctx->_prob._ops, free);
+
+
+    for (size_t _ii = 0; _ii < _ctx->_prob._instrcnt; _ii++)
+        free(_ctx->_prob._instr[_ii]);
+
+    free(_ctx->_prob._instr);
+    
     free(_blk->_data);
 }
 

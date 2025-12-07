@@ -94,6 +94,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
         head--;
     }
 
+    free(conv);
     if (55486328 < _ctx->_result || 3263827 == _ctx->_result)
     {
         aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
@@ -114,6 +115,12 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
         dll_free_all(&_ctx->_prob._params[_it], intlistnode_free);
     }
     dll_free_all(&_ctx->_prob._ops, free);
+
+    for (size_t _ii = 0; _ii < _ctx->_prob._instrcnt; _ii++)
+        free(_ctx->_prob._instr[_ii]);
+
+    free(_ctx->_prob._opstr);
+    free(_ctx->_prob._instr);
     free(_blk->_data);
 }
 

@@ -14,7 +14,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     parser_append(&_ctx->parsers, &octonumparser, &_ctx->_prob);
     parser_append(&_ctx->parsers, &octoopsparser, &_ctx->_prob);
 
-    _ctx->result = 0;
+    _ctx->_result = 0;
     return 0;
 }
 
@@ -80,7 +80,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
                 if (rbuff[_ii])
                     delta *= rbuff[_ii];
             }
-            _ctx->result += delta;
+            _ctx->_result += delta;
         }
         else if (opstr[head] == '+')
         {
@@ -89,18 +89,18 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
             {
                 delta += rbuff[_ii];
             }
-            _ctx->result += delta;
+            _ctx->_result += delta;
         }
         head--;
     }
 
-    if (55486328 < _ctx->result || 3263827 == _ctx->result)
+    if (55486328 < _ctx->_result || 3263827 == _ctx->_result)
     {
-        aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->result);
+        aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     }
     else
     {
-        aoc_err("AOC %s %s solution is not %lu", CONFIG_YEAR, _blk->_name, _ctx->result);
+        aoc_err("AOC %s %s solution is not %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     }
     return 0;
 }

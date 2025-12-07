@@ -10,7 +10,7 @@ struct context
 {
     range_t _a;
     range_t _b;
-    int result;
+    size_t _result;
 };
 
 #define CTX_CAST(_p) ((struct context *)_p)
@@ -29,12 +29,12 @@ static bool partial_overlap(struct solutionCtrlBlock_t *_blk)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
+    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
-        return ENOMEM; 
+        return ENOMEM;
     struct context *_ctx = CTX_CAST(_blk->_data);
-    CTX_CAST(_blk->_data)->result = 0;
+    _ctx->_result = 0;
     return 0;
 }
 
@@ -42,14 +42,14 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
     if (4 == sscanf(_blk->_str, "%ld-%ld,%ld-%ld", &_ctx->_a._min, &_ctx->_a._max, &_ctx->_b._min, &_ctx->_b._max))
-        _ctx->result += (full_overlap(_blk) || partial_overlap(_blk)) ? 1 : 0;
+        _ctx->_result += (full_overlap(_blk) || partial_overlap(_blk)) ? 1 : 0;
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    int result = CTX_CAST(_blk->_data)->result;
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
+    struct context *_ctx = CTX_CAST(_blk->_data);
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

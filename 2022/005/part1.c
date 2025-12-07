@@ -9,7 +9,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     struct context *_ctx = CTX_CAST(_blk->_data);
 
-    _ctx->result = 0;
+    _ctx->_result = 0;
 
     _ctx->_pos._x = 1;
     _ctx->_pos._y = 1;
@@ -67,11 +67,10 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     aoc_engine_extend_one_direction(_ctx->_eng, 20, AOC_DIR_UP);
     engine_draw(_ctx->_eng);
- 
+
     crane_action(_ctx);
     aoc_spell_ans(_blk);
 
-    int ret = _ctx->result;
     return 0;
 }
 

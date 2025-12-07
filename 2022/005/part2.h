@@ -22,7 +22,7 @@ typedef struct context
     struct dll_head _cmds;
     coord_t _pos;
     char *spelling;
-    int result;
+    size_t _result;
 }context_t; 
 typedef context_t *aoc_context_h;
 

@@ -18,7 +18,7 @@ typedef struct elfCal
 typedef struct context
 {
     dll_head_t _head;
-    int _maxCalories;
+    size_t _result;
 } context_t;
 
 DLL_NODE_CTOR(elfCal_t, elfnode_ctor);
@@ -32,7 +32,7 @@ static elfCal_t *elfCtor(dll_head_h head)
     _ret->_count = dll_size(head);
     _ret->_calories = 0;
     _ret->_name = malloc(sizeof("elfo 999"));
-    
+
     if (!_ret->_name)
     {
         FREE(_ret);
@@ -54,12 +54,11 @@ static void freeElf(void *arg)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
-    _blk->_data = malloc(sizeof(context_t));
+    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
+    TRY_RAII_MALLOC(_blk->_data, sizeof(context_t));
     context_t *_ctx = CAST(context_t *, _blk->_data);
     if (!_ctx)
         return ENOMEM;
-    memset(_ctx, 0, sizeof(context_t));
 
     dll_head_init(&_ctx->_head);
     elfCal_t *nelf = elfCtor(&_ctx->_head);
@@ -73,11 +72,12 @@ static int handler(struct solutionCtrlBlock_t *_blk)
     elfCal_t *_lastelf = CAST(elfCal_t *, _ctx->_head._last);
 
     int _cal = 0;
+    aoc_info("%lu", _ctx->_result);
     if (sscanf(_blk->_str, "%d\n", &_cal))
         if (_cal)
         {
             _lastelf->_calories += _cal;
-            _ctx->_maxCalories = HIGHEST(_lastelf->_calories, _ctx->_maxCalories);
+            _ctx->_result = HIGHEST(_lastelf->_calories, _ctx->_result);
         }
         else
         {
@@ -89,9 +89,8 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    context_t *_data = CAST(context_t *, _blk->_data);
-    int result = _data->_maxCalories;
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
+    context_t *_ctx = CAST(context_t *, _blk->_data);
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

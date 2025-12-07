@@ -13,7 +13,7 @@ struct context
     fdir_t *_cdir;
     fdir_t *_root;
     size_t _memcheck;
-    int result;
+    size_t _result;
 };
 
 #define CTX_CAST(_p) ((struct context *)_p)
@@ -33,7 +33,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     parser_append(&_ctx->_parsers, &dirparser, _ctx);
 
     _ctx->_usedmem = 0;
-    _ctx->result = 0;
+    _ctx->_result = 0;
     return 0;
 }
 
@@ -55,9 +55,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     aoc_tree_foreach_nodes_arg(&_ctx->_root->path, &_srch, get_smallest_dir_above_mem_lim);
 
-    int result = _srch.totalMem;
-
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
+    _ctx->_result = _srch.totalMem;
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

@@ -2,7 +2,8 @@
 
 typedef struct context
 {
-    size_t result;
+    aoc_2d_engine_h _eng;
+    size_t _result;
 } context_t;
 
 typedef context_t *context_h;
@@ -16,7 +17,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     if (!_blk->_data)
         return ENOMEM; 
     context_h _ctx = CTX_CAST(_blk->_data);
-    _ctx->result = 0;
+    _ctx->_result = 0;
     return 0;
 }
 
@@ -29,7 +30,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     context_h _ctx = CTX_CAST(_blk->_data); 
-    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->result);
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

@@ -10,7 +10,7 @@
 
 struct context
 {
-    int result;
+    size_t _result;
 };
 
 static char mine;
@@ -33,7 +33,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM; 
-    CTX_CAST(_blk->_data)->result = 0;
+    struct context *_ctx = CTX_CAST(_blk->_data); _ctx->_result = 0;
     return 0;
 }
 
@@ -51,15 +51,15 @@ static int handler(struct solutionCtrlBlock_t *_blk)
             exit(EXIT_FAILURE);
         }
         int round = (mine + 1) + points[index];
-        CTX_CAST(_blk->_data)->result += round;
+        struct context *_ctx = CTX_CAST(_blk->_data); _ctx->_result += round;
     }
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    int result = CTX_CAST(_blk->_data)->result;
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
+    struct context *_ctx = CTX_CAST(_blk->_data); 
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

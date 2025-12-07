@@ -49,7 +49,7 @@ typedef struct context
 {
     dll_head_t parsers;
     problem_t _prob;
-    size_t result;
+    size_t _result;
 } context_t;
 
 typedef context_t *context_h;

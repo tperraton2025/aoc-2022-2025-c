@@ -14,7 +14,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     parser_append(&_ctx->parsers, &numparser, &_ctx->_prob);
     parser_append(&_ctx->parsers, &opsparser, &_ctx->_prob);
 
-    _ctx->result = 0;
+    _ctx->_result = 0;
     return 0;
 }
 
@@ -45,7 +45,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
         else if (((charlistitem_h)_operands)->_char == '*')
             _subresult = multiply(_ctx);
 
-        _ctx->result += _subresult;
+        _ctx->_result += _subresult;
 
         ARR_FOREACH(_it, _ctx->_prob._params)
         {
@@ -58,13 +58,13 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
             break;
     }
 
-    if (5361735137219 == _ctx->result || 4277556 == _ctx->result)
+    if (5361735137219 == _ctx->_result || 4277556 == _ctx->_result)
     {
-        aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->result);
+        aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     }
     else
     {
-        aoc_err("AOC %s %s solution is not %lu", CONFIG_YEAR, _blk->_name, _ctx->result);
+        aoc_err("AOC %s %s solution is not %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     }
     return 0;
 }

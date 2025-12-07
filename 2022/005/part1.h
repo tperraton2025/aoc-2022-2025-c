@@ -20,7 +20,7 @@ typedef struct context
     coord_t _pos;
     struct dll_head _cmds;
     char *spelling;
-    int result;
+    size_t _result;
 } context_t;
 
 typedef context_t *aoc_context_h;

@@ -18,7 +18,7 @@ struct context
     coord_t _prevPosFromLastMovedLink;
     struct dll_head _movs;
     struct dll_head _tailPos;
-    int result;
+    size_t _result;
 };
 
 #define CTX_CAST(_p) ((struct context *)_p)
@@ -78,7 +78,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
         return ENOMEM;
     struct context *_ctx = CTX_CAST(_blk->_data);
 
-    _ctx->result = 0;
+    _ctx->_result = 0;
 
     coord_t _prelcoordmaxima = {._x = 20, ._y = 20};
 
@@ -222,8 +222,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
         engine_draw_part_at(_ctx->_eng, &_npos->_coord, "#");
     }
 
-    _ctx->result = dll_size(&_ctx->_tailPos);
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, _ctx->result);
+    _ctx->_result = dll_size(&_ctx->_tailPos);
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 
@@ -232,7 +232,7 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CAST(struct context *, _blk->_data);
     engine_free(_ctx->_eng);
     dll_free_all(&_ctx->_movs, free);
-    _ctx->result = dll_size(&_ctx->_tailPos);
+    _ctx->_result = dll_size(&_ctx->_tailPos);
     dll_free_all(&_ctx->_tailPos, free);
     FREE(_blk->_data);
 }

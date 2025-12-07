@@ -14,7 +14,7 @@
 struct context
 {
     char *_instr;
-    long unsigned result;
+    size_t _result;
 };
 
 #define CTX_CAST(_p) ((struct context *)_p)
@@ -66,7 +66,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
                 size_t bot = 0;
                 if (base_10_has_pattern(_conv))
                 {
-                    _ctx->result += _conv->_val;
+                    _ctx->_result += _conv->_val;
                 }
                 base_10_increment(_conv);
             }
@@ -74,8 +74,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
         }
         _sstr = strtok(NULL, ",");
     }
-    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->result);
-    assert(1227775554 == _ctx->result || 40055209690 == _ctx->result);
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
+    assert(1227775554 == _ctx->_result || 40055209690 == _ctx->_result);
     return 0;
 }
 

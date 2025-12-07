@@ -17,6 +17,7 @@ struct elfCal_t
 struct context
 {
     struct dll_head _ll;
+    size_t _result;
 };
 
 #define ELF_CAST(_p) ((struct elfCal_t *)_p)
@@ -102,15 +103,15 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    int result = 0, count = 0;
+    int  count = 0;
     struct context *_ctx = CAST(struct context *, _blk->_data);
 
     LL_FOREACH(_node, _ctx->_ll)
     {
         if (count++ < 3)
-            result += ELF_CAST(_node)->_calories;
+            _ctx->_result += ELF_CAST(_node)->_calories;
     }
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

@@ -14,7 +14,7 @@ typedef struct context
     fdir_t *_root;
     size_t _memcheck;
     struct dll_head _cmds;
-    int result;
+    size_t _result;
 } context_t;
 
 typedef struct cmd
@@ -53,7 +53,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_parsers);
 
     _ctx->_usedmem = 0;
-    _ctx->result = 0;
+    _ctx->_result = 0;
 
     parser_append(&_ctx->_parsers, &cmdparser, _ctx);
     parser_append(&_ctx->_parsers, &fileparser, _ctx);
@@ -84,8 +84,9 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     filesearch_t _srch = {.threshold = 100000, .totalMem = 0};
     aoc_tree_foreach_nodes_arg(&_ctx->_root->path, &_srch, sum_dirs_below_mem_lim);
-    int result = _srch.totalMem;
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
+
+    _ctx->_result = _srch.totalMem;
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
 
     return 0;
 }

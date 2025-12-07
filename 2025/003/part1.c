@@ -70,9 +70,8 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data);
-    int result = _ctx->_result;
-    aoc_ans("AOC %s %s solution is %i", CONFIG_YEAR, _blk->_name, result);
+    struct context *_ctx = CTX_CAST(_blk->_data); 
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

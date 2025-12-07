@@ -9,7 +9,7 @@
 struct context
 {
     int _encoder;
-    int result;
+    size_t _result;
 };
 
 #define CTX_CAST(_p) ((struct context *)_p)
@@ -37,7 +37,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
         {
             _ctx->_encoder = (_ctx->_encoder + (_dir == 'R' ? 1 : -1)) % 100;
             if (!_ctx->_encoder)
-                _ctx->result++;
+                _ctx->_result++;
             if (0 > _ctx->_encoder)
                 _ctx->_encoder = 100 + _ctx->_encoder;
         } 
@@ -46,9 +46,8 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data);
-    int result = _ctx->result;
-    aoc_ans("AOC %s %s solution is %i", CONFIG_YEAR, _blk->_name, result);
+    struct context *_ctx = CTX_CAST(_blk->_data); 
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

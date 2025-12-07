@@ -6,7 +6,7 @@ typedef struct context
     dll_head_h _rolls;
     dll_head_h _freerolls;
     dll_head_t _parsers;
-    size_t result;
+    size_t _result;
 }context_t;
 
 
@@ -25,7 +25,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     _ctx->_engine = engine_create(&_max_xy, '.', 0);
     engine_deactivate_drawing(_ctx->_engine);
     parser_append(&_ctx->_parsers, &blockparser, _ctx->_engine);
-    _ctx->result = 0;
+    _ctx->_result = 0;
 
     return 0;
 }
@@ -44,11 +44,11 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     engine_draw(_ctx->_engine);
     _ctx->_rolls = engine_get_objects_positions(_ctx->_engine);
     _ctx->_freerolls = enumeraterollsatproximity(_ctx->_rolls);
-    _ctx->result = _ctx->_freerolls->_size;
+    _ctx->_result = _ctx->_freerolls->_size;
 
     markfreerolls(_ctx);
 
-    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->result);
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

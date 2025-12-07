@@ -17,7 +17,7 @@ struct context
     struct letter_map_t _a[3];
     struct letter_map_t *_p;
     size_t _period;
-    int result;
+    size_t _result;
 };
 
 #define CTX_CAST(_p) ((struct context *)_p)
@@ -51,7 +51,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     memset(&_ctx->_a[0], 0, sizeof(struct letter_map_t));
     memset(&_ctx->_a[1], 0, sizeof(struct letter_map_t));
     memset(&_ctx->_a[2], 0, sizeof(struct letter_map_t));
-    _ctx->result = 0;
+    _ctx->_result = 0;
     _ctx->_period = 0;
     _ctx->_p = &_ctx->_a[0];
     return 0;
@@ -100,7 +100,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
     if (3 == _ctx->_period)
     {
-        _ctx->result += catchRepeat(_blk) + 1;
+        _ctx->_result += catchRepeat(_blk) + 1;
         _ctx->_p = &_ctx->_a[0];
         _ctx->_period = 0;
     }
@@ -109,8 +109,8 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    int result = CTX_CAST(_blk->_data)->result;
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
+    struct context *_ctx = CTX_CAST(_blk->_data); 
+    aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }
 

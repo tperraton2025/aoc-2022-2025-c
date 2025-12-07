@@ -72,7 +72,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     aoc_spell_ans(_blk);
 
     int ret = _ctx->result;
-    return ret;
+    return 0;
 }
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)

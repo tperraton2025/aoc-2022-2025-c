@@ -111,7 +111,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
             result += ELF_CAST(_node)->_calories;
     }
     aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
-    return result;
+    return 0;
 }
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)

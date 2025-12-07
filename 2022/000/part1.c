@@ -36,7 +36,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     int result = _ctx->result;
     aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
-    return result;
+    return 0;
 }
 
 static void freeSolution(struct solutionCtrlBlock_t *_blk)

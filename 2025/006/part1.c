@@ -66,7 +66,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     {
         aoc_err("AOC %s %s solution is not %lu", CONFIG_YEAR, _blk->_name, _ctx->result);
     }
-    return _ctx->result;
+    return 0;
 }
 
 static void freeSolution(struct solutionCtrlBlock_t *_blk)

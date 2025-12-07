@@ -37,8 +37,11 @@ int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
         if (ret)
             goto error;
     }
+
+    if (!ret)
+        ret = _sol->_epilogue(_sol);
+
     fclose(_pxfile);
-    _sol->_epilogue(_sol);
     _sol->_free(_sol);
     aoc_info("AOC 2022 %s exited with code %d", _sol->_name, ret);
     return ret;
@@ -77,7 +80,9 @@ int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[]
             goto error;
     }
 
-    _sol->_epilogue(_sol);
+    if (!ret)
+        ret = _sol->_epilogue(_sol);
+
     _sol->_free(_sol);
     aoc_info("AOC 2022 %s exited with code %d", _sol->_name, ret);
     return ret;

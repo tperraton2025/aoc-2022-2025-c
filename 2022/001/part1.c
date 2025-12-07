@@ -92,7 +92,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     context_t *_data = CAST(context_t *, _blk->_data);
     int result = _data->_maxCalories;
     aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
-    return result;
+    return 0;
 }
 
 static void free_solution(struct solutionCtrlBlock_t *_blk)

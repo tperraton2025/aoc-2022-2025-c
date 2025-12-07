@@ -1,45 +1,44 @@
-#include <aoc_helpers.h>
-#include <aoc_linked_list.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
+#include "partx.h"
 
-struct context
+typedef struct context
 {
     int result;
-};
+} context_t;
 
-#define CTX_CAST(_p) ((struct context *)_p)
+typedef context_t *context_h;
+
+#define CTX_CAST(_p) ((context_h)_p)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
+    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
-        return ENOMEM; 
-    CTX_CAST(_blk->_data)->result = 0;
+        return ENOMEM;
+    context_h _ctx = CTX_CAST(_blk->_data);
+    _ctx->result = 0;
     return 0;
 }
 
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data);
+    context_h _ctx = CTX_CAST(_blk->_data);
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data);
+    context_h _ctx = CTX_CAST(_blk->_data);
     int result = _ctx->result;
-    aoc_ans("AOC %s %s solution is %d", CONFIG_YEAR, _blk->_name, result);
-    return 0;
+    aoc_ans("AOC %s %s solution is %i", CONFIG_YEAR, _blk->_name, result);
+    return result;
 }
 
 static void freeSolution(struct solutionCtrlBlock_t *_blk)
 {
-    FREE(_blk->_data);
+    context_h _ctx = CTX_CAST(_blk->_data);
+    (void)_ctx;
+    free(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart2 = {._name = CONFIG_DAY " part 2", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = freeSolution};

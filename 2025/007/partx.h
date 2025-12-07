@@ -23,5 +23,7 @@ typedef context_t *context_h;
 #define CTX_CAST(_p) ((context_h)_p)
 
 int objectsparser(void *arga, char *str);
+int initpropagation(context_h ctx);
+int loopbeampropagations(context_h ctx);
 
 extern parser_t _objparser;

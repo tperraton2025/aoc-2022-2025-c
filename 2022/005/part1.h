@@ -13,8 +13,8 @@
 
 typedef struct context
 {
-    aoc_2d_engine_h _eng;
-    aoc_2d_object_h _grippedBox;
+    aoc_2d_eng_h _eng;
+    aoc_2d_obj_h _grippedBox;
     struct dll_head _columns;
     struct dll_head _parsers;
     coord_t _pos;

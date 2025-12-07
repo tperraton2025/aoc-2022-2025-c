@@ -10,7 +10,7 @@ void parser_free(void *_data)
     FREE(_pars);
 }
 
-int parser_append(dll_head_h head, parser_h parser, void *arg)
+int parser_append(dll_head_h head, parser_h const parser, void *arg)
 {
     int ret = 0;
     if (!parser || !head)

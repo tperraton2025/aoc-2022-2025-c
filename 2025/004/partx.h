@@ -11,7 +11,7 @@
 static int parserolls(void *arg, char *str)
 {
     int _ret = 0;
-    aoc_2d_engine_h _eng = (aoc_2d_engine_h)arg;
+    aoc_2d_eng_h _eng = (aoc_2d_eng_h)arg;
 
     char *_start = str;
     _start = strchr(_start, '@');
@@ -23,11 +23,11 @@ static int parserolls(void *arg, char *str)
 
         char _objname[] = "roll9999999";
         sprintf(_objname, "roll%-3s", strobjcnt(_eng));
-        aoc_2d_object_h _objh = aoc_engine_object(_eng, _objname, &_pos, "@", OBJ_PROPERTY_STATIC);
+        aoc_2d_obj_h _objh = aoc_2d_obj_ctor(_eng, _objname, &_pos, "@", OBJ_PROPERTY_STATIC);
         if (!_objh)
             _ret = ENOMEM;
         if (!_ret)
-            _ret = aoc_engine_append_obj(_eng, _objh);
+            _ret = aoc_2d_eng_append_obj(_eng, _objh);
         _start = strchr(_start, '@');
     }
     engine_add_line(_eng);

@@ -16,8 +16,8 @@ typedef enum
 } object_properties_flags_t;
 
 
-typedef struct ascii_2d_engine *aoc_2d_engine_h;
-typedef struct object *aoc_2d_object_h;
+typedef struct ascii_2d_engine *aoc_2d_eng_h;
+typedef struct object *aoc_2d_obj_h;
 
 typedef struct object
 {
@@ -32,7 +32,7 @@ typedef struct object
 typedef struct part
 {
     struct dll_node _node;
-    aoc_2d_object_h _parent;
+    aoc_2d_obj_h _parent;
     coord_t _pos;
     char _sym;
     char *_fmt;

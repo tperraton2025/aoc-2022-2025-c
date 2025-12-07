@@ -20,7 +20,7 @@ typedef struct parser
 typedef parser_t *parser_h;
 
 parser_h parser_list_init();
-int parser_append(dll_head_h head, parser_h parser, void *arg);
+int parser_append(dll_head_h head, parser_h const parser, void *arg);
 int parse_all(dll_head_h head, char *str);
 void parser_list_free(parser_h *list);
 #endif

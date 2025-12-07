@@ -111,27 +111,27 @@ void *graphics_routine(void *args)
 
     coord_t windowarea = {._x = 24, ._y = 32};
 
-    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, engine_create(&windowarea, '.', 0),
+    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, aoc_2d_eng_create(&windowarea, '.', 0),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
 
     dll_head_init(&_gfxtask->_objects_ll);
 
-    aoc_engine_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_DIR_RIGHT);
-    aoc_engine_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_DIR_DOWN);
+    aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_DIR_RIGHT);
+    aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_DIR_DOWN);
 
     ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_cur_h,
-                                aoc_engine_object(_gfxtask->_eng_h, "cursor", NULL, "[H]", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE),
+                                aoc_2d_obj_ctor(_gfxtask->_eng_h, "cursor", NULL, "[H]", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
 
     ASSIGN_AND_RETURN_IF_NOT_0(_gfxtask->_iRet,
-                               aoc_engine_append_obj(_gfxtask->_eng_h, _gfxtask->_cur_h),
+                               aoc_2d_eng_append_obj(_gfxtask->_eng_h, _gfxtask->_cur_h),
                                free_object);
 
-    engine_draw(_gfxtask->_eng_h);
+    aoc_2d_eng_draw(_gfxtask->_eng_h);
 
     char _cMsgQueueBuffer[sizeof(queue_msg_t) + 1] = {0};
 
@@ -148,25 +148,25 @@ void *graphics_routine(void *args)
             if (AOC_DIR_UP == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "UP");
-                aoc_engine_step_object(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_UP, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_UP, NULL);
             }
             else if (AOC_DIR_DOWN == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "DOWN");
-                aoc_engine_step_object(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_DOWN, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_DOWN, NULL);
             }
             else if (AOC_DIR_RIGHT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "RIGHT");
-                aoc_engine_step_object(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_LEFT, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_LEFT, NULL);
             }
             else if (AOC_DIR_LEFT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "LEFT");
-                aoc_engine_step_object(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_RIGHT, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_RIGHT, NULL);
             }
-            aoc_engine_prompt(_gfxtask->_eng_h, 0, 2, "got mq", _cMsgQueueBuffer);
-            aoc_engine_prompt_obj_list(_gfxtask->_eng_h);
+            aoc_2d_eng_prompt(_gfxtask->_eng_h, 0, 2, "got mq", _cMsgQueueBuffer);
+            aoc_2d_eng_prompt_obj_list(_gfxtask->_eng_h);
             printf("\n");
             mq_ret = 0;
         }
@@ -177,7 +177,7 @@ void *graphics_routine(void *args)
 
 free_object:
     if (_gfxtask->_cur_h)
-        aoc_engine_free_object(_gfxtask->_cur_h);
+        aoc_2d_eng_free_obj(_gfxtask->_cur_h);
 exit:
     mq_unlink(_evtqueue._mqname);
     if (_gfxtask->_eng_h)

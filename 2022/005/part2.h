@@ -14,7 +14,7 @@
 
 typedef struct context
 {
-    aoc_2d_engine_h _eng;
+    aoc_2d_eng_h _eng;
     struct dll_head _grippedBoxes;
     struct dll_head _parsers;
     struct dll_head _columns;

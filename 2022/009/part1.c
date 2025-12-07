@@ -10,11 +10,11 @@
 
 struct context
 {
-    aoc_2d_engine_h _eng;
-    aoc_2d_object_h _head;
-    aoc_2d_object_h _tail;
+    aoc_2d_eng_h _eng;
+    aoc_2d_obj_h _head;
+    aoc_2d_obj_h _tail;
 
-    aoc_2d_object_h _lastMovedLink;
+    aoc_2d_obj_h _lastMovedLink;
     coord_t _prevPosFromLastMovedLink;
     struct dll_head _movs;
     struct dll_head _tailPos;
@@ -99,7 +99,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
                 sscanf(argv[_iarg + 1], "%3lu", &canvassize);
         }
 
-    _ctx->_eng = engine_create(&_prelcoordmaxima, '.', 0);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '.', 0);
     if (!_ctx->_eng)
         goto error;
 
@@ -111,12 +111,12 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     eng_set_refresh_delay(_ctx->_eng, delay);
 
-    aoc_engine_extend_one_direction(_ctx->_eng, canvassize, AOC_DIR_RIGHT);
-    aoc_engine_extend_one_direction(_ctx->_eng, canvassize, AOC_DIR_DOWN);
+    aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_DIR_RIGHT);
+    aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_DIR_DOWN);
 
     coord_t start = {._x = canvassize >> 1, ._y = canvassize >> 1};
-    _ctx->_head = aoc_engine_object(_ctx->_eng, "head", &start, "H", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE);
-    _ctx->_tail = aoc_engine_object(_ctx->_eng, "tail", &start, "T", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_NO_COLLISION);
+    _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE);
+    _ctx->_tail = aoc_2d_obj_ctor(_ctx->_eng, "tail", &start, "T", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_NO_COLLISION);
 
     if (!_ctx->_head || !_ctx->_tail)
     {
@@ -124,16 +124,16 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
         goto error;
     }
 
-    ret = aoc_engine_append_obj(_ctx->_eng, _ctx->_head);
+    ret = aoc_2d_eng_append_obj(_ctx->_eng, _ctx->_head);
     if (ret)
         goto error;
-    ret = aoc_engine_append_obj(_ctx->_eng, _ctx->_tail);
+    ret = aoc_2d_eng_append_obj(_ctx->_eng, _ctx->_tail);
     if (ret)
         goto error;
 
     track_tail(_blk, &start);
-    engine_draw(_ctx->_eng);
-    aoc_engine_prompt_obj_list(_ctx->_eng);
+    aoc_2d_eng_draw(_ctx->_eng);
+    aoc_2d_eng_prompt_obj_list(_ctx->_eng);
     return 0;
 
 error:
@@ -177,7 +177,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
     return 0;
 }
 
-static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_object_h _head, aoc_2d_object_h _tail, AOC_2D_DIR _dir)
+static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_obj_h _head, aoc_2d_obj_h _tail, AOC_2D_DIR _dir)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
     coord_tracker_h _npos = NULL;
@@ -185,21 +185,21 @@ static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_object_h _
     if (_ctx->_head == _head)
     {
         _ctx->_lastMovedLink = _head;
-        _ctx->_prevPosFromLastMovedLink = aoc_engine_get_object_position(_ctx->_eng, _ctx->_lastMovedLink);
-        if (aoc_engine_step_object(_ctx->_eng, _head, 1LU, _dir, NULL))
-            aoc_engine_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_engine_get_obj_name(_head));
+        _ctx->_prevPosFromLastMovedLink = aoc_2d_eng_get_obj_position(_ctx->_eng, _ctx->_lastMovedLink);
+        if (aoc_2d_eng_step_obj(_ctx->_eng, _head, 1LU, _dir, NULL))
+            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_eng_get_obj_name(_head));
     }
-    if (1 < aoc_engine_get_dist_between_objects(_ctx->_eng, _head, _tail))
+    if (1 < aoc_2d_eng_get_dist_between_objects(_ctx->_eng, _head, _tail))
     {
-        if (aoc_engine_put_object_and_redraw(_ctx->_eng, _tail, _ctx->_prevPosFromLastMovedLink))
-            aoc_engine_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_engine_get_obj_name(_tail));
+        if (aoc_2d_eng_put_obj_and_redraw(_ctx->_eng, _tail, _ctx->_prevPosFromLastMovedLink))
+            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_eng_get_obj_name(_tail));
 
-        coord_t _npos = aoc_engine_get_object_position(_ctx->_eng, _tail);
-        _ctx->_prevPosFromLastMovedLink = aoc_engine_get_object_position(_ctx->_eng, _tail);
+        coord_t _npos = aoc_2d_eng_get_obj_position(_ctx->_eng, _tail);
+        _ctx->_prevPosFromLastMovedLink = aoc_2d_eng_get_obj_position(_ctx->_eng, _tail);
         track_tail(_blk, &_ctx->_prevPosFromLastMovedLink);
         _ctx->_lastMovedLink = _tail;
     }
-    aoc_engine_prompt_obj_list(_ctx->_eng);
+    aoc_2d_eng_prompt_obj_list(_ctx->_eng);
     engine_cursor_user_stats(_ctx->_eng);
 }
 
@@ -219,7 +219,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     LL_FOREACH(pos_node, _ctx->_tailPos)
     {
         coord_tracker_h _npos = CAST(coord_tracker_h , pos_node);
-        engine_draw_part_at(_ctx->_eng, &_npos->_coord, "#");
+        aoc_2d_eng_draw_part_at(_ctx->_eng, &_npos->_coord, "#");
     }
 
     _ctx->_result = dll_size(&_ctx->_tailPos);

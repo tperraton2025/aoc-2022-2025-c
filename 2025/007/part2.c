@@ -1,13 +1,5 @@
 #include "partx.h"
-
-typedef struct context
-{
-    size_t _result;
-} context_t;
-
-typedef context_t *context_h;
-
-#define CTX_CAST(_p) ((context_h)_p)
+ 
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {

@@ -36,7 +36,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
                 sscanf(argv[_iarg + 1], "%3lu", &delay);
         }
 
-    _ctx->_eng = engine_create(&_prelcoordmaxima, '~', 0);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0);
 
     if (!_ctx->_eng)
         goto cleanup;
@@ -65,8 +65,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     char test[16] = {0};
 
-    aoc_engine_extend_one_direction(_ctx->_eng, 20, AOC_DIR_UP);
-    engine_draw(_ctx->_eng);
+    aoc_2d_eng_extend_one_direction(_ctx->_eng, 20, AOC_DIR_UP);
+    aoc_2d_eng_draw(_ctx->_eng);
 
     crane_action(_ctx);
     aoc_spell_ans(_blk);
@@ -87,22 +87,22 @@ struct solutionCtrlBlock_t *part1 = &privPart1;
 
 static int crate_lift(struct context *_ctx, command_t *_cmd)
 {
-    coordboundaries_t boundaries = aoc_engine_get_parts_boundaries(_ctx->_eng);
+    coordboundaries_t boundaries = aoc_2d_eng_get_parts_boundaries(_ctx->_eng);
     for (size_t _ii = 0; _ii <= boundaries._max._y; _ii++)
     {
         coord_t _gripper = {._x = _cmd->from, ._y = _ii};
-        _ctx->_grippedBox = aoc_engine_get_obj_by_position(_ctx->_eng, &_gripper);
+        _ctx->_grippedBox = aoc_2d_eng_get_obj_by_position(_ctx->_eng, &_gripper);
         if (_ctx->_grippedBox)
         {
-            aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "gripped", aoc_engine_get_obj_name(_ctx->_grippedBox));
-            while (!aoc_engine_step_object(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_UP, GREEN))
-                aoc_engine_prompt_obj_list(_ctx->_eng);
+            aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "gripped", aoc_2d_eng_get_obj_name(_ctx->_grippedBox));
+            while (!aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_UP, GREEN))
+                aoc_2d_eng_prompt_obj_list(_ctx->_eng);
             return 0;
         }
     }
     char _coord_str[4] = "";
     sprintf(_coord_str, "%3ld", _cmd->from);
-    aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "nothing to grip at", _coord_str);
+    aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "nothing to grip at", _coord_str);
     return 1;
 }
 
@@ -117,15 +117,15 @@ static int crate_change_lane(struct context *_ctx, command_t *_cmd)
         AOC_2D_DIR dir = _ctx->_pos._x > _cmd->to ? AOC_DIR_LEFT : AOC_DIR_RIGHT;
         _ctx->_pos._x = _ctx->_pos._x > _cmd->to ? _ctx->_pos._x - 1 : _ctx->_pos._x + 1;
 
-        if (aoc_engine_step_object(_ctx->_eng, _ctx->_grippedBox, 1LU, dir, GREEN))
+        if (aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, dir, GREEN))
         {
-            aoc_engine_prompt_extra_stats_as_err(_ctx->_eng, "moving %s failed", aoc_engine_get_obj_name(_ctx->_grippedBox));
+            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "moving %s failed", aoc_2d_eng_get_obj_name(_ctx->_grippedBox));
         }
-        aoc_engine_prompt_obj_list(_ctx->_eng);
+        aoc_2d_eng_prompt_obj_list(_ctx->_eng);
 
         char _dest_col_str[4] = "";
         sprintf(_dest_col_str, "%3ld", _cmd->to);
-        aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "at lane %ld", _dest_col_str);
+        aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "at lane %ld", _dest_col_str);
     }
     assert(_ii != 100 && "%s failed");
     return 0;
@@ -133,12 +133,12 @@ static int crate_change_lane(struct context *_ctx, command_t *_cmd)
 
 static int crate_deposit(struct context *_ctx, command_t *_cmd)
 {
-    while (!aoc_engine_step_object(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_DOWN, GREEN))
+    while (!aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_DOWN, GREEN))
     {
-        aoc_engine_prompt_obj_list(_ctx->_eng);
-        aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "depositing", aoc_engine_get_obj_name(_ctx->_grippedBox));
+        aoc_2d_eng_prompt_obj_list(_ctx->_eng);
+        aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "depositing", aoc_2d_eng_get_obj_name(_ctx->_grippedBox));
     }
-    aoc_engine_draw_object(_ctx->_eng, _ctx->_grippedBox, NULL);
+    aoc_2d_eng_draw_obj(_ctx->_eng, _ctx->_grippedBox, NULL);
     return 0;
 }
 
@@ -156,7 +156,7 @@ static int crane_action(struct context *_ctx)
         sprintf(_sCnt, "%3ld", _cmd->count);
         sprintf(_SFrom, "%3ld", _cmd->from);
         sprintf(_sDest, "%3ld", _cmd->to);
-        aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "move", _sCnt, "from", _SFrom, "to", _sDest);
+        aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "move", _sCnt, "from", _SFrom, "to", _sDest);
 
         for (size_t _repeat = 0; _repeat < _cmd->count; _repeat++)
         {
@@ -167,14 +167,14 @@ static int crane_action(struct context *_ctx)
             if (crate_deposit(_ctx, _cmd))
                 continue;
         }
-        aoc_engine_prompt_obj_list(_ctx->_eng);
+        aoc_2d_eng_prompt_obj_list(_ctx->_eng);
     }
     dll_free_all(&_ctx->_cmds, free);
     dll_free_all(&_ctx->_columns, free);
 
     char _uCmdCnt[4] = "";
     sprintf(_uCmdCnt, "%3ld", inc);
-    aoc_engine_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, _uCmdCnt, "program finished commands executed");
+    aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, _uCmdCnt, "program finished commands executed");
     return 0;
 }
 
@@ -191,7 +191,7 @@ static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
         crate_lift(_ctx, &_spell1);
         if (!_ctx->_grippedBox)
             continue;
-        _p += sprintf(_p, "%c", aoc_engine_get_obj_name(_ctx->_grippedBox)[1]);
+        _p += sprintf(_p, "%c", aoc_2d_eng_get_obj_name(_ctx->_grippedBox)[1]);
         crate_deposit(_ctx, &_spell1);
     }
     aoc_ans("AOC 2022 %s solution is %s", _blk->_name, _ctx->spelling);
@@ -245,8 +245,8 @@ static int parseblock(void *arg, char *_str)
             continue;
         if (N_BETWEEN_AB(_buf[1], 'A', 'Z'))
         {
-            aoc_2d_object_h _nobj = aoc_engine_object(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_PROPERTY_MOBILE);
-            ret = aoc_engine_append_obj(_ctx->_eng, _nobj);
+            aoc_2d_obj_h _nobj = aoc_2d_obj_ctor(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_PROPERTY_MOBILE);
+            ret = aoc_2d_eng_append_obj(_ctx->_eng, _nobj);
             if (ret)
                 break;
         }

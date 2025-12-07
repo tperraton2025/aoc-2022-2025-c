@@ -2,7 +2,7 @@
 
 typedef struct context
 {
-    aoc_2d_engine_h _engine;
+    aoc_2d_eng_h _engine;
     dll_head_h _rolls;
     dll_head_h _freerolls;
     dll_head_t _parsers;
@@ -22,7 +22,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_parsers);
 
     coord_t _max_xy = {1, 1};
-    _ctx->_engine = engine_create(&_max_xy, '.', 0);
+    _ctx->_engine = aoc_2d_eng_create(&_max_xy, '.', 0);
     engine_deactivate_drawing(_ctx->_engine);
     parser_append(&_ctx->_parsers, &blockparser, _ctx->_engine);
     _ctx->_result = 0;
@@ -41,7 +41,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
 
-    engine_draw(_ctx->_engine);
+    aoc_2d_eng_draw(_ctx->_engine);
     _ctx->_rolls = engine_get_objects_positions(_ctx->_engine);
     _ctx->_freerolls = enumeraterollsatproximity(_ctx->_rolls);
     _ctx->_result = _ctx->_freerolls->_size;
@@ -73,6 +73,6 @@ static void markfreerolls(struct context *_ctx)
         size_t _limit = 0;
         coord_tracker_h _trkh = (coord_tracker_h )_posn;
         coord_t *_posh = &_trkh->_coord;
-        engine_draw_part_at(_ctx->_engine, _posh, "x");
+        aoc_2d_eng_draw_part_at(_ctx->_engine, _posh, "x");
     }
 }

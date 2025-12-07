@@ -2,7 +2,7 @@
 
 struct context
 {
-    aoc_2d_engine_h _engine;
+    aoc_2d_eng_h _engine;
     dll_head_h _rolls;
     dll_head_h _freerolls;
     dll_head_t _parsers;
@@ -21,7 +21,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_parsers);
 
     coord_t _max_xy = {1, 1};
-    _ctx->_engine = engine_create(&_max_xy, '.', 0);
+    _ctx->_engine = aoc_2d_eng_create(&_max_xy, '.', 0);
     engine_deactivate_drawing(_ctx->_engine);
     parser_append(&_ctx->_parsers, &blockparser, _ctx->_engine);
     _ctx->_result = 0;
@@ -84,7 +84,7 @@ static void markfreerolls(struct context *_ctx)
     {
         coord_tracker_h _trkh = (coord_tracker_h )_posn;
         coord_t *_posh = &_trkh->_coord;
-        aoc_2d_object_h _toremove = aoc_engine_get_obj_by_position(_ctx->_engine, _posh);
-        engine_remove_object(_ctx->_engine, _toremove);
+        aoc_2d_obj_h _toremove = aoc_2d_eng_get_obj_by_position(_ctx->_engine, _posh);
+        engine_remove_obj(_ctx->_engine, _toremove);
     }
 }

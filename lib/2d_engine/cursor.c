@@ -36,7 +36,7 @@ int move_cursor_until(struct ascii_2d_engine *_eng, AOC_2D_DIR _dir, size_t _ste
     return ret;
 }
 
-int move_within_coord(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
+int move_within_coord(aoc_2d_eng_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
 {
     switch (_dir)
     {
@@ -67,7 +67,7 @@ int move_within_coord(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D
     return 0;
 }
 
-int move_within_window(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
+int move_within_window(aoc_2d_eng_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir)
 {
     switch (_dir)
     {
@@ -98,7 +98,7 @@ int move_within_window(aoc_2d_engine_h _eng, coord_t *_pos, size_t _steps, AOC_2
     return 0;
 }
 
-int is_position_in_box(aoc_2d_engine_h _eng, coord_t *_pos)
+int is_position_in_box(aoc_2d_eng_h _eng, coord_t *_pos)
 {
     if (!N_BETWEEN_AB(_pos->_y, _eng->_coordlimits._min._y, _eng->_coordlimits._max._y))
         return ERANGE;
@@ -107,7 +107,7 @@ int is_position_in_box(aoc_2d_engine_h _eng, coord_t *_pos)
     return 0;
 }
 
-int put_pos(aoc_2d_engine_h _eng, coord_t *_pos, coord_t *_npos)
+int put_pos(aoc_2d_eng_h _eng, coord_t *_pos, coord_t *_npos)
 {
     int _ret = is_position_in_box(_eng, _npos);
     if (_ret)
@@ -119,7 +119,7 @@ int put_pos(aoc_2d_engine_h _eng, coord_t *_pos, coord_t *_npos)
     return 0;
 }
 
-int put_part(aoc_2d_engine_h _eng, part_h _sym, coord_t *_delta)
+int put_part(aoc_2d_eng_h _eng, part_h _sym, coord_t *_delta)
 {
     if (!N_BETWEEN_AB(_delta->_y, _eng->_coordlimits._min._x, _eng->_coordlimits._max._y))
         return ERANGE;

@@ -133,6 +133,7 @@ int dll_node_insert(dll_head_h head, dll_node_h _a, dll_node_h _b)
     if (_b->_prev)
         _b->_prev->_next = _a;
     _b->_prev = _a;
+    return 0;
 }
 
 /*  Takes out node from the list without freeing its*/
@@ -149,11 +150,7 @@ void dll_node_disconnect(dll_head_h head, dll_node_h _a)
     if (_a->_next)
         _a->_next->_prev = _a->_prev;
     else
-        head->_last = _a->_prev;
-
-    /* make a a floating node */
-    _a->_prev = NULL;
-    _a->_next = NULL;
+        head->_last = _a->_prev; 
 }
 
 int dll_find_node(dll_head_h head, dll_node_h _a)

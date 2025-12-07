@@ -42,7 +42,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
         goto cleanup;
 
     if (!_drawingenabled)
-        engine_deactivate_drawing(_ctx->_eng);
+        aoc_2d_eng_disable_draw(_ctx->_eng);
     eng_set_refresh_delay(_ctx->_eng, delay);
 
     return 0;
@@ -65,7 +65,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     char test[16] = {0};
 
-    aoc_2d_eng_extend_one_direction(_ctx->_eng, 20, AOC_DIR_UP);
+    aoc_2d_eng_extend_one_direction(_ctx->_eng, 20, AOC_2D_DIR_UP);
     aoc_2d_eng_draw(_ctx->_eng);
 
     crane_action(_ctx);
@@ -95,7 +95,7 @@ static int crate_lift(struct context *_ctx, command_t *_cmd)
         if (_ctx->_grippedBox)
         {
             aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "gripped", aoc_2d_eng_get_obj_name(_ctx->_grippedBox));
-            while (!aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_UP, GREEN))
+            while (!aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_2D_DIR_UP, GREEN))
                 aoc_2d_eng_prompt_obj_list(_ctx->_eng);
             return 0;
         }
@@ -114,7 +114,7 @@ static int crate_change_lane(struct context *_ctx, command_t *_cmd)
     size_t _ii = 0;
     for (; (_ii < 100) && (_ctx->_pos._x != _cmd->to); _ii++)
     {
-        AOC_2D_DIR dir = _ctx->_pos._x > _cmd->to ? AOC_DIR_LEFT : AOC_DIR_RIGHT;
+        AOC_2D_DIR dir = _ctx->_pos._x > _cmd->to ? AOC_2D_DIR_LEFT : AOC_2D_DIR_RIGHT;
         _ctx->_pos._x = _ctx->_pos._x > _cmd->to ? _ctx->_pos._x - 1 : _ctx->_pos._x + 1;
 
         if (aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, dir, GREEN))
@@ -133,7 +133,7 @@ static int crate_change_lane(struct context *_ctx, command_t *_cmd)
 
 static int crate_deposit(struct context *_ctx, command_t *_cmd)
 {
-    while (!aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_DIR_DOWN, GREEN))
+    while (!aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_2D_DIR_DOWN, GREEN))
     {
         aoc_2d_eng_prompt_obj_list(_ctx->_eng);
         aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "depositing", aoc_2d_eng_get_obj_name(_ctx->_grippedBox));
@@ -245,7 +245,7 @@ static int parseblock(void *arg, char *_str)
             continue;
         if (N_BETWEEN_AB(_buf[1], 'A', 'Z'))
         {
-            aoc_2d_obj_h _nobj = aoc_2d_obj_ctor(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_PROPERTY_MOBILE);
+            aoc_2d_obj_h _nobj = aoc_2d_obj_ctor(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_FLAG_MOBILE);
             ret = aoc_2d_eng_append_obj(_ctx->_eng, _nobj);
             if (ret)
                 break;

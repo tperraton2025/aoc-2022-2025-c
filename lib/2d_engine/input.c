@@ -13,16 +13,16 @@ int aoc_inputs_ansi_to_dir(const char *const _str, AOC_2D_DIR *_dir)
         switch (_str[3])
         {
         case 'A':
-            *_dir = AOC_DIR_UP;
+            *_dir = AOC_2D_DIR_UP;
             return 0;
         case 'B':
-            *_dir = AOC_DIR_DOWN;
+            *_dir = AOC_2D_DIR_DOWN;
             return 0;
         case 'C':
-            *_dir = AOC_DIR_RIGHT;
+            *_dir = AOC_2D_DIR_RIGHT;
             return 0;
         case 'D':
-            *_dir = AOC_DIR_LEFT;
+            *_dir = AOC_2D_DIR_LEFT;
             return 0;
         default:
             return EINVAL;

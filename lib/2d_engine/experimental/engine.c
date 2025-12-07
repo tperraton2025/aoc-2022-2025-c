@@ -46,7 +46,7 @@ size_t aoc_2d_eng_get_XYD_moves_between_objects(aoc_2d_eng_h _eng, aoc_2d_obj_h 
     return ret;
 }
 
-int aoc_2d_eng_translate_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t steps, AOC_2D_DIR dir)
+int aoc_2d_eng_translate_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t steps, AOC_2D_DIR dir, char *fmt)
 {
     int ret = aoc_2d_obj_ctor_fit_detect(_eng, _obj, steps, dir);
     if (ret)
@@ -56,7 +56,7 @@ int aoc_2d_eng_translate_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, si
     if (ret)
         return ret;
 
-    if (!_eng || !_obj || dir >= AOC_DIR_MAX)
+    if (!_eng || !_obj || dir >= AOC_2D_DIR_MAX)
         return EINVAL;
 
     aoc_2d_eng_erase_obj(_eng, _obj);
@@ -68,23 +68,22 @@ int aoc_2d_eng_translate_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, si
         move_within_coord(_eng, &_sym->_pos, steps, dir);
     }
     move_within_window(_eng, &_obj->_pos, steps, dir);
-    aoc_2d_eng_draw_obj(_eng, _obj, NULL);
+    aoc_2d_eng_draw_obj(_eng, _obj,  fmt);
     engine_put_cursor_in_footer_area(_eng);
 }
-
 
 int aoc_2d_eng_move_one_step_towards(aoc_2d_eng_h _eng, aoc_2d_obj_h _a, coord_t _pos)
 {
     int ret = 0;
     coord_t current = aoc_2d_eng_get_obj_position(_eng, _a);
     if (current._x < _pos._x)
-        ret = aoc_2d_eng_step_obj(_eng, _a, AOC_DIR_RIGHT, NULL);
+        ret = aoc_2d_eng_step_obj(_eng, _a, AOC_2D_DIR_RIGHT, NULL);
     if (current._x > _pos._x && !ret)
-        ret = aoc_2d_eng_step_obj(_eng, _a, AOC_DIR_LEFT, NULL);
+        ret = aoc_2d_eng_step_obj(_eng, _a, AOC_2D_DIR_LEFT, NULL);
     if (current._y < _pos._y && !ret)
-        ret = aoc_2d_eng_step_obj(_eng, _a, AOC_DIR_DOWN, NULL);
+        ret = aoc_2d_eng_step_obj(_eng, _a, AOC_2D_DIR_DOWN, NULL);
     if (current._y > _pos._y && !ret)
-        ret = aoc_2d_eng_step_obj(_eng, _a, AOC_DIR_UP, NULL);
+        ret = aoc_2d_eng_step_obj(_eng, _a, AOC_2D_DIR_UP, NULL);
     return ret;
 }
 
@@ -94,7 +93,7 @@ int aoc_engine_try_translate_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj
     if (ret)
         return ret;
 
-    if (!_eng || !_obj || dir >= AOC_DIR_MAX)
+    if (!_eng || !_obj || dir >= AOC_2D_DIR_MAX)
         return EINVAL;
 
     aoc_2d_eng_erase_obj(_eng, _obj);
@@ -110,7 +109,6 @@ int aoc_engine_try_translate_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj
     engine_put_cursor_in_footer_area(_eng);
     return 0;
 }
-
 
 int aoc_2d_eng_move_obj(aoc_2d_eng_h eng, aoc_2d_obj_h obj, move_t *move)
 {

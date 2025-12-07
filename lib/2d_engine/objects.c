@@ -93,6 +93,14 @@ aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *
     {
         _ret->_pos._x = pos->_x;
         _ret->_pos._y = pos->_y;
+        aoc_2d_obj_h other = aoc_2d_eng_get_obj_by_position(eng, pos);
+        if (other && !(_ret->_props & OBJ_FLAG_NO_COLLISION))
+        {
+            if (!(other->_props & OBJ_FLAG_NO_COLLISION))
+            {
+                goto free_ll;
+            }
+        }
     }
     else
     {
@@ -117,8 +125,8 @@ free_rt:
 void aoc_2d_eng_free_obj(void *_data)
 {
     aoc_2d_obj_h _obj = (aoc_2d_obj_h)_data;
-    //todo fix!!!
-    //assert(0 == _obj->_refcnt && "trying to free an object with potential dangling reference");
+    // todo fix!!!
+    // assert(0 == _obj->_refcnt && "trying to free an object with potential dangling reference");
     FREE(_obj->_name);
     dll_free_all(&_obj->_parts, aoc_2d_eng_free_part);
     FREE(_obj);
@@ -177,6 +185,8 @@ aoc_2d_obj_h aoc_2d_eng_get_obj_by_name(aoc_2d_eng_h _eng, const char *const nam
 {
     LL_FOREACH(_node, _eng->_objects)
     {
+        if (_node->_obsolete)
+            continue;
         if (!strcmp(name, CAST(aoc_2d_obj_h, _node)->_name))
             return CAST(aoc_2d_obj_h, _node);
     }
@@ -226,6 +236,11 @@ int aoc_2d_eng_put_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, coord_t 
     return 0;
 }
 
+void aoc_2d_eng_set_obj_flag(aoc_2d_obj_h obj, size_t flag)
+{
+    obj->_props |= flag;
+}
+
 part_h aoc_2d_eng_get_part_by_position(aoc_2d_eng_h eng, coord_t *pos)
 {
     LL_FOREACH(_objnode, eng->_objects)
@@ -252,15 +267,16 @@ int aoc_2d_eng_check_move_possible(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t 
         if (ret)
         {
             aoc_2d_eng_prompt_multistr(_eng, 0, _obj->_name, ": out of box at ", strpos(&_testpos));
-            return ret;
+            break;
         }
         ret = aoc_2d_eng_collision_at(_eng, _obj, &_testpos);
         if (ret)
         {
-            aoc_2d_eng_prompt_multistr(_eng, 0, _obj->_name, ": collision with other object at ", strpos(&_testpos));
-            return ret;
+            // aoc_2d_eng_prompt_multistr(_eng, 0, _obj->_name, ": collision with other object at ", strpos(&_testpos));
+            break;
         }
     }
+    return ret;
 }
 
 void aoc_2d_eng_disable_collisions(aoc_2d_eng_h _eng)
@@ -280,7 +296,9 @@ int aoc_2d_eng_step_obj(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t steps, AOC_
         _ret = aoc_2d_eng_check_move_possible(_eng, _obj, steps, dir);
     if (_ret)
         return _ret;
-    aoc_2d_eng_erase_obj(_eng, _obj);
+
+    if (_eng->_enabledraw)
+        aoc_2d_eng_erase_obj(_eng, _obj);
 
     _ret = aoc_2d_eng_move_all_parts(_eng, _obj, steps, dir);
     if (_ret)
@@ -294,7 +312,8 @@ int aoc_2d_eng_step_obj(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t steps, AOC_
         engine_put_cursor_in_footer_area(_eng);
         aoc_err("move_within_coord:%s", strerror(_ret));
     }
-    _ret = aoc_2d_eng_draw_obj(_eng, _obj, fmt);
+    if (_eng->_enabledraw)
+        _ret = aoc_2d_eng_draw_obj(_eng, _obj, fmt);
     if (_ret)
     {
         engine_put_cursor_in_footer_area(_eng);
@@ -334,13 +353,13 @@ int aoc_2d_eng_move_one_step_towards(aoc_2d_eng_h _eng, aoc_2d_obj_h _a, coord_t
     int ret = 0;
     coord_t current = aoc_2d_eng_get_obj_position(_eng, _a);
     if (current._x < _pos._x)
-        ret = aoc_2d_eng_step_obj(_eng, _a, 1LU, AOC_DIR_RIGHT, NULL);
+        ret = aoc_2d_eng_step_obj(_eng, _a, 1LU, AOC_2D_DIR_RIGHT, NULL);
     if (current._x > _pos._x && !ret)
-        ret = aoc_2d_eng_step_obj(_eng, _a, 1LU, AOC_DIR_LEFT, NULL);
+        ret = aoc_2d_eng_step_obj(_eng, _a, 1LU, AOC_2D_DIR_LEFT, NULL);
     if (current._y < _pos._y && !ret)
-        ret = aoc_2d_eng_step_obj(_eng, _a, 1LU, AOC_DIR_DOWN, NULL);
+        ret = aoc_2d_eng_step_obj(_eng, _a, 1LU, AOC_2D_DIR_DOWN, NULL);
     if (current._y > _pos._y && !ret)
-        ret = aoc_2d_eng_step_obj(_eng, _a, 1LU, AOC_DIR_UP, NULL);
+        ret = aoc_2d_eng_step_obj(_eng, _a, 1LU, AOC_2D_DIR_UP, NULL);
     return ret;
 }
 
@@ -373,4 +392,28 @@ char *strobjcnt(aoc_2d_eng_h _eng)
 {
     snprintf(_strobjcountbuf, ARRAY_DIM(_strobjcountbuf), "%lu", aoc_2d_eng_get_obj_count(_eng));
     return _strobjcountbuf;
+}
+
+static char _strobj[64] = {0};
+
+char *strobj(aoc_2d_obj_h obj)
+{
+    sprintf(_strobj, "%.4s %.lu:%lu", obj->_name, obj->_pos._x, obj->_pos._y);
+    return _strobj;
+}
+
+dll_node_h pickhighestcoordinates(dll_node_h arga, dll_node_h argb)
+{
+    coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
+    coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
+    if (posa->_y == posb->_y)
+        return posa->_x > posb->_x ? arga : argb;
+    return posa->_y > posb->_y ? arga : argb;
+}
+
+dll_node_h pickhighestY(dll_node_h arga, dll_node_h argb)
+{
+    coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
+    coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
+    return posa->_y > posb->_y ? arga : argb;
 }

@@ -23,20 +23,20 @@ struct context
 #define MOV_CAST(_p) ((movement_t *)_p)
 #define MAP_MID_SIZE (1024)
 
-static AOC_2D_DIR char_to_AOC_DIR(char *_c)
+static AOC_2D_DIR char_to_AOC_2D_DIR(char *_c)
 {
     switch (*_c)
     {
     case 'R':
-        return AOC_DIR_RIGHT;
+        return AOC_2D_DIR_RIGHT;
     case 'U':
-        return AOC_DIR_UP;
+        return AOC_2D_DIR_UP;
     case 'L':
-        return AOC_DIR_LEFT;
+        return AOC_2D_DIR_LEFT;
     case 'D':
-        return AOC_DIR_DOWN;
+        return AOC_2D_DIR_DOWN;
     default:
-        return AOC_DIR_MAX;
+        return AOC_2D_DIR_MAX;
     }
 }
 
@@ -113,11 +113,11 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     }
 
     eng_set_refresh_delay(_ctx->_eng, delay);
-    aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_DIR_RIGHT);
-    aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_DIR_DOWN);
+    aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_2D_DIR_RIGHT);
+    aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_2D_DIR_DOWN);
 
     coord_t start = {._x = canvassize >> 1, ._y = canvassize >> 1};
-    _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE);
+    _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE);
 
     if (!_ctx->_head)
     {
@@ -135,7 +135,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
         sprintf(name, "%1ld", ii);
         char fullname[] = "tail %1ld";
         sprintf(fullname, "tail %1ld", ii);
-        aoc_2d_obj_h ntail = aoc_2d_obj_ctor(_ctx->_eng, fullname, &start, name, OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_NO_COLLISION);
+        aoc_2d_obj_h ntail = aoc_2d_obj_ctor(_ctx->_eng, fullname, &start, name, OBJ_FLAG_NO_COLLISION | OBJ_FLAG_NO_COLLISION);
 
         if (!ntail)
             ret = ENOMEM;
@@ -152,7 +152,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     if (128 < canvassize || !_drawing)
     { //! TODO: should be automatic in engine lib
         aoc_info("canvas size is large (%ld), deactivating drawings for readability", canvassize);
-        engine_deactivate_drawing(_ctx->_eng);
+        aoc_2d_eng_disable_draw(_ctx->_eng);
     }
 
     aoc_2d_eng_draw(_ctx->_eng);
@@ -187,8 +187,8 @@ static int handler(struct solutionCtrlBlock_t *_blk)
         if (!nmov)
             return ENOMEM;
         nmov->steps = cnt;
-        nmov->dir = char_to_AOC_DIR(&dir);
-        if (nmov->dir >= AOC_DIR_MAX)
+        nmov->dir = char_to_AOC_2D_DIR(&dir);
+        if (nmov->dir >= AOC_2D_DIR_MAX)
             FREE(nmov);
         if (nmov)
             dll_node_append(&_ctx->_movs, NODE_CAST(nmov));

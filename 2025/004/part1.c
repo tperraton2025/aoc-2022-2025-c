@@ -23,7 +23,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     coord_t _max_xy = {1, 1};
     _ctx->_engine = aoc_2d_eng_create(&_max_xy, '.', 0);
-    engine_deactivate_drawing(_ctx->_engine);
+    aoc_2d_eng_disable_draw(_ctx->_engine);
     parser_append(&_ctx->_parsers, &blockparser, _ctx->_engine);
     _ctx->_result = 0;
 

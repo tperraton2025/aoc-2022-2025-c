@@ -45,6 +45,8 @@ struct ascii_2d_engine
     coord_t _cursor;
     char _voidsym;
     struct dll_head _objects;
+    size_t _statCol;
+    size_t _statColOffset;
     size_t _statLine;
     size_t _PrivStatLine;
     bool _enabledraw;
@@ -57,12 +59,10 @@ int is_position_in_box(aoc_2d_eng_h _eng, coord_t *_pos);
 
 int move_cursor_until(struct ascii_2d_engine *_eng, AOC_2D_DIR _dir, size_t _steps, coord_t *limit);
 
-
-void aoc_2d_eng_prompt_stats(aoc_2d_eng_h _eng);
+void aoc_2d_eng_erase_stats(aoc_2d_eng_h _eng);
 
 int aoc_2d_eng_erase_obj(struct ascii_2d_engine *eng, struct object *obj);
 int aoc_2d_eng_draw_box(struct ascii_2d_engine *_eng);
-
 
 int put_pos(aoc_2d_eng_h _eng, coord_t *_pos, coord_t *_npos);
 int engine_fill_hv_line(struct ascii_2d_engine *_eng, coord_t *_start, coord_t *_end, AOC_2D_DIR _dir, const char *_c);
@@ -76,8 +76,10 @@ int aoc_2d_obj_ctor_fit_detect(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t step
 int aoc_2d_eng_calculate_obj_position(aoc_2d_obj_h obj);
 
 part_h aoc_2d_eng_get_part_by_position(aoc_2d_eng_h eng, coord_t *pos);
+dll_node_h pickhighestcoordinates(dll_node_h arga, dll_node_h argb);
+dll_node_h pickhighestY(dll_node_h arga, dll_node_h argb);
 
 static const coordboundaries_t _drawlimits = {._max = {._x = ABSOLUTE_MAX_X, ._y = ABSOLUTE_MAX_Y},
                                               ._min = {._x = 1, ._y = 1}};
 static const coordboundaries_t _coordboundaries = {._max = {._x = ABSOLUTE_MAX_X, ._y = ABSOLUTE_MAX_Y},
-                                              ._min = {._x = 0, ._y = 0}};
+                                                   ._min = {._x = 0, ._y = 0}};

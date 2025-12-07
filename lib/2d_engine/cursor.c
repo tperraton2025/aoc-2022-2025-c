@@ -9,22 +9,22 @@ int move_cursor_until(struct ascii_2d_engine *_eng, AOC_2D_DIR _dir, size_t _ste
     int ret = 0;
     switch (_dir)
     {
-    case AOC_DIR_UP:
+    case AOC_2D_DIR_UP:
         if (_eng->_cursor._y == limit->_y)
             return ERANGE;
         _eng->_cursor._y -= _steps;
         break;
-    case AOC_DIR_DOWN:
+    case AOC_2D_DIR_DOWN:
         if ((_eng->_cursor._y + _steps) > limit->_y)
             return ERANGE;
         _eng->_cursor._y += _steps;
         break;
-    case AOC_DIR_LEFT:
+    case AOC_2D_DIR_LEFT:
         if (_eng->_cursor._x == limit->_x)
             return ERANGE;
         _eng->_cursor._x -= _steps;
         break;
-    case AOC_DIR_RIGHT:
+    case AOC_2D_DIR_RIGHT:
         if ((_eng->_cursor._x + _steps) > limit->_x)
             return ERANGE;
         _eng->_cursor._x += _steps;
@@ -40,22 +40,22 @@ int move_within_coord(aoc_2d_eng_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DI
 {
     switch (_dir)
     {
-    case AOC_DIR_UP:
+    case AOC_2D_DIR_UP:
         if (!N_BETWEEN_AB(_pos->_y - _steps, _eng->_coordlimits._min._y, _eng->_coordlimits._max._y))
             return ERANGE;
         _pos->_y -= _steps;
         break;
-    case AOC_DIR_DOWN:
+    case AOC_2D_DIR_DOWN:
         if (!N_BETWEEN_AB(_pos->_y + _steps, _eng->_coordlimits._min._y, _eng->_coordlimits._max._y))
             return ERANGE;
         _pos->_y += _steps;
         break;
-    case AOC_DIR_LEFT:
+    case AOC_2D_DIR_LEFT:
         if (!N_BETWEEN_AB(_pos->_x - _steps, _eng->_coordlimits._min._x, _eng->_coordlimits._max._x))
             return ERANGE;
         _pos->_x -= _steps;
         break;
-    case AOC_DIR_RIGHT:
+    case AOC_2D_DIR_RIGHT:
         if (!N_BETWEEN_AB(_pos->_x + _steps, _eng->_coordlimits._min._x, _eng->_coordlimits._max._x))
             return ERANGE;
         _pos->_x += _steps;
@@ -71,22 +71,22 @@ int move_within_window(aoc_2d_eng_h _eng, coord_t *_pos, size_t _steps, AOC_2D_D
 {
     switch (_dir)
     {
-    case AOC_DIR_UP:
+    case AOC_2D_DIR_UP:
         if (!N_BETWEEN_AB(_pos->_y - _steps, _eng->_drawlimits._min._y, _eng->_drawlimits._max._y))
             return ERANGE;
         _pos->_y -= _steps;
         break;
-    case AOC_DIR_DOWN:
+    case AOC_2D_DIR_DOWN:
         if (!N_BETWEEN_AB(_pos->_y + _steps, _eng->_drawlimits._min._y, _eng->_drawlimits._max._y))
             return ERANGE;
         _pos->_y += _steps;
         break;
-    case AOC_DIR_LEFT:
+    case AOC_2D_DIR_LEFT:
         if (!N_BETWEEN_AB(_pos->_x - _steps, _eng->_drawlimits._min._x, _eng->_drawlimits._max._x))
             return ERANGE;
         _pos->_x -= _steps;
         break;
-    case AOC_DIR_RIGHT:
+    case AOC_2D_DIR_RIGHT:
         if (!N_BETWEEN_AB(_pos->_x + _steps, _eng->_drawlimits._min._x, _eng->_drawlimits._max._x))
             return ERANGE;
         _pos->_x += _steps;
@@ -132,7 +132,10 @@ int engine_put_cursor_in_footer_area(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
-    printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_drawlimits._max._y + 1LU, 1LU);
+    if (_eng->_enabledraw)
+    {
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_drawlimits._max._y + 1LU, 1LU);
+    }
     return 0;
 }
 
@@ -160,7 +163,7 @@ int engine_cursor_user_stats(struct ascii_2d_engine *_eng)
         return EINVAL;
     _eng->_statLine = _eng->_PrivStatLine;
     if (_eng->_enabledraw)
-        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, _eng->_drawlimits._max._x + 1);
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, _eng->_drawlimits._max._x + 2);
     return 0;
 }
 
@@ -179,11 +182,15 @@ int engine_cursor_user_next_stats(struct ascii_2d_engine *_eng)
     if (!_eng)
         return EINVAL;
     if (_eng->_enabledraw)
-        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, _eng->_drawlimits._max._x + 1);
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_statLine++, _eng->_drawlimits._max._x + 2 + (_eng->_statCol * _eng->_statColOffset));
     else
         printf(MCUR_FMT ERASE_LINE_FROM_CR, 4LU, 2LU);
-
-    _eng->_statLine = _eng->_statLine >= _eng->_drawlimits._max._y ? _eng->_PrivStatLine : _eng->_statLine;
+    if (_eng->_statLine >= _eng->_drawlimits._max._y)
+    {
+        _eng->_statLine = _eng->_PrivStatLine;
+        _eng->_statCol++;
+        return ERANGE;
+    }
     return 0;
 }
 
@@ -198,6 +205,6 @@ int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng)
 /*! warning: not thread safe */
 char *strpos(coord_t *pos)
 {
-    snprintf(_strpos, ARRAY_DIM(_strpos), "[%lux%lu]", pos->_x % 10000, pos->_y % 10000);
+    snprintf(_strpos, ARRAY_DIM(_strpos), "[%.4lux%.4lu]", pos->_x, pos->_y);
     return _strpos;
 }

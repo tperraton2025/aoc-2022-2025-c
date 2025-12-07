@@ -47,7 +47,17 @@ typedef enum
     OBJ_PROPERTY_END,
     OBJ_PROPERTY_NO_COLLISION,
     OBJ_PROPERTY_MAX
-} object_properties_flags_t;
+} object_properties_t;
+
+typedef enum
+{
+    OBJ_FLAG_STATIC = (1 << OBJ_PROPERTY_STATIC),
+    OBJ_FLAG_MOBILE = (1 << OBJ_PROPERTY_MOBILE),
+    OBJ_FLAG_START = (1 << OBJ_PROPERTY_START),
+    OBJ_FLAG_END = (1 << OBJ_PROPERTY_END),
+    OBJ_FLAG_NO_COLLISION = (1 << OBJ_PROPERTY_NO_COLLISION),
+    OBJ_FLAG_MAX
+} object_flags_t;
 
 typedef struct coord
 {
@@ -71,9 +81,10 @@ typedef struct ascii_2d_engine *aoc_2d_eng_h;
 typedef struct object *aoc_2d_obj_h;
 
 aoc_2d_eng_h aoc_2d_eng_create(coord_t *partcoordmaxima, char _voidsym, size_t delay);
+aoc_2d_eng_h aoc_2d_eng_delete(aoc_2d_eng_h _eng, struct object *obj);
 void aoc_2d_eng_free_obj(void *_data);
 void eng_set_refresh_delay(aoc_2d_eng_h _eng, size_t delay);
-int aoc_2d_eng_draw_objects(aoc_2d_eng_h _eng, coord_t *_corner);
+int aoc_2d_eng_draw_objects(aoc_2d_eng_h _eng);
 int aoc_2d_eng_draw_obj(struct ascii_2d_engine *eng, struct object *obj, char *specfmt);
 
 int aoc_2d_eng_extend_one_direction(aoc_2d_eng_h _eng, size_t steps, AOC_2D_DIR _dir);
@@ -89,7 +100,7 @@ const char *const aoc_2d_eng_get_obj_name(aoc_2d_obj_h _obj);
 
 int aoc_2d_eng_move_obj(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t _steps, AOC_2D_DIR dir);
 int aoc_2d_eng_step_obj(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t steps, AOC_2D_DIR dir, char *_fmt);
-int aoc_2d_eng_translate_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t steps, AOC_2D_DIR dir);
+int aoc_2d_eng_translate_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t steps, AOC_2D_DIR dir, char *fmt);
 int aoc_2d_eng_put_obj_and_redraw(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, coord_t _npos);
 int aoc_2d_eng_collision_at(aoc_2d_eng_h _eng, aoc_2d_obj_h excl, coord_t *_pos);
 
@@ -111,15 +122,15 @@ size_t aoc_2d_eng_get_dist_between_objects(aoc_2d_eng_h _eng, aoc_2d_obj_h _a, a
 int aoc_2d_eng_move_one_step_towards(aoc_2d_eng_h _eng, aoc_2d_obj_h _a, coord_t _pos);
 
 void engine_clear_screen();
-void engine_activate_drawing(aoc_2d_eng_h _eng);
-void engine_deactivate_drawing(aoc_2d_eng_h _eng);
+void aoc_2d_eng_enable_draw(aoc_2d_eng_h _eng);
+void aoc_2d_eng_disable_draw(aoc_2d_eng_h _eng);
 int move_within_window(aoc_2d_eng_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir);
 
 int aoc_inputs_ansi_to_dir(const char *const _str, AOC_2D_DIR *_dir);
 void aoc_2d_eng_prompt(aoc_2d_eng_h _eng, const size_t _sleep, size_t _count, ...);
 
 int aoc_2d_eng_foreach_obj_arg(aoc_2d_eng_h _eng, void *arg, void func(coord_t *pos, void *arg));
-
+void aoc_2d_eng_set_obj_flag(aoc_2d_obj_h obj, size_t flag);
 typedef struct aoc_2d_obj_ref
 {
     struct dll_node _node;
@@ -131,7 +142,7 @@ typedef struct aoc_2d_obj_ref *aoc_2d_obj_ref_h;
 
 aoc_2d_obj_ref_h aoc_2d_obj_ref(aoc_2d_obj_h _obj);
 void aoc_2d_obj_ref_free(void *arg);
-
+void aoc_2d_eng_prompt_stats(aoc_2d_eng_h _eng);
 struct dll_head *aoc_2d_eng_prompt_obj_list_with_a_part_at_position(aoc_2d_eng_h _eng, coord_t *_pos);
 
 char *strpos(coord_t *pos);

@@ -118,11 +118,11 @@ void *graphics_routine(void *args)
 
     dll_head_init(&_gfxtask->_objects_ll);
 
-    aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_DIR_RIGHT);
-    aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_DIR_DOWN);
+    aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_2D_DIR_RIGHT);
+    aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_2D_DIR_DOWN);
 
     ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_cur_h,
-                                aoc_2d_obj_ctor(_gfxtask->_eng_h, "cursor", NULL, "[H]", OBJ_PROPERTY_NO_COLLISION | OBJ_PROPERTY_MOBILE),
+                                aoc_2d_obj_ctor(_gfxtask->_eng_h, "cursor", NULL, "[H]", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
@@ -145,25 +145,25 @@ void *graphics_routine(void *args)
         mq_ret = mq_receive(_evtqueue._mqid, _cMsgQueueBuffer, EVT_SIZE_IN_BYTES, &keystrokeprio);
         if (mq_ret > 0)
         {
-            if (AOC_DIR_UP == _cMsgQueueBuffer[0])
+            if (AOC_2D_DIR_UP == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "UP");
-                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_UP, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_UP, NULL);
             }
-            else if (AOC_DIR_DOWN == _cMsgQueueBuffer[0])
+            else if (AOC_2D_DIR_DOWN == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "DOWN");
-                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_DOWN, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_DOWN, NULL);
             }
-            else if (AOC_DIR_RIGHT == _cMsgQueueBuffer[0])
+            else if (AOC_2D_DIR_RIGHT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "RIGHT");
-                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_LEFT, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_LEFT, NULL);
             }
-            else if (AOC_DIR_LEFT == _cMsgQueueBuffer[0])
+            else if (AOC_2D_DIR_LEFT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "LEFT");
-                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_DIR_RIGHT, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_RIGHT, NULL);
             }
             aoc_2d_eng_prompt(_gfxtask->_eng_h, 0, 2, "got mq", _cMsgQueueBuffer);
             aoc_2d_eng_prompt_obj_list(_gfxtask->_eng_h);
@@ -227,22 +227,22 @@ void *inputs_routine(void *args)
         {
             if (0 == strncmp("\e[A", _nchar, 3))
             {
-                char _msg = AOC_DIR_UP;
+                char _msg = AOC_2D_DIR_UP;
                 mq_send(_evtqueue._mqid, &_msg, 1, 0);
             }
             else if (0 == strncmp("\e[B", _nchar, 3))
             {
-                char _msg = AOC_DIR_DOWN;
+                char _msg = AOC_2D_DIR_DOWN;
                 mq_send(_evtqueue._mqid, &_msg, 1, 0);
             }
             else if (0 == strncmp("\e[C", _nchar, 3))
             {
-                char _msg = AOC_DIR_LEFT;
+                char _msg = AOC_2D_DIR_LEFT;
                 mq_send(_evtqueue._mqid, &_msg, 1, 0);
             }
             else if (0 == strncmp("\e[D", _nchar, 3))
             {
-                char _msg = AOC_DIR_RIGHT;
+                char _msg = AOC_2D_DIR_RIGHT;
                 mq_send(_evtqueue._mqid, &_msg, 1, 0);
             }
         }

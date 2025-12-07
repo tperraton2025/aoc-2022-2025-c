@@ -13,7 +13,7 @@ typedef enum
     OBJ_PROPERTY_END,
     OBJ_PROPERTY_NO_COLLISION,
     OBJ_PROPERTY_MAX
-} object_properties_flags_t;
+} object_properties_t;
 
 
 typedef struct ascii_2d_engine *aoc_2d_eng_h;

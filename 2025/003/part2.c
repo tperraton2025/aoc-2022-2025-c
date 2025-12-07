@@ -31,7 +31,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
 static void freeSolution(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data);
+    struct context *_ctx = CTX_CAST(_blk->_data); 
     free(_blk->_data);
 }
 

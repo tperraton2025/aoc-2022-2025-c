@@ -40,6 +40,7 @@ int initpropagation(context_h ctx)
     ctx->_cursor._y++;
 
     aoc_2d_obj_h beam = aoc_2d_obj_ctor(eng, "beam", &ctx->_cursor, "|", OBJ_FLAG_MOBILE);
+    aoc_2d_eng_append_obj(eng, beam);
     aoc_2d_obj_ref_h beamref = aoc_2d_obj_ref(beam);
     dll_node_append(&ctx->_activebeams, &beamref->_node);
 

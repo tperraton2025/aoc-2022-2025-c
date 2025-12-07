@@ -44,7 +44,8 @@ void aoc_2d_eng_free_part(void *arg)
 
 aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *pos, char *sym, size_t props)
 {
-    struct object *_ret = malloc(sizeof(struct object));
+    struct object *_ret = NULL;
+    TRY_RAII_MALLOC(_ret, sizeof(struct object));
     if (!_ret)
         return NULL;
 
@@ -365,7 +366,9 @@ int aoc_2d_eng_move_one_step_towards(aoc_2d_eng_h _eng, aoc_2d_obj_h _a, coord_t
 
 aoc_2d_obj_ref_t *aoc_2d_obj_ref(aoc_2d_obj_h _obj)
 {
-    aoc_2d_obj_ref_t *_ntracker = malloc(sizeof(aoc_2d_obj_ref_t));
+    aoc_2d_obj_ref_t *_ntracker = NULL;
+    TRY_RAII_MALLOC(_ntracker, sizeof(aoc_2d_obj_ref_t));
+    
     if (!_ntracker)
         return NULL;
     _ntracker->_node._prev = NULL;

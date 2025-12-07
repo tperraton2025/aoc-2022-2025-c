@@ -53,9 +53,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
         dll_free_all(_ctx->_rolls, free);
         dll_free_all(_ctx->_freerolls, free);
 
-        dll_head_init(_ctx->_rolls);
-        dll_head_init(_ctx->_freerolls);
-
+        free(_ctx->_rolls);
+        free(_ctx->_freerolls);
 
         _ctx->_rolls = engine_get_objects_positions(_ctx->_engine);
         _ctx->_freerolls = enumeraterollsatproximity(_ctx->_rolls);
@@ -70,8 +69,10 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     engine_free(_ctx->_engine);
 
-    free(_ctx->_rolls);
+    dll_free_all(_ctx->_rolls, free); 
+
     free(_ctx->_freerolls);
+    free(_ctx->_rolls);
     free(_blk->_data);
 }
 
@@ -82,7 +83,7 @@ static void markfreerolls(struct context *_ctx)
 {
     LL_FOREACH_P(_posn, _ctx->_freerolls)
     {
-        coord_tracker_h _trkh = (coord_tracker_h )_posn;
+        coord_tracker_h _trkh = (coord_tracker_h)_posn;
         coord_t *_posh = &_trkh->_coord;
         aoc_2d_obj_h _toremove = aoc_2d_eng_get_obj_by_position(_ctx->_engine, _posh);
         engine_remove_obj(_ctx->_engine, _toremove);

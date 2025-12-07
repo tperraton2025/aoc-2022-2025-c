@@ -15,13 +15,13 @@ struct context
     size_t _result;
 };
 
-#define CTX_CAST(_p) ((struct context *)_p) 
+#define CTX_CAST(_p) ((struct context *)_p)
 static int base_10_has_pattern_alt(base10_h base10);
 static int base_10_has_pattern(base10_h base10, size_t _len);
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
+    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
@@ -33,7 +33,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
-    size_t _len = strnlen(_blk->_str, MAX_SSTR_LEN);
+    size_t _len = strnlen(_blk->_str, MAX_SSTR_LEN) + 1;
     _ctx->_instr = malloc(_len);
     memset(_ctx->_instr, 0, _len);
     strcpy(_ctx->_instr, _blk->_str);
@@ -85,13 +85,15 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
     /* free allocated _blk->_data members first*/
     /* solution specific section */
     /* free _blk->_data itself after wards */
+    struct context *_ctx = CTX_CAST(_blk->_data);
+    free(_ctx->_instr);
     if (_blk->_data)
         free(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart2 = {._name = CONFIG_DAY " part 2", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = freeSolution};
 struct solutionCtrlBlock_t *part2 = &privPart2;
- 
+
 static int base_10_has_pattern(base10_h base10, size_t _len)
 {
     size_t _check = base10->_lastdigit / _len;
@@ -149,4 +151,3 @@ static int base_10_has_pattern_alt(base10_h base10)
     }
     return 0;
 }
- 

@@ -64,13 +64,14 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
     dll_free_all(&_ctx->_originbyrating, free);
     dll_free_all(&_ctx->_originbyorder, free);
-
+ 
+    free(_ctx->_conversion);
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data); 
+    struct context *_ctx = CTX_CAST(_blk->_data);
     aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }

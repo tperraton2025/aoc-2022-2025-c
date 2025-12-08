@@ -37,6 +37,7 @@ typedef rangelist_t *rangelist_h;
 
 #define HIGHEST(_a, _b) ((_a) > (_b) ? (_a) : (_b))
 #define LOWEST(_a, _b) ((_a) > (_b) ? (_b) : (_a))
+#define ABSDIFF(_a, _b) (HIGHEST(_a, _b) - LOWEST(_a, _b))
 
 rangelist_h rangelistinit();
 int tryinsertrange(rangelist_h list, rangenode_h rangenode);

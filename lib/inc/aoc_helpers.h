@@ -37,7 +37,12 @@
 #define aoc_info(_fmt, ...) printf(_fmt "\r\n", __VA_ARGS__);
 #define aoc_err(_fmt, ...) printf(RED _fmt RESET "\r\n", __VA_ARGS__);
 #define aoc_warn(_fmt, ...) printf(YELLOW _fmt RESET "\r\n", __VA_ARGS__);
-#define aoc_ans(_fmt, ...) printf(UGREEN _fmt RESET "\r\n", __VA_ARGS__);
+#define aoc_ans(_fmt, ...) {printf(UGREEN _fmt RESET "\r\n", __VA_ARGS__);}
+#define aoc_prompt(_fmt, ...)      \
+    {                              \
+        printf(ERASE_FULL_LINE);   \
+        printf(_fmt "\r", __VA_ARGS__); \
+    }
 
 #define block()                                              \
     {                                                        \
@@ -68,6 +73,6 @@ struct solutionCtrlBlock_t
 extern int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[]);
 
 /*  when I am too tired to parse, like 2025 day 006 */
-int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[], char** input);
+int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[], char **input);
 
 #endif

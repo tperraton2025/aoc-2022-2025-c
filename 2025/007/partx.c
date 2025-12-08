@@ -98,7 +98,8 @@ int loopbeampropagations(context_h ctx)
             else if (ERANGE == mvret)
             {
                 beamnode->_obsolete = true;
-                aoc_2d_eng_set_obj_flag(originbeam, OBJ_FLAG_NO_COLLISION);
+                aoc_2d_eng_obj_delete(eng, originbeam);
+                dll_node_disconnect(&ctx->_activebeams, beamnode);
             }
         }
     }

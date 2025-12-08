@@ -7,6 +7,7 @@ struct dll_head
     struct dll_node *_first;
     struct dll_node *_current;
     struct dll_node *_last;
+    void (*freeall)(void *_data);
     size_t _size;
 };
 
@@ -18,9 +19,9 @@ struct dll_node
     struct dll_node *_prev;
     struct dll_node *_next;
     bool _obsolete;
-    void (*free)(void *_data);
 };
 
+typedef struct dll_node dll_node_t;
 typedef struct dll_node *dll_node_h;
 typedef struct string_dll_node
 {

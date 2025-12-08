@@ -150,7 +150,17 @@ void dll_node_disconnect(dll_head_h head, dll_node_h _a)
     if (_a->_next)
         _a->_next->_prev = _a->_prev;
     else
-        head->_last = _a->_prev; 
+        head->_last = _a->_prev;
+}
+
+void dll_node_free(dll_head_h head, dll_node_h *_a, void func(void *))
+{
+    assert(head->_size != 0 && "attempt to remove link from an empty sinked list");
+    assert(_a && "NULL pointer provided");
+    dll_node_h _save = (*_a)->_next;
+    dll_node_disconnect(head, *_a);
+    free(*_a);
+    *_a = _save;
 }
 
 int dll_find_node(dll_head_h head, dll_node_h _a)
@@ -179,6 +189,32 @@ size_t dll_count_nodes_by_property(dll_head_h head, void *_prop, bool (*equal)(v
     return ret;
 }
 
+size_t dll_try_count_nodes_by_property(dll_node_h start, void *arg, bool (*equal)(void *_a, void *_b), bool (*stop)(void *_a, void *_b))
+{
+    if (!start || !equal || !stop)
+        return 0;
+    size_t result = 0;
+    dll_node_h current = start->_next;
+    while (current)
+    {
+        if (equal(current, arg))
+            result++;
+        if (stop(current, arg))
+            break;
+        current = current->_next;
+    }
+    current = start->_prev;
+    while (current)
+    {
+        if (equal(current, arg))
+            result++;
+        if (stop(current, arg))
+            break;
+        current = current->_prev;
+    }
+    return result;
+}
+
 int dll_foreach_node_with_args(dll_head_h head, void *args, bool (*func)(void *_a, void *_b))
 {
     if (!head || !func)
@@ -198,6 +234,31 @@ dll_node_h dll_find_node_by_property(dll_head_h head, void *_prop, bool (*equal)
     {
         if (equal(_node, _prop))
             return _node;
+    }
+    return NULL;
+}
+
+dll_node_h dll_try_find_node_by_property(dll_node_h start, void *arg, bool (*equal)(void *_a, void *_b), bool (*stop)(void *_a, void *_b))
+{
+    if (!start || !equal || !stop)
+        return NULL;
+    dll_node_h current = start;
+    while (current)
+    {
+        if (equal(current, arg))
+            return current;
+        if (stop(current, arg))
+            break;
+        current = current->_next;
+    }
+    current = start;
+    while (current)
+    {
+        if (equal(current, arg))
+            return current;
+        if (stop(current, arg))
+            break;
+        current = current->_prev;
     }
     return NULL;
 }
@@ -285,15 +346,22 @@ int dll_trim_nodes(dll_head_h head, void *arg, bool (*remifeq)(void *_a, void *_
 {
     if (!head || !remifeq || !free)
         return EINVAL;
-
+    size_t liberated = 0;
+    dll_node_t _dummy = {0};
     LL_FOREACH_P(_node, head)
     {
         if (remifeq(_node, arg))
-            continue;
-        dll_node_disconnect(head, _node);
-        free(_node);
+        {
+            liberated++;
+            _dummy._next = _node->_next;
+            dll_node_disconnect(head, _node);
+            free(_node);
+            if (!_dummy._next)
+                break;
+            _node = &_dummy;
+        }
     }
-    return 0;
+    return liberated;
 }
 
 string_dll_node_h string_dll(const char *const name)

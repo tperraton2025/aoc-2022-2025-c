@@ -31,8 +31,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     aoc_2d_eng_extend_one_direction(eng, 2, AOC_2D_DIR_RIGHT);
     aoc_2d_eng_extend_one_direction(eng, 2, AOC_2D_DIR_LEFT);
-    ret = initpropagation(_ctx);
 
+    ret = initpropagation(_ctx);
     if (!ret)
         ret = loopbeampropagations(_ctx);
     if (!ret)

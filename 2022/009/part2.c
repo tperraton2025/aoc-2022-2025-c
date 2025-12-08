@@ -52,7 +52,7 @@ static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
     coord_tracker_t _posTrack = {._coord = {._x = _pos->_x, _pos->_y}};
-    if (NULL == dll_find_node_by_property(&_ctx->_tailPos, (void *)&_posTrack, coord_compare))
+    if (NULL == dll_find_node_by_property(&_ctx->_tailPos, (void *)&_posTrack, coord_equal))
     {
         coord_tracker_h _npos = malloc(sizeof(coord_tracker_t));
         if (!_npos)

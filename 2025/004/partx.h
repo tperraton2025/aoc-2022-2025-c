@@ -8,6 +8,14 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+struct context
+{
+    aoc_2d_eng_h _engine;
+    dll_head_h _rollspositions;
+    dll_head_t _parsers;
+    size_t _result;
+};
+
 static int parserolls(void *arg, char *str)
 {
     int _ret = 0;
@@ -36,41 +44,59 @@ static int parserolls(void *arg, char *str)
 
 static struct parser blockparser = {._name = "roll parsers", ._func = parserolls};
 
-static dll_head_h enumeraterollsatproximity(dll_head_h allpos)
+static bool coord_dist_more_than_2(void *_a, void *_b)
 {
-    dll_head_h _tomark = malloc(sizeof(dll_head_t));
-    dll_head_init(_tomark);
+    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    size_t distx = ABSDIFF(_acord->_x, _bcord->_x);
+    size_t disty = ABSDIFF(_acord->_y, _bcord->_y);
+    return distx > 2 && disty > 2;
+}
 
+static bool coord_dist_less_than_2(void *_a, void *_b)
+{
+    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    size_t distx = ABSDIFF(_acord->_x, _bcord->_x);
+    size_t disty = ABSDIFF(_acord->_y, _bcord->_y);
+    return distx < 2 && disty < 2;
+}
+
+static size_t trimaccessiblepositions(aoc_2d_eng_h eng, dll_head_h allpos)
+{
+    size_t liberated = 0;
+    size_t startlen = allpos->_size;
     LL_FOREACH_P(_posn, allpos)
     {
         size_t _limit = 0;
-        coord_tracker_t _pos = {0};
-        coord_tracker_h _trkh = (coord_tracker_h )_posn;
+        coord_tracker_h _trkh = (coord_tracker_h)_posn;
         coord_t *_posh = &_trkh->_coord;
 
-        size_t startx = _posh->_x ? _posh->_x - 1 : _posh->_x;
-        size_t starty = _posh->_y ? _posh->_y - 1 : _posh->_y;
-
-
-        for (_pos._coord._x = startx; _pos._coord._x < (_posh->_x + 2); _pos._coord._x++)
+        _limit += dll_try_count_nodes_by_property(_posn, (void *)_posn, coord_dist_less_than_2, coord_dist_more_than_2);
+        if (4 > _limit)
+            _posn->_obsolete = true;
+    }
+    dll_node_t _dummy = {0};
+    LL_FOREACH_P_EXT(_posn, allpos)
+    {
+        if (_posn->_obsolete)
         {
-            for (_pos._coord._y = starty; _pos._coord._y < (_posh->_y + 2); _pos._coord._y++)
-            {
-                if ((_pos._coord._x == _posh->_x) && (_pos._coord._y == _posh->_y)) 
-                    continue; 
-                if (dll_find_node_by_property(allpos, &_pos, coord_compare))
-                    _limit += 1;
-            }
-        }
-        if (_limit < 4)
-        {
-            coord_tracker_h _ntr = coordtracker_ctor();
-            _ntr->_coord._x = _posh->_x;
-            _ntr->_coord._y = _posh->_y;
-            dll_node_append(_tomark, &_ntr->_node);
+            liberated++;
+            coord_tracker_h _trkh = (coord_tracker_h)_posn;
+            coord_t *_posh = &_trkh->_coord;
+            aoc_2d_eng_draw_part_at(eng, _posh, "x");
+
+            _dummy._next = _posn->_next;
+            dll_node_disconnect(allpos, _posn);
+            free(_posn);
+            if (!_dummy._next)
+                break;
+            _posn = &_dummy;
         }
     }
-    return _tomark;
+
+    aoc_ans("removed %lu rolls out of %lu", liberated, startlen);
+    return liberated;
 }
 typedef struct context *aoc_context_h;
 static void markfreerolls(struct context *_ctx);

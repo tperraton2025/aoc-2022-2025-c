@@ -176,7 +176,7 @@ void aoc_2d_eng_prompt(aoc_2d_eng_h _eng, const size_t _sleep, size_t _count, ..
     }
 }
 
-bool coord_compare(void *_a, void *_b)
+bool coord_equal(void *_a, void *_b)
 {
     coord_tracker_h _aNode = CAST(coord_tracker_h, _a);
     coord_tracker_h _bNode = CAST(coord_tracker_h, _b);

@@ -157,7 +157,7 @@ int aoc_2d_eng_draw_objects(aoc_2d_eng_h _eng)
     return 0;
 }
 
-aoc_2d_eng_h aoc_2d_eng_delete(aoc_2d_eng_h eng, struct object *obj)
+aoc_2d_eng_h aoc_2d_eng_obj_delete(aoc_2d_eng_h eng, struct object *obj)
 {
     dll_node_disconnect(&eng->_objects, &obj->_node);
     aoc_2d_eng_free_obj(obj);

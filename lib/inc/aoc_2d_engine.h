@@ -81,7 +81,7 @@ typedef struct ascii_2d_engine *aoc_2d_eng_h;
 typedef struct object *aoc_2d_obj_h;
 
 aoc_2d_eng_h aoc_2d_eng_create(coord_t *partcoordmaxima, char _voidsym, size_t delay);
-aoc_2d_eng_h aoc_2d_eng_delete(aoc_2d_eng_h _eng, struct object *obj);
+aoc_2d_eng_h aoc_2d_eng_obj_delete(aoc_2d_eng_h _eng, struct object *obj);
 void aoc_2d_eng_free_obj(void *_data);
 void eng_set_refresh_delay(aoc_2d_eng_h _eng, size_t delay);
 int aoc_2d_eng_draw_objects(aoc_2d_eng_h _eng);
@@ -162,5 +162,5 @@ typedef struct coord_tracker
 typedef coord_tracker_t *coord_tracker_h;
 coord_tracker_h coordtracker_ctor();
 
-bool coord_compare(void *_a, void *_b);
+bool coord_equal(void *_a, void *_b);
 int engine_remove_obj(aoc_2d_eng_h eng, aoc_2d_obj_h obj);

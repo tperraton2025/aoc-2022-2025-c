@@ -54,7 +54,6 @@ static void freeElf(void *arg)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     TRY_RAII_MALLOC(_blk->_data, sizeof(context_t));
     context_t *_ctx = CAST(context_t *, _blk->_data);
     if (!_ctx)
@@ -72,7 +71,6 @@ static int handler(struct solutionCtrlBlock_t *_blk)
     elfCal_t *_lastelf = CAST(elfCal_t *, _ctx->_head._last);
 
     int _cal = 0;
-    aoc_info("%lu", _ctx->_result);
     if (sscanf(_blk->_str, "%d\n", &_cal))
         if (_cal)
         {

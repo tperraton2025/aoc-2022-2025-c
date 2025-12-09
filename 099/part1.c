@@ -46,7 +46,6 @@ static int queue_setup(queue_h mq_h, const char *_name, size_t mqlen, size_t msg
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
     int _ret = 1;
     _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)

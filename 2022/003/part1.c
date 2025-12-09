@@ -42,11 +42,11 @@ static void print_arr(struct letter_map_t *_map)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
-        return ENOMEM; 
-    struct context *_ctx = CTX_CAST(_blk->_data); _ctx->_result = 0;
+        return ENOMEM;
+    struct context *_ctx = CTX_CAST(_blk->_data);
+    _ctx->_result = 0;
     return 0;
 }
 
@@ -88,13 +88,14 @@ static int handler(struct solutionCtrlBlock_t *_blk)
     size_t _len = strlen(_blk->_str) >> 1;
     populate(&CTX_CAST(_blk->_data)->_a, _blk->_str, _len);
     populate(&CTX_CAST(_blk->_data)->_b, _blk->_str + _len, _len);
-    struct context *_ctx = CTX_CAST(_blk->_data); _ctx->_result += catchRepeat(_blk) + 1;
+    struct context *_ctx = CTX_CAST(_blk->_data);
+    _ctx->_result += catchRepeat(_blk) + 1;
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data); 
+    struct context *_ctx = CTX_CAST(_blk->_data);
     aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }

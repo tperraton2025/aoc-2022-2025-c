@@ -16,7 +16,6 @@ struct context
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
     _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
@@ -40,13 +39,13 @@ static int handler(struct solutionCtrlBlock_t *_blk)
                 _ctx->_result++;
             if (0 > _ctx->_encoder)
                 _ctx->_encoder = 100 + _ctx->_encoder;
-        } 
+        }
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data); 
+    struct context *_ctx = CTX_CAST(_blk->_data);
     aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }

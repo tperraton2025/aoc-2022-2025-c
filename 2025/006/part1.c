@@ -4,7 +4,6 @@
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
 
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
@@ -79,12 +78,11 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
     }
     dll_free_all(&_ctx->_prob._ops, free);
 
-
     for (size_t _ii = 0; _ii < _ctx->_prob._instrcnt; _ii++)
         free(_ctx->_prob._instr[_ii]);
 
     free(_ctx->_prob._instr);
-    
+
     free(_blk->_data);
 }
 

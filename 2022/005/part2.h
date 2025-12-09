@@ -23,11 +23,10 @@ typedef struct context
     coord_t _pos;
     char *spelling;
     size_t _result;
-}context_t; 
+} context_t;
 typedef context_t *aoc_context_h;
 
 #define CTX_CAST(_p) ((struct context *)_p)
-
 
 static int crate_lift(aoc_context_h _ctx, command_t *_cmd);
 static int crate_change_lane(aoc_context_h _ctx, command_t *_cmd);

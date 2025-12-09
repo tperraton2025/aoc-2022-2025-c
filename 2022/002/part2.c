@@ -18,11 +18,11 @@ extern size_t score_ind_from_items(char mine, char his);
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
-        return ENOMEM; 
-    struct context *_ctx = CTX_CAST(_blk->_data); _ctx->_result = 0;
+        return ENOMEM;
+    struct context *_ctx = CTX_CAST(_blk->_data);
+    _ctx->_result = 0;
     return 0;
 }
 
@@ -77,14 +77,15 @@ static int handler(struct solutionCtrlBlock_t *_blk)
             aoc_info("he picked %-10s I picked %-10s -> %-12s and it should be %-12s", _psHis, _psMine, _psOutcomeStr[_indCheck], _psOutcome);
 
         int round = (_luMineInd + 1) + _pI_points[_luReqOutcomeInd];
-        struct context *_ctx = CTX_CAST(_blk->_data); _ctx->_result += round;
+        struct context *_ctx = CTX_CAST(_blk->_data);
+        _ctx->_result += round;
     }
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    struct context *_ctx = CTX_CAST(_blk->_data); 
+    struct context *_ctx = CTX_CAST(_blk->_data);
     aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }

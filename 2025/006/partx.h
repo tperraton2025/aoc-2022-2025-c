@@ -15,9 +15,9 @@ typedef struct
     struct dll_head _params[16];
     dll_node_h _paramnodes[16];
     struct dll_head _ops;
-    char** _instr;
+    char **_instr;
     size_t _instrcnt;
-    char* _opstr;
+    char *_opstr;
     size_t _line;
 } problem_t;
 
@@ -53,7 +53,7 @@ typedef struct context
 } context_t;
 
 typedef context_t *context_h;
- 
+
 void checkparseconsistency(context_h _ctx);
 void checkocotparseconsistency(context_h _ctx);
 size_t add(context_h _ctx);

@@ -326,7 +326,7 @@ static void get_smallest_dir_above_mem_lim(void *arg, tree_node_h _a)
         }
     }
 }
- 
+
 static int command_executor(aoc_context_h _ctx, char *_str);
 
 static int parsecommand(void *arg, char *_str);
@@ -336,5 +336,5 @@ static int parsedir(void *arg, char *_str);
 static struct parser cmdparser = {._name = "cmd parser", ._func = parsecommand};
 static struct parser fileparser = {._name = "file parser", ._func = parsefile};
 static struct parser dirparser = {._name = "dir parser", ._func = parsedir};
- 
+
 #endif

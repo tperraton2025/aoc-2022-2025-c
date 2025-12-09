@@ -49,8 +49,6 @@ typedef struct
     AOC_2D_DIR dir;
     size_t steps;
 } movement_t;
- 
- 
 
 static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 {
@@ -71,7 +69,6 @@ static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
     int ret = 0;
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
@@ -218,7 +215,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     LL_FOREACH(pos_node, _ctx->_tailPos)
     {
-        coord_tracker_h _npos = CAST(coord_tracker_h , pos_node);
+        coord_tracker_h _npos = CAST(coord_tracker_h, pos_node);
         aoc_2d_eng_draw_part_at(_ctx->_eng, &_npos->_coord, "#", "");
     }
 

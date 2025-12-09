@@ -85,7 +85,7 @@ static size_t trimaccessiblepositions(aoc_2d_eng_h eng, dll_head_h allpos)
             coord_tracker_h _trkh = (coord_tracker_h)_posn;
             coord_t *_posh = &_trkh->_coord;
             aoc_2d_eng_draw_part_at(eng, _posh, "x", RED);
-            //usleep(1000 * 50);
+            // usleep(1000 * 50);
             _dummy._next = _posn->_next;
             dll_node_disconnect(allpos, _posn);
             free(_posn);

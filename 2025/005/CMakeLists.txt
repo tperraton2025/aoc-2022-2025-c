@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
- 
+
 get_filename_component(day ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" day ${day})
 
@@ -35,8 +35,8 @@ add_test(
 add_test(
   NAME ${ProjectId}input
   COMMAND
-   "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+    "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
     "${CMAKE_CURRENT_SOURCE_DIR}/data/input.txt" --exe "${ProjectId}input")
 
-add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test   "3" "14")
-add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}input  "681" "348820208020395")
+add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "3" "14")
+add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}input "681" "348820208020395")

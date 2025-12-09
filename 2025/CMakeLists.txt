@@ -1,5 +1,5 @@
 set(SAVED_YEAR ${YEAR})
-get_filename_component(YEAR ${CMAKE_CURRENT_SOURCE_DIR} NAME) 
+get_filename_component(YEAR ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/000)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/001)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/002)

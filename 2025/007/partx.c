@@ -53,7 +53,7 @@ int loopbeampropagations(context_h ctx)
     aoc_2d_eng_h eng = ctx->_eng;
     int ret = 0;
     int active = 1;
-    
+
     dll_node_t ghostnode = {0};
     while (active)
     {

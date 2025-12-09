@@ -26,22 +26,15 @@ set_target_properties(
 
 add_definitions(-DCONFIG_DAY="${day}" -DCONFIG_YEAR="${YEAR}")
 
-# unit tests
-#include(CTest)
-#add_test(
-#  NAME ${ProjectId}test1
-#  COMMAND
-#    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-#    "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test1")
-#add_test(NAME ${ProjectId}test2
-#         COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-#                 "./data/test2.txt" --exe "${ProjectId}test2")
-#add_test(
-#  NAME ${ProjectId}input
-#  COMMAND
-#    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-#    "${CMAKE_CURRENT_SOURCE_DIR}/data/input.txt" --exe "${ProjectId}input")
+# unit tests include(CTest) add_test( NAME ${ProjectId}test1 COMMAND
+# "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+# "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test1")
+# add_test(NAME ${ProjectId}test2 COMMAND "valgrind"
+# "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}" "./data/test2.txt" --exe
+# "${ProjectId}test2") add_test( NAME ${ProjectId}input COMMAND
+# "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+# "${CMAKE_CURRENT_SOURCE_DIR}/data/input.txt" --exe "${ProjectId}input")
 #
-#add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test1 "13" "1")
-#add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test2 "88" "36")
-#add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}input "6745" "2793")
+# add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test1 "13" "1")
+# add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test2 "88" "36")
+# add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}input "6745" "2793")

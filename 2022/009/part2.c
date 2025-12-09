@@ -68,7 +68,6 @@ static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     int ret = 0;
     _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)

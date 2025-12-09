@@ -36,7 +36,7 @@ static struct elfCal_t *elf_ctor(struct context *_ctx)
         goto cleanup;
     sprintf(_ret->_name, "elfo%3d", _ret->_count);
 
-    if (dll_node_append(&_ctx->_ll, (dll_node_h )_ret))
+    if (dll_node_append(&_ctx->_ll, (dll_node_h)_ret))
         goto name;
     return _ret;
 
@@ -58,11 +58,10 @@ static void freeElf(void *_data)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
     int ret = 0;
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
     if (!_blk->_data)
-        return ENOMEM; 
+        return ENOMEM;
 
     struct context *_ctx = CAST(struct context *, _blk->_data);
     dll_head_init(&_ctx->_ll);
@@ -103,7 +102,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
-    int  count = 0;
+    int count = 0;
     struct context *_ctx = CAST(struct context *, _blk->_data);
 
     LL_FOREACH(_node, _ctx->_ll)

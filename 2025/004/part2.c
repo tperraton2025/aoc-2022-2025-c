@@ -4,7 +4,6 @@
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     _blk->_data = malloc(sizeof(struct context));
     memset(_blk->_data, 0, sizeof(struct context));
     struct context *_ctx = CTX_CAST(_blk->_data);
@@ -32,11 +31,11 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
 
     _ctx->_rollspositions = engine_get_objects_positions(_ctx->_engine);
-    size_t liberated = trimaccessiblepositions(_ctx->_engine, _ctx->_rollspositions); 
+    size_t liberated = trimaccessiblepositions(_ctx->_engine, _ctx->_rollspositions);
     while (liberated)
     {
         _ctx->_result += liberated;
-        liberated = trimaccessiblepositions(_ctx->_engine, _ctx->_rollspositions); 
+        liberated = trimaccessiblepositions(_ctx->_engine, _ctx->_rollspositions);
     }
 
     if (43 == _ctx->_result || 8493 == _ctx->_result)

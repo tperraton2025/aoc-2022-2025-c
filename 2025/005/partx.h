@@ -48,7 +48,6 @@ static int parseitem(void *arg, char *str)
 static parser_t _rangeparser = {._name = "ranges", ._func = parserange};
 static parser_t _itemparser = {._name = "items", ._func = parseitem};
 
-
 static bool checkexpired(rangelist_h list, intlistitem_h item)
 {
     LL_FOREACH(_rangen, list->_head)

@@ -16,8 +16,8 @@ int parsenum(void *arg, char *_str)
     char *_strpos = strtok(_strbuf, " ");
 
     size_t _newnum = 0;
-    size_t _matches = 0; 
-    
+    size_t _matches = 0;
+
     if (strchr(_str, '*') || strchr(_str, '+'))
         goto abort;
 

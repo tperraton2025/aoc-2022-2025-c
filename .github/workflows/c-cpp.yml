@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install CUnit
+      run: sudo apt-get update && sudo apt-get install -y libcunit1 libcunit1-doc libcunit1-dev
     - name: cmake ./CMakeLists.txt
       run: cmake ./CMakeLists.txt
     - name: make all -j

@@ -13,6 +13,9 @@ void signal_int_handler(int sig)
 int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
 {
     int ret = 0;
+
+    gettimeofday(&_sol->_start, NULL);
+
     assert(_sol && "NULL solutionCtrlBlk provided by user");
     assert(_sol->_name && "NULL solution name provided by user");
     assert(_sol->_handler && "NULL _handler function provided by user");
@@ -28,32 +31,37 @@ int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
 
     char _ins[MAX_LINE_LEN] = {0};
 
-    if (_sol->_prologue(_sol, argc, argv))
-        goto error;
-    while (fgets(_ins, sizeof(_ins), _pxfile))
+    ret = _sol->_prologue(_sol, argc, argv);
+
+    while (!ret && fgets(_ins, sizeof(_ins), _pxfile))
     {
         _sol->_str = _ins;
         ret = _sol->_handler(_sol);
         if (ret)
-            goto error;
+            break;
     }
 
     if (!ret)
         ret = _sol->_epilogue(_sol);
 
     fclose(_pxfile);
+
     _sol->_free(_sol);
-    aoc_info("AOC 2022 %s exited with code %d", _sol->_name, ret);
+
+    gettimeofday(&_sol->_end, NULL);
+
+    size_t _s = _sol->_end.tv_sec - _sol->_start.tv_sec;
+    size_t _ms = (_sol->_end.tv_usec - _sol->_start.tv_usec) / 1000;
+    size_t _us = (_sol->_end.tv_usec - _sol->_start.tv_usec) % 1000;
+
+    aoc_info("AOC 2022 %s exited with code %d in %lus:%lums:%luus", _sol->_name, ret, _s, _ms, _us);
     return ret;
-error:
-    fclose(_pxfile);
-    _sol->_free(_sol);
-    aoc_err("AOC 2022 %s failed with error %d", _sol->_name, ret);
 }
 
 int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[], char **input)
 {
     int ret = 0;
+    gettimeofday(&_sol->_start, NULL);
     assert(_sol && "NULL solutionCtrlBlk provided by user");
     assert(_sol->_name && "NULL solution name provided by user");
     assert(_sol->_handler && "NULL _handler function provided by user");
@@ -68,25 +76,28 @@ int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[]
 
     char _ins[MAX_LINE_LEN] = {0};
 
-    if (_sol->_prologue(_sol, argc, argv))
-        goto error;
+    ret = _sol->_prologue(_sol, argc, argv);
 
     size_t _it = 0;
-    while (input[_it])
+    while (!ret && input[_it])
     {
         _sol->_str = input[_it++];
         ret = _sol->_handler(_sol);
         if (ret)
-            goto error;
+            break;
     }
 
     if (!ret)
         ret = _sol->_epilogue(_sol);
 
     _sol->_free(_sol);
-    aoc_info("AOC 2022 %s exited with code %d", _sol->_name, ret);
+
+    gettimeofday(&_sol->_end, NULL);
+
+    size_t _s = _sol->_end.tv_sec - _sol->_start.tv_sec;
+    size_t _ms = (_sol->_end.tv_usec - _sol->_start.tv_usec) / 1000;
+    size_t _us = (_sol->_end.tv_usec - _sol->_start.tv_usec) % 1000;
+
+    aoc_info("AOC 2022 %s exited with code %d in %lus:%lums:%luus", _sol->_name, ret, _s, _ms, _us);
     return ret;
-error:
-    _sol->_free(_sol);
-    aoc_err("AOC 2022 %s failed with error %d", _sol->_name, ret);
 }

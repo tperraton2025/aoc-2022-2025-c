@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
@@ -69,6 +70,8 @@ struct solutionCtrlBlock_t
     int (*_epilogue)(struct solutionCtrlBlock_t *_data);
     void (*_free)(struct solutionCtrlBlock_t *_data);
     void *_data;
+    struct timeval _start;
+    struct timeval _end;
 };
 
 /**

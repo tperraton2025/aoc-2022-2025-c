@@ -42,7 +42,7 @@ size_t dll_size(dll_head_h head)
 int dll_node_append(dll_head_h head, dll_node_h _new)
 {
     assert(head && _new && "NULL pointer in dll_node_append");
-    assert (head->_size <  LL_MAX_LEN_LUI);
+    assert(head->_size < LL_MAX_LEN_LUI);
 
     head->_size++;
     if (head->_last)
@@ -261,20 +261,36 @@ dll_node_h dll_try_find_node_by_property(dll_node_h start, void *arg, bool (*equ
     }
     return NULL;
 }
-
-/* TODO must find a solution without copy */
-dll_head_h dll_clone_sorted(dll_head_h head, dll_compare(*comp), size_t nodesize)
+ 
+dll_head_h dll_clone(dll_head_h toclone, size_t nodesize)
 {
-    dll_head_h _sorted = malloc(sizeof(dll_head_t));
-    dll_head_init(_sorted);
+    dll_head_h _clone = malloc(sizeof(dll_head_t));
+    dll_head_init(_clone);
 
-    LL_FOREACH_P(_node, head)
+    LL_FOREACH_P(_node, toclone)
     {
         dll_node_h _copy = malloc(nodesize);
         memcpy(_copy, _node, nodesize);
         _copy->_next = NULL;
         _copy->_prev = NULL;
-        dll_node_sorted_insert(_sorted, _copy, comp);
+        dll_node_append(_clone, _copy);
+    }
+    return _clone;
+}
+
+/* TODO must find a solution without copy */
+dll_head_h dll_clone_sorted(dll_head_h toclone, dll_compare(*comp), size_t nodesize)
+{
+    dll_head_h _sorted = malloc(sizeof(dll_head_t));
+    dll_head_init(_sorted);
+
+    LL_FOREACH_P(_node, toclone)
+    {
+        dll_node_h _nodecopy = malloc(nodesize);
+        memcpy(_nodecopy, _node, nodesize);
+        _nodecopy->_next = NULL;
+        _nodecopy->_prev = NULL;
+        dll_node_sorted_insert(_sorted, _nodecopy, comp);
     }
     return _sorted;
 }

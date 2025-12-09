@@ -29,6 +29,13 @@ typedef struct string_dll_node
     char *_str;
 } string_dll_node_t;
 
+typedef struct void_dll_node
+{
+    struct dll_node _node;
+    void *_data;
+} void_dll_node_t;
+typedef void_dll_node_t *void_dll_node_h;
+
 typedef dll_node_h(dll_compare)(dll_node_h _a, dll_node_h _b);
 
 typedef struct string_dll_node *string_dll_node_h;

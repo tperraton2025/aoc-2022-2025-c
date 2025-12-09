@@ -41,7 +41,6 @@ typedef struct joltchoice
     joltage_h _selected;
     size_t _decimalscurrent;
     size_t _decimalsneeded;
-    size_t _decimalshighest;
     base10_h _conversion;
 } joltchoice_t;
 
@@ -72,26 +71,46 @@ joltage_h picknextelligiblebyrating(context_h _ctx);
 joltage_h picknextelligiblebyorder(context_h _ctx);
 joltage_h pickearliestwithhighestbyrating(joltage_h _start);
 
-static char _strcomb[1024] = {0};
+static char _strcomb[2048] = {0};
 static char *strcomb(joltchoice_h choice)
 {
-    joltchoice_h index = choice;
-    char *_strhead = &_strcomb[0];
+    struct dll_head path = {0};
+
+    joltchoice_h firstchx = choice;
+    while (firstchx)
+    {
+        void_dll_node_h step = malloc(sizeof(void_dll_node_t));
+        step->_data = (void *)firstchx->_selected;
+        dll_node_append(&path, &step->_node);
+        firstchx = (joltchoice_h)firstchx->_treenode._parent;
+    }
+    void_dll_node_h pathnode = (void_dll_node_h)path._last;
+    joltage_h lastchx = (joltage_h)pathnode->_data;
+
+    char *_pen = &_strcomb[0];
 
     LL_FOREACH_P(_node, choice->_originbyorder)
     {
-        assert((_strhead - _strcomb < sizeof(_strcomb)));
+        assert((_pen - _strcomb < sizeof(_strcomb)));
         joltage_h jolth = (joltage_h)_node;
 
-        if (choice->_selected->_order == jolth->_order)
+        if (lastchx)
         {
-            _strhead += sprintf(_strhead, GREEN "%lu" RESET, jolth->_rating);
-            index = index ? (joltchoice_h)index->_treenode._parent : index;
-            continue;
+            if (lastchx->_order == jolth->_order)
+            {
+                _pen += sprintf(_pen, GREEN "%lu" RESET, jolth->_rating);
+                pathnode = (void_dll_node_h)pathnode->_node._prev;
+                lastchx = pathnode ? (joltage_h)pathnode->_data : NULL;
+            }
+            else
+                _pen += sprintf(_pen, RED "%lu" RESET, jolth->_rating);
         }
-        _strhead += sprintf(_strhead, RED "%lu" RESET, jolth->_rating);
+        else
+            _pen += sprintf(_pen, RED "%lu" RESET, jolth->_rating);
     }
-    assert((_strhead - _strcomb < sizeof(_strcomb)));
+    assert((_pen - _strcomb < sizeof(_strcomb)));
+
+    dll_free_all(&path, free);
     return _strcomb;
 }
 
@@ -102,5 +121,5 @@ static context_h makenextjoltchoice(context_h parent, joltage_h from)
 }
 
 void freejoltchoice(void *arg);
-joltchoice_h joltagetreechoice(joltchoice_h parent, dll_head_h list, joltage_h selected, void free(void *arg));
-void joltagepickallfeasible(joltchoice_h parent);
+joltchoice_h joltagetreechoice(joltchoice_h parent, size_t decimals, dll_head_h byrating, dll_head_h byorder, joltage_h selected, void free(void *arg));
+size_t joltagepickallfeasible(joltchoice_h parent);

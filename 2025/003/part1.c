@@ -25,19 +25,29 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
     populatejoltages(_ctx, _blk->_str);
 
-    _ctx->_root = joltagetreechoice(NULL, &_ctx->_originbyrating, (joltage_h)_ctx->_originbyrating._first, freejoltchoice);
-    if (!_ctx->_root)
-        return EINVAL;
+    size_t _matchfound = 0;
+    LL_FOREACH(_node, _ctx->_originbyrating)
+    {
+        _ctx->_root = joltagetreechoice(NULL, 1LU, &_ctx->_originbyrating, &_ctx->_originbyorder, (joltage_h)_node, freejoltchoice);
+        if (!_ctx->_root)
+            goto error;
+        _matchfound = joltagepickallfeasible(_ctx->_root);
 
-    _ctx->_conversion = base_10_conversion(0);
-    _ctx->_root->_availablebyrating = &_ctx->_originbyrating;
-    joltagepickallfeasible(_ctx->_root);
+        aoc_tree_free(&_ctx->_root->_treenode);
 
+        if (_matchfound)
+        {
+            _ctx->_result += _matchfound;
+            break;
+        }
+    }
+    return 0;
+
+error:
     dll_free_all(&_ctx->_originbyrating, free);
     dll_free_all(&_ctx->_originbyorder, free);
 
-    aoc_tree_free(&_ctx->_root->_treenode);
-    return 0;
+    return 1;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)

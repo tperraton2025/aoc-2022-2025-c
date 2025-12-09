@@ -34,8 +34,8 @@ void dll_node_free(dll_head_h head, dll_node_h *_a, void func(void *));
 size_t dll_count_nodes_by_property(dll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b));
 size_t dll_try_count_nodes_by_property(dll_node_h start, void *arg, bool (*equal)(void *_a, void *_b), bool (*stop)(void *_a, void *_b));
 
+dll_head_h dll_clone(dll_head_h head, size_t nodesize);
 dll_head_h dll_clone_sorted(dll_head_h head, dll_compare(*comp), size_t nodesize);
-
 dll_node_h dll_find_node_by_property(dll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b));
 dll_node_h dll_try_find_node_by_property(dll_node_h start, void *arg, bool (*equal)(void *_a, void *_b), bool (*stop)(void *_a, void *_b));
 

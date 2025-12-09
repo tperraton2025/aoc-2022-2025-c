@@ -27,6 +27,7 @@ set(CMAKE_BUILD_TYPE DEBUG)
 target_link_libraries(libaochelpers m)
 
 enable_testing()
+add_subdirectory(cmake)
 add_subdirectory(tests)
 
 target_include_directories(

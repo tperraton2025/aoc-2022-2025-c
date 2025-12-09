@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10.0)
 get_filename_component(day ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" day ${day})
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/lib/cmake")
 find_package(CUnit REQUIRED)
 set(ProjectId ${YEAR}day${day})
 

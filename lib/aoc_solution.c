@@ -14,7 +14,7 @@ int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
 {
     int ret = 0;
 
-    gettimeofday(&_sol->_start, NULL);
+    clock_t cstart = clock();
 
     assert(_sol && "NULL solutionCtrlBlk provided by user");
     assert(_sol->_name && "NULL solution name provided by user");
@@ -48,20 +48,20 @@ int aocSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[])
 
     _sol->_free(_sol);
 
-    gettimeofday(&_sol->_end, NULL);
+    clock_t cend = clock();
+    clock_t timelapse = cend - cstart;
+    double _ms = timelapse / (double)(CLOCKS_PER_SEC / 1000);
+    aoc_info("returned %s in %4.3fms", strerror(ret), _ms);
 
-    size_t _s = _sol->_end.tv_sec - _sol->_start.tv_sec;
-    size_t _ms = (_sol->_end.tv_usec - _sol->_start.tv_usec) / 1000;
-    size_t _us = (_sol->_end.tv_usec - _sol->_start.tv_usec) % 1000;
-
-    aoc_info("AOC 2022 %s exited with code %d in %lus:%lums:%luus", _sol->_name, ret, _s, _ms, _us);
     return ret;
 }
 
 int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[], char **input)
 {
     int ret = 0;
-    gettimeofday(&_sol->_start, NULL);
+
+    clock_t start = clock();
+
     assert(_sol && "NULL solutionCtrlBlk provided by user");
     assert(_sol->_name && "NULL solution name provided by user");
     assert(_sol->_handler && "NULL _handler function provided by user");
@@ -92,12 +92,11 @@ int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[]
 
     _sol->_free(_sol);
 
-    gettimeofday(&_sol->_end, NULL);
+    clock_t end = clock();
+    clock_t timelapse = end - start;
+ 
+    double _ms = timelapse / (double)(CLOCKS_PER_SEC / 1000); 
+    aoc_info("returned %s in %4.3fms", strerror(ret), _ms);
 
-    size_t _s = _sol->_end.tv_sec - _sol->_start.tv_sec;
-    size_t _ms = (_sol->_end.tv_usec - _sol->_start.tv_usec) / 1000;
-    size_t _us = (_sol->_end.tv_usec - _sol->_start.tv_usec) % 1000;
-
-    aoc_info("AOC 2022 %s exited with code %d in %lus:%lums:%luus", _sol->_name, ret, _s, _ms, _us);
     return ret;
 }

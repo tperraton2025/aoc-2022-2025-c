@@ -38,10 +38,15 @@ int main(int argc, char *argv[])
 {
     assert(argc > 1 && "Wrong number of arguments provided");
 
-    aocFileLessSolution(part1, argc, argv, test);
-    aocFileLessSolution(part1, argc, argv, input);
-
-    aocFileLessSolution(part2, argc, argv, test2);
-    aocFileLessSolution(part2, argc, argv, input2);
+    if (strstr(argv[1], "test1.txt"))
+    {
+        aocFileLessSolution(part1, argc, argv, test);
+        aocFileLessSolution(part2, argc, argv, test2);
+    }
+    if (strstr(argv[1], "input.txt"))
+    {
+        aocFileLessSolution(part1, argc, argv, input);
+        aocFileLessSolution(part2, argc, argv, input2);
+    }
     return 0;
 }

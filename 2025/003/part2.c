@@ -33,10 +33,13 @@ static int handler(struct solutionCtrlBlock_t *_blk)
         _matchfound = joltagepickallfeasible(_ctx->_root);
 
         aoc_tree_free(&_ctx->_root->_treenode);
+        FREE(_ctx->_root);
 
         if (_matchfound)
         {
-            _ctx->_result += _matchfound; 
+            _ctx->_result += _matchfound;
+            dll_free_all(&_ctx->_originbyrating, free);
+            dll_free_all(&_ctx->_originbyorder, free);
             break;
         }
     }
@@ -53,6 +56,9 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
     aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
+    dll_free_all(&_ctx->_originbyrating, free);
+    dll_free_all(&_ctx->_originbyorder, free);
+    FREE(_ctx->_root);
     return 0;
 }
 

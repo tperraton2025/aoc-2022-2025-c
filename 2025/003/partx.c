@@ -2,29 +2,10 @@
 
 DLL_NODE_CTOR(joltage_t, joltage_ctor);
 
-bool has_same_rating(void *arg, void *prop)
-{
-    joltage_h _jolta = (joltage_h)arg;
-    return _jolta->_rating == *(size_t *)prop;
-}
-
-bool came_after(void *arg, void *prop)
-{
-    joltage_h _jolta = (joltage_h)arg;
-    return _jolta->_order > *(size_t *)prop;
-}
-
 bool did_not_come_after(void *arg, void *prop)
 {
     joltage_h _jolta = (joltage_h)arg;
     return _jolta->_order <= *(size_t *)prop;
-}
-
-dll_node_h pick_by_low_order(dll_node_h arga, dll_node_h argb)
-{
-    joltage_h _jolta = (joltage_h)arga;
-    joltage_h _joltb = (joltage_h)argb;
-    return _jolta->_order > _joltb->_order ? &_joltb->_node : &_jolta->_node;
 }
 
 dll_node_h comparebyratingthenorder(dll_node_h arga, dll_node_h argb)
@@ -65,89 +46,12 @@ void populatejoltages(context_h _ctx, char *_str)
     }
 }
 
-#define PREV(_n) ((joltage_h)(_n->_node._prev))
-#define NEXT(_n) ((joltage_h)(_n->_node._next))
-
-joltage_h pickearliestwithhighestbyrating(joltage_h _start)
-{
-    joltage_h _selected = NULL;
-    joltage_h _candidate = NEXT(_start);
-
-    while (_candidate)
-    {
-        if (_candidate->_rating == _start->_rating)
-        {
-            if (!_selected)
-                _selected = _candidate;
-            else if (_candidate->_order < _selected->_order)
-                _selected = _candidate;
-            _candidate = NEXT(_candidate);
-        }
-        else
-            _candidate = NULL;
-    }
-    return _selected ? _selected : _start;
-}
-
-joltage_h picknextelligiblebyrating(context_h _ctx)
-{
-    joltage_h _lastbyrating = _ctx->_pickedinlist[_ctx->_lastpickedind];
-    joltage_h _nextjolt = (joltage_h)_lastbyrating->_node._prev;
-
-    joltage_h _selected = NULL;
-    joltage_h _candidate = _lastbyrating;
-
-    while (_candidate)
-    {
-        if (_candidate->_order > _lastbyrating->_order)
-        {
-            if (!_selected)
-                _selected = _candidate;
-            else if (_candidate->_order < _selected->_order)
-                _selected = _candidate;
-        }
-        _candidate = PREV(_candidate);
-    }
-
-    if (_selected)
-        return _selected;
-
-    _selected = NULL;
-    _candidate = (joltage_h)_ctx->_originbyrating._first;
-
-    while (!_selected && _candidate)
-    {
-        if (_candidate->_order > _lastbyrating->_order)
-        {
-            if (!_selected)
-                _selected = _candidate;
-        }
-        _candidate = NEXT(_candidate);
-    }
-    return _selected;
-}
-
-joltage_h picknextelligiblebyorder(context_h _ctx)
-{
-    joltage_h _lastbyrating = _ctx->_pickedinlist[_ctx->_lastpickedind];
-    joltage_h _frombyorder = (joltage_h)(_lastbyrating->_other);
-    joltage_h _nextjolt = (joltage_h)(_frombyorder->_node._next);
-
-    while (_nextjolt)
-    {
-        if (_nextjolt->_order > _lastbyrating->_order)
-            break;
-        _nextjolt = (joltage_h)_nextjolt->_node._next;
-    }
-    return _nextjolt;
-}
-
 void freejoltchoice(void *arg)
 {
     joltchoice_h choice = (joltchoice_h)arg;
     dll_free_all(choice->_availablebyrating, free);
-    free(choice->_availablebyrating);
-    free(choice->_conversion);
+    FREE(choice->_availablebyrating);
+    FREE(choice->_conversion);
 }
 
 joltchoice_h joltagetreechoice(joltchoice_h parent, size_t decimals, dll_head_h byrating, dll_head_h byorder, joltage_h selected, void free(void *arg))
@@ -188,7 +92,6 @@ joltchoice_h joltagetreechoice(joltchoice_h parent, size_t decimals, dll_head_h 
     assert(newchoice->_decimalsneeded < 64);
     newchoice->_conversion->_digits[newchoice->_decimalsneeded] = (char)selected->_rating;
     base_10_reverse_conversion(newchoice->_conversion);
-    // aoc_info("%s (%lu)", strcomb(newchoice), newchoice->_availablebyrating->_size);
 
     return newchoice;
 }
@@ -215,7 +118,6 @@ size_t joltagepickallfeasible(joltchoice_h parent)
         joltchoice_h newchoice = joltagetreechoice(parent, 0, parent->_availablebyrating, parent->_originbyorder, _nxtjoltage, parent->_treenode._free);
         if (!newchoice->_decimalsneeded)
         {
-            //aoc_info("\t%s " GREEN " (%lu)" RESET, strcomb(newchoice), newchoice->_conversion->_val);
             return newchoice->_conversion->_val;
         }
         size_t ret = joltagepickallfeasible(newchoice);

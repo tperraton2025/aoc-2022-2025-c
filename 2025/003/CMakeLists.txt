@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
- 
+
 get_filename_component(day ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" day ${day})
 
@@ -27,16 +27,17 @@ set_target_properties(
 
 add_definitions(-DCONFIG_DAY="${day}" -DCONFIG_YEAR="${YEAR}")
 # unit tests
-##include(CTest)
-##add_test(
-##  NAME ${ProjectId}test
-##  COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-##          "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
-##add_test(
-##  NAME ${ProjectId}input
-##  COMMAND
-##    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-##    "${CMAKE_CURRENT_SOURCE_DIR}/data/input.txt" --exe "${ProjectId}input")
-##
-##add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test   "357" "3121910778619")
-##add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}input  "17383" "0")
+include(CTest)
+add_test(
+  NAME ${ProjectId}test
+  COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
+add_test(
+  NAME ${ProjectId}input
+  COMMAND
+    "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/data/input.txt" --exe "${ProjectId}input")
+
+add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "357" "3121910778619")
+add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}input "17383"
+                       "172601598658203")

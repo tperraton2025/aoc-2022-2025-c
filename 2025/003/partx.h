@@ -53,11 +53,6 @@ typedef struct context
     struct dll_head _originbyorder;
 
     joltchoice_h _root;
-
-    size_t _tofind;
-    joltage_h _pickedinlist[12];
-    size_t _lastpickedind;
-    base10_h _conversion;
     size_t _result;
 
 } context_t;

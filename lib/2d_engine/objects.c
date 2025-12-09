@@ -167,6 +167,7 @@ int aoc_2d_eng_draw_obj(struct ascii_2d_engine *eng, struct object *obj, char *s
             aoc_2d_eng_draw_part(eng, _parth, obj->_fmt);
         }
         usleep(1000 * eng->_delay);
+        printf("\n");
     }
     return ret;
 }
@@ -184,7 +185,7 @@ int aoc_2d_eng_erase_obj(struct ascii_2d_engine *eng, struct object *obj)
             _sym = CAST(part_h, _part_node);
             printf(MCUR_FMT "%c", _sym->_pos._y + eng->_partoffset._y, _sym->_pos._x + eng->_partoffset._x, eng->_voidsym);
         }
-        engine_cursor_exit_drawing_area(eng);
+        aoc_2d_eng_exit_drawing_area(eng);
     }
     return _ret;
 }
@@ -305,7 +306,7 @@ int aoc_2d_eng_step_obj(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t steps, AOC_
     if (_ret)
         return _ret;
 
-    if (_eng->_enabledraw)
+    if (_eng->_enabledraw && !(_obj->_props & OBJ_FLAG_TRACEING))
         aoc_2d_eng_erase_obj(_eng, _obj);
 
     _ret = aoc_2d_eng_move_all_parts(_eng, _obj, steps, dir);
@@ -412,7 +413,7 @@ char *strobj(aoc_2d_obj_h obj)
     return _strobj;
 }
 
-dll_node_h pickhighestcoordinates(dll_node_h arga, dll_node_h argb)
+dll_node_h bycoordinatesYfirst(dll_node_h arga, dll_node_h argb)
 {
     coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
     coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
@@ -426,4 +427,13 @@ dll_node_h pickhighestY(dll_node_h arga, dll_node_h argb)
     coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
     coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
     return posa->_y > posb->_y ? arga : argb;
+}
+
+dll_node_h bycoordinatesXfirst(dll_node_h arga, dll_node_h argb)
+{
+    coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
+    coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
+    if (posa->_x == posb->_x)
+        return posa->_y > posb->_y ? arga : argb;
+    return posa->_x > posb->_x ? arga : argb;
 }

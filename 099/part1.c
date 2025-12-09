@@ -110,7 +110,7 @@ void *graphics_routine(void *args)
 
     coord_t windowarea = {._x = 24, ._y = 32};
 
-    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, aoc_2d_eng_create(&windowarea, '.', 0),
+    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, aoc_2d_eng_create(&windowarea, '.', 0, bycoordinatesYfirst),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);

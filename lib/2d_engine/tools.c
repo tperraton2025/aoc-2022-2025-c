@@ -10,7 +10,7 @@ void eng_set_refresh_delay(aoc_2d_eng_h _eng, size_t delay)
 }
 
 int aoc_2d_eng_draw_box(struct ascii_2d_engine *_eng)
-{
+{ 
     int ret = 0;
 
     coord_t _topLeft = {._x = _eng->_drawlimits._min._x, ._y = _eng->_drawlimits._min._y};
@@ -58,7 +58,7 @@ int aoc_2d_eng_draw_box(struct ascii_2d_engine *_eng)
     if (ret)
         goto error;
 
-    put_pos(_eng, &_eng->_cursor, &_topLeft);
+    put_pos(_eng, &_eng->_cursor, &_topLeft); 
 error:
     return ret;
 }
@@ -90,7 +90,7 @@ int engine_fill_hv_line(struct ascii_2d_engine *_eng, coord_t *_start, coord_t *
             aoc_2d_eng_draw_symbol_at(_eng, &_eng->_cursor, _c, "");
 
         while (!move_cursor_until(_eng, _dir, 1, _end));
-        engine_cursor_exit_drawing_area(_eng);
+        aoc_2d_eng_exit_drawing_area(_eng);
     }
     return 0;
 }
@@ -99,7 +99,7 @@ void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h _eng)
 {
     if (_eng->_enabledraw)
     {
-        // dll_sort(&_eng->_objects, pickhighestcoordinates);
+        // dll_sort(&_eng->_objects, bycoordinatesYfirst);
         engine_cursor_user_stats(_eng);
 
         LL_FOREACH(_node, _eng->_objects)

@@ -11,7 +11,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_parsers);
 
     coord_t _max_xy = {1, 1};
-    _ctx->_engine = aoc_2d_eng_create(&_max_xy, '.', 0);
+    _ctx->_engine = aoc_2d_eng_create(&_max_xy, '.', 0, bycoordinatesYfirst);
     aoc_2d_eng_disable_draw(_ctx->_engine);
     parser_append(&_ctx->_parsers, &blockparser, _ctx->_engine);
     _ctx->_result = 0;

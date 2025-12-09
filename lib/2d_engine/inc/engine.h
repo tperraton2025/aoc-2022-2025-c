@@ -40,6 +40,7 @@ struct ascii_2d_engine
 {
     coordboundaries_t _drawlimits;
     coordboundaries_t _coordlimits;
+    dll_compare *_objsort;
     coord_t _partoffset;
     size_t _newlinecnt;
     coord_t _cursor;
@@ -76,7 +77,7 @@ int aoc_2d_obj_ctor_fit_detect(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj, size_t step
 int aoc_2d_eng_calculate_obj_position(aoc_2d_obj_h obj);
 
 part_h aoc_2d_eng_get_part_by_position(aoc_2d_eng_h eng, coord_t *pos);
-dll_node_h pickhighestcoordinates(dll_node_h arga, dll_node_h argb);
+
 dll_node_h pickhighestY(dll_node_h arga, dll_node_h argb);
 
 static const coordboundaries_t _drawlimits = {._max = {._x = ABSOLUTE_MAX_X, ._y = ABSOLUTE_MAX_Y},

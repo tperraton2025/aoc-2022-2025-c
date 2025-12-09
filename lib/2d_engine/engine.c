@@ -13,7 +13,7 @@ void engine_free(aoc_2d_eng_h _eng)
 
 DLL_NODE_CTOR(coord_tracker_t, coordtracker_ctor);
 
-aoc_2d_eng_h aoc_2d_eng_create(coord_t *ncoordlimits, char _voidsym, size_t delay)
+aoc_2d_eng_h aoc_2d_eng_create(coord_t *ncoordlimits, char _voidsym, size_t delay, dll_compare *comp)
 {
     aoc_2d_eng_h _eng = NULL;
     TRY_RAII_MALLOC(_eng, sizeof(struct ascii_2d_engine));
@@ -24,6 +24,7 @@ aoc_2d_eng_h aoc_2d_eng_create(coord_t *ncoordlimits, char _voidsym, size_t dela
     dll_head_init(&_eng->_objects);
 
     _eng->_delay = delay;
+    _eng->_objsort = comp;
 
     if (COORD_RANGE_CHECK_P(ncoordlimits, _drawlimits))
     {
@@ -69,6 +70,42 @@ cleanup:
     return NULL;
 }
 
+void aoc_2d_eng_parse_cli(aoc_2d_eng_h eng, int argc, char **argv)
+{
+    size_t canvassize = 0;
+    size_t delay = 0;
+    if (argc >= 2)
+        for (int _iarg = 0; _iarg < argc; _iarg++)
+        {
+            if (0 == strcmp(argv[_iarg], "--no-draw"))
+                aoc_2d_eng_disable_draw(eng);
+            if ((0 == strcmp(argv[_iarg], "--draw-delay")) && argc > (_iarg + 1))
+            {
+                sscanf(argv[_iarg + 1], "%3lu", &delay);
+                eng_set_refresh_delay(eng, delay);
+            }
+            if ((0 == strcmp(argv[_iarg], "--canvas-size")) && argc > (_iarg + 1))
+            {
+                sscanf(argv[_iarg + 1], "%3lu", &canvassize);
+                if (128 < canvassize)
+                {
+                    aoc_info("canvas size is large (%ld), deactivating drawings for readability", canvassize);
+                    aoc_2d_eng_disable_draw(eng);
+                }
+            }
+        }
+
+    eng_set_refresh_delay(eng, delay);
+    aoc_2d_eng_extend_one_direction(eng, canvassize >> 1, AOC_2D_DIR_RIGHT);
+    aoc_2d_eng_extend_one_direction(eng, canvassize >> 1, AOC_2D_DIR_DOWN);
+}
+
+void aoc_2d_eng_get_canvas_center(aoc_2d_eng_h _eng, coord_t *_pos)
+{
+    _pos->_x = (_eng->_coordlimits._max._x - _eng->_coordlimits._min._x) >> 1;
+    _pos->_y = (_eng->_coordlimits._max._y - _eng->_coordlimits._min._y) >> 1;
+}
+
 int engine_extend_drawing_area(struct ascii_2d_engine *_eng, coord_t newlimits)
 {
     if (!_eng)
@@ -85,7 +122,7 @@ int engine_extend_drawing_area(struct ascii_2d_engine *_eng, coord_t newlimits)
         _eng->_drawlimits._max._y = newlimits._y + _eng->_partoffset._y + 1;
 
         _eng->_coordlimits._max._x = newlimits._x;
-        _eng->_coordlimits._max._y = newlimits._y; 
+        _eng->_coordlimits._max._y = newlimits._y;
         return 0;
     }
     return EINVAL;
@@ -97,7 +134,7 @@ int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const c
     {
         coord_t _pcord = {._x = _pos->_x + eng->_partoffset._x, ._y = _pos->_y + eng->_partoffset._y};
         aoc_2d_eng_draw_symbol_at(eng, &_pcord, _sym, fmt);
-        engine_cursor_exit_drawing_area(eng);
+        aoc_2d_eng_exit_drawing_area(eng);
     }
     return 0;
 }
@@ -107,7 +144,7 @@ int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym,
     if (eng->_enabledraw)
     {
         printf(MCUR_FMT "%s%s\n" RESET, _pos->_y, _pos->_x, fmt, _sym);
-        engine_cursor_exit_drawing_area(eng);
+        aoc_2d_eng_exit_drawing_area(eng);
         usleep(1000 * eng->_delay);
     }
     return 0;
@@ -117,6 +154,8 @@ int aoc_2d_eng_draw(struct ascii_2d_engine *_eng)
 {
     if (_eng->_enabledraw)
     {
+        size_t delay = _eng->_delay;
+        _eng->_delay = 0;
         printf(ERASE_DISPLAY);
         printf(HOME);
         assert(COORD_RANGE_CHECK(_eng->_drawlimits._max, _drawlimits));
@@ -132,6 +171,7 @@ int aoc_2d_eng_draw(struct ascii_2d_engine *_eng)
         aoc_2d_eng_prompt_obj_list(_eng);
         aoc_2d_eng_draw_objects(_eng);
         engine_put_cursor_in_footer_area(_eng);
+        _eng->_delay = delay;
     }
     return 0;
 }
@@ -175,7 +215,7 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h engine, aoc_2d_obj_h newobj)
     if (!COORD_RANGE_CHECK(_extension, _drawlimits))
         return ERANGE;
 
-    int ret = dll_node_sorted_insert(&engine->_objects, CAST(dll_node_h, newobj), pickhighestcoordinates);
+    int ret = dll_node_sorted_insert(&engine->_objects, CAST(dll_node_h, newobj), engine->_objsort);
     if (ret)
     {
         aoc_err("Failed to append %s at %s: %s", newobj->_name, strpos(&newobj->_pos), strerror(ret));
@@ -193,6 +233,7 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h engine, aoc_2d_obj_h newobj)
             return ERANGE;
         }
     }
+    aoc_2d_eng_draw_obj(engine, newobj, "");
     return 0;
 }
 

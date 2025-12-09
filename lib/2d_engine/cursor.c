@@ -194,11 +194,12 @@ int engine_cursor_user_next_stats(struct ascii_2d_engine *_eng)
     return 0;
 }
 
-int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng)
+int aoc_2d_eng_exit_drawing_area(struct ascii_2d_engine *_eng)
 {
     if (!_eng)
         return EINVAL;
-    printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_drawlimits._max._y + 10, 0LU);
+    if (_eng->_enabledraw)
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, _eng->_drawlimits._max._y + 10, 0LU);
     return 0;
 }
 

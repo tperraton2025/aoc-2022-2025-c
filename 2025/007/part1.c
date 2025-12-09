@@ -9,9 +9,11 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     _ctx->_result = 0;
 
     coord_t _lim = {._x = 2, ._y = 2};
-    _ctx->_eng = aoc_2d_eng_create(&_lim, '.', 0);
-    aoc_2d_eng_disable_draw(_ctx->_eng);
+    _ctx->_eng = aoc_2d_eng_create(&_lim, '.', 10, bycoordinatesYfirst);
+
     parser_append(&_ctx->_parsers, &_objparser, _ctx);
+    aoc_2d_eng_parse_cli(_ctx->_eng, argc, argv);
+
     return 0;
 }
 
@@ -31,14 +33,18 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     aoc_2d_eng_extend_one_direction(eng, 2, AOC_2D_DIR_RIGHT);
     aoc_2d_eng_extend_one_direction(eng, 2, AOC_2D_DIR_LEFT);
 
+    aoc_2d_eng_draw(_ctx->_eng);
+
     ret = initpropagation(_ctx);
     if (!ret)
         ret = loopbeampropagations(_ctx);
     if (!ret)
     {
-        aoc_2d_eng_draw(_ctx->_eng);
+        aoc_2d_eng_prompt_stats(eng);
+        aoc_2d_eng_prompt_obj_list(eng);
     }
 
+    aoc_ans("-- %lu -- objects created ", _ctx->_created);
     aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
     return 0;
 }

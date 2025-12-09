@@ -25,26 +25,12 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     coord_t _prelcoordmaxima = {._x = 2, ._y = 2};
 
-    size_t delay = 0;
-    bool _drawingenabled = true;
-
-    if (argc >= 2)
-        for (int _iarg = 0; _iarg < argc; _iarg++)
-        {
-            if (0 == strcmp(argv[_iarg], "--nodraw"))
-                _drawingenabled = false;
-            if ((0 == strcmp(argv[_iarg], "--draw-delay")) && argc > (_iarg + 1))
-                sscanf(argv[_iarg + 1], "%3lu", &delay);
-        }
-
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst);
 
     if (!_ctx->_eng)
         goto cleanup;
 
-    if (!_drawingenabled)
-        aoc_2d_eng_disable_draw(_ctx->_eng);
-    eng_set_refresh_delay(_ctx->_eng, delay);
+    aoc_2d_eng_parse_cli(_ctx->_eng, argc, argv);
     return 0;
 
 cleanup:

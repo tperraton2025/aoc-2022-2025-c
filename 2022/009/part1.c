@@ -82,36 +82,16 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_movs);
     dll_head_init(&_ctx->_tailPos);
 
-    bool _drawing = true;
-    size_t delay = 0;
-    size_t canvassize = MAP_MID_SIZE * 2;
-    if (argc >= 2)
-        for (int _iarg = 0; _iarg < argc; _iarg++)
-        {
-            if (0 == strcmp(argv[_iarg], "--nodraw"))
-                _drawing = false;
-            if ((0 == strcmp(argv[_iarg], "--draw-delay")) && argc > (_iarg + 1))
-                sscanf(argv[_iarg + 1], "%3lu", &delay);
-            if ((0 == strcmp(argv[_iarg], "--canvas-size")) && argc > (_iarg + 1))
-                sscanf(argv[_iarg + 1], "%3lu", &canvassize);
-        }
-
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '.', 0);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '.', 0, bycoordinatesYfirst);
     if (!_ctx->_eng)
         goto error;
 
-    if (128 < canvassize || !_drawing)
-    {
-        aoc_info("canvas size is large (%ld), deactivating drawings for readability", canvassize);
-        aoc_2d_eng_disable_draw(_ctx->_eng);
-    }
+    aoc_2d_eng_parse_cli(&_ctx->_eng, argc, argv);
 
-    eng_set_refresh_delay(_ctx->_eng, delay);
-
-    aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_2D_DIR_RIGHT);
-    aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_2D_DIR_DOWN);
-
-    coord_t start = {._x = canvassize >> 1, ._y = canvassize >> 1};
+    coord_t start = {0};
+    
+    aoc_2d_eng_get_canvas_center(&_ctx->_eng, &start);
+    
     _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE, "");
     _ctx->_tail = aoc_2d_obj_ctor(_ctx->_eng, "tail", &start, "T", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_NO_COLLISION, "");
 

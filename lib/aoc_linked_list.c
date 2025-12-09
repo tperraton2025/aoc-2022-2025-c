@@ -67,7 +67,8 @@ int dll_node_sorted_insert(dll_head_h head, dll_node_h _new, dll_compare sort)
     assert(head && _new && "NULL pointer in dll_node_append");
     if (head->_size > LL_MAX_LEN_LUI)
         return ENOSPC;
-
+    if (!sort)
+        return dll_node_append(head, _new);
     dll_node_h _afterNew = NULL;
     LL_FOREACH_P_EXT(_afterNew, head)
     {
@@ -261,7 +262,7 @@ dll_node_h dll_try_find_node_by_property(dll_node_h start, void *arg, bool (*equ
     }
     return NULL;
 }
- 
+
 dll_head_h dll_clone(dll_head_h toclone, size_t nodesize)
 {
     dll_head_h _clone = malloc(sizeof(dll_head_t));

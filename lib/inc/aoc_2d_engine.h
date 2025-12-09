@@ -46,6 +46,7 @@ typedef enum
     OBJ_PROPERTY_START,
     OBJ_PROPERTY_END,
     OBJ_PROPERTY_NO_COLLISION,
+    OBJ_PROPERTY_TRACEING,
     OBJ_PROPERTY_MAX
 } object_properties_t;
 
@@ -56,6 +57,7 @@ typedef enum
     OBJ_FLAG_START = (1 << OBJ_PROPERTY_START),
     OBJ_FLAG_END = (1 << OBJ_PROPERTY_END),
     OBJ_FLAG_NO_COLLISION = (1 << OBJ_PROPERTY_NO_COLLISION),
+    OBJ_FLAG_TRACEING = (1 << OBJ_PROPERTY_TRACEING),
     OBJ_FLAG_MAX
 } object_flags_t;
 
@@ -80,7 +82,7 @@ typedef struct move
 typedef struct ascii_2d_engine *aoc_2d_eng_h;
 typedef struct object *aoc_2d_obj_h;
 
-aoc_2d_eng_h aoc_2d_eng_create(coord_t *partcoordmaxima, char _voidsym, size_t delay);
+aoc_2d_eng_h aoc_2d_eng_create(coord_t *partcoordmaxima, char _voidsym, size_t delay, dll_compare *comp);
 aoc_2d_eng_h aoc_2d_eng_obj_delete(aoc_2d_eng_h _eng, struct object *obj);
 void aoc_2d_eng_free_obj(void *_data);
 void eng_set_refresh_delay(aoc_2d_eng_h _eng, size_t delay);
@@ -114,7 +116,7 @@ int engine_put_cursor_in_footer_area(struct ascii_2d_engine *_eng);
 int engine_cursor_user_next_stats(struct ascii_2d_engine *_eng);
 int engine_cursor_user_stats(struct ascii_2d_engine *_eng);
 
-int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng);
+int aoc_2d_eng_exit_drawing_area(struct ascii_2d_engine *_eng);
 
 int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const char *fmt);
 int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym, const char *fmt);
@@ -153,6 +155,8 @@ size_t engine_last_line(aoc_2d_eng_h _eng);
 
 dll_head_h engine_get_objects_positions(aoc_2d_eng_h _eng);
 
+void aoc_2d_eng_get_canvas_center(aoc_2d_eng_h _eng, coord_t *_pos);
+
 typedef struct coord_tracker
 {
     struct dll_node _node;
@@ -164,3 +168,5 @@ coord_tracker_h coordtracker_ctor();
 
 bool coord_equal(void *_a, void *_b);
 int engine_remove_obj(aoc_2d_eng_h eng, aoc_2d_obj_h obj);
+dll_node_h bycoordinatesYfirst(dll_node_h arga, dll_node_h argb);
+void aoc_2d_eng_parse_cli(aoc_2d_eng_h eng, int argc, char **argv);

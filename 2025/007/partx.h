@@ -12,8 +12,8 @@
 typedef struct context
 {
     aoc_2d_eng_h _eng;
-    dll_head_t _parsers;
-    dll_head_t _activebeams;
+    struct dll_head _parsers;
+    struct dll_head _activebeams;
     coord_t _cursor;
     size_t _result;
 } context_t;

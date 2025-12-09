@@ -33,11 +33,27 @@ bool did_not_come_after(void *arg, void *prop);
 dll_node_h pick_by_low_order(dll_node_h arga, dll_node_h argb);
 dll_node_h comparebyrating(dll_node_h arga, dll_node_h argb);
 
+typedef struct joltchoice
+{
+    tree_node_t _treenode;
+    dll_head_h _originbyorder;
+    dll_head_h _availablebyrating;
+    joltage_h _selected;
+    size_t _decimalscurrent;
+    size_t _decimalsneeded;
+    size_t _decimalshighest;
+    base10_h _conversion;
+} joltchoice_t;
+
+typedef joltchoice_t *joltchoice_h;
+
 typedef struct context
 {
     size_t _originlen;
-    dll_head_t _originbyrating;
-    dll_head_t _originbyorder;
+    struct dll_head _originbyrating;
+    struct dll_head _originbyorder;
+
+    joltchoice_h _root;
 
     size_t _tofind;
     joltage_h _pickedinlist[12];
@@ -49,7 +65,6 @@ typedef struct context
 
 typedef context_t *context_h;
 
-static void freejoltchoice(void *arg);
 context_h newcombination(context_h parent);
 void populatejoltages(context_h _ctx, char *_str);
 
@@ -58,29 +73,25 @@ joltage_h picknextelligiblebyorder(context_h _ctx);
 joltage_h pickearliestwithhighestbyrating(joltage_h _start);
 
 static char _strcomb[1024] = {0};
-static char *strcomb(context_h _ctx)
+static char *strcomb(joltchoice_h choice)
 {
-    size_t _cursor = 0;
+    joltchoice_h index = choice;
     char *_strhead = &_strcomb[0];
 
-    LL_FOREACH(_node, _ctx->_originbyorder)
+    LL_FOREACH_P(_node, choice->_originbyorder)
     {
         assert((_strhead - _strcomb < sizeof(_strcomb)));
-
         joltage_h jolth = (joltage_h)_node;
-        if (_ctx->_pickedinlist[_cursor])
+
+        if (choice->_selected->_order == jolth->_order)
         {
-            if (jolth->_order == _ctx->_pickedinlist[_cursor]->_order)
-            {
-                _strhead += sprintf(_strhead, GREEN "%lu", jolth->_rating);
-                _cursor++;
-                continue;
-            }
+            _strhead += sprintf(_strhead, GREEN "%lu" RESET, jolth->_rating);
+            index = index ? (joltchoice_h)index->_treenode._parent : index;
+            continue;
         }
-        _strhead += sprintf(_strhead, RED "%lu", jolth->_rating);
+        _strhead += sprintf(_strhead, RED "%lu" RESET, jolth->_rating);
     }
     assert((_strhead - _strcomb < sizeof(_strcomb)));
-    _strhead += sprintf(_strhead, RESET);
     return _strcomb;
 }
 
@@ -89,3 +100,7 @@ static context_h makenextjoltchoice(context_h parent, joltage_h from)
 
     return NULL;
 }
+
+void freejoltchoice(void *arg);
+joltchoice_h joltagetreechoice(joltchoice_h parent, dll_head_h list, joltage_h selected, void free(void *arg));
+void joltagepickallfeasible(joltchoice_h parent);

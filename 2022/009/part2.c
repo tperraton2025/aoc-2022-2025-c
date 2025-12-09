@@ -47,7 +47,6 @@ typedef struct
     size_t steps;
 } movement_t;
 
-
 static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
@@ -69,7 +68,7 @@ static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR,  _blk->_name);
+    aoc_info("Welcome to AOC %s %s", CONFIG_YEAR, _blk->_name);
     int ret = 0;
     _blk->_data = malloc(sizeof(struct context));
     if (!_blk->_data)
@@ -117,7 +116,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_2D_DIR_DOWN);
 
     coord_t start = {._x = canvassize >> 1, ._y = canvassize >> 1};
-    _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE);
+    _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE, "");
 
     if (!_ctx->_head)
     {
@@ -135,7 +134,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
         sprintf(name, "%1ld", ii);
         char fullname[] = "tail %1ld";
         sprintf(fullname, "tail %1ld", ii);
-        aoc_2d_obj_h ntail = aoc_2d_obj_ctor(_ctx->_eng, fullname, &start, name, OBJ_FLAG_NO_COLLISION | OBJ_FLAG_NO_COLLISION);
+        aoc_2d_obj_h ntail = aoc_2d_obj_ctor(_ctx->_eng, fullname, &start, name, OBJ_FLAG_NO_COLLISION | OBJ_FLAG_NO_COLLISION, "");
 
         if (!ntail)
             ret = ENOMEM;
@@ -248,8 +247,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     LL_FOREACH(pos_node, _ctx->_tailPos)
     {
-        coord_tracker_h _npos = CAST(coord_tracker_h , pos_node);
-        aoc_2d_eng_draw_part_at(_ctx->_eng, &_npos->_coord, "#");
+        coord_tracker_h _npos = CAST(coord_tracker_h, pos_node);
+        aoc_2d_eng_draw_part_at(_ctx->_eng, &_npos->_coord, "#", "");
     }
 
     _ctx->_result = dll_size(&_ctx->_tailPos);

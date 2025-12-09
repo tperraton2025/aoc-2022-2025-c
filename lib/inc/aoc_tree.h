@@ -9,7 +9,7 @@ struct tree_node
 {
     struct dll_node _llnode;
     struct tree_node *_parent;
-    struct dll_head _dllchildren;
+    dll_head_t _dllchildren;
     void (*_free)(void *_data);
     size_t _size;
 };

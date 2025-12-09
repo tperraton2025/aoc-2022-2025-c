@@ -58,7 +58,7 @@ char *strconv(base10_h base10)
 
     char *_at = _strconv;
     _at += sprintf(_at, "╔══════════════════════════╗\n");
-    _at += sprintf(_at, "║value: %18ld ║\n", _dummy._val);
+    _at += sprintf(_at, "║value: %*ld ║\n", 18, _dummy._val);
     _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", _dummy._digits);
     _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[16]);
     _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[32]);

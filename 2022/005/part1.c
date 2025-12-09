@@ -245,7 +245,7 @@ static int parseblock(void *arg, char *_str)
             continue;
         if (N_BETWEEN_AB(_buf[1], 'A', 'Z'))
         {
-            aoc_2d_obj_h _nobj = aoc_2d_obj_ctor(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_FLAG_MOBILE);
+            aoc_2d_obj_h _nobj = aoc_2d_obj_ctor(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_FLAG_MOBILE, "");
             ret = aoc_2d_eng_append_obj(_ctx->_eng, _nobj);
             if (ret)
                 break;

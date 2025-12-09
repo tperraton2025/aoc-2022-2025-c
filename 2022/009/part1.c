@@ -115,8 +115,8 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     aoc_2d_eng_extend_one_direction(_ctx->_eng, canvassize, AOC_2D_DIR_DOWN);
 
     coord_t start = {._x = canvassize >> 1, ._y = canvassize >> 1};
-    _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE);
-    _ctx->_tail = aoc_2d_obj_ctor(_ctx->_eng, "tail", &start, "T", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_NO_COLLISION);
+    _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE, "");
+    _ctx->_tail = aoc_2d_obj_ctor(_ctx->_eng, "tail", &start, "T", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_NO_COLLISION, "");
 
     if (!_ctx->_head || !_ctx->_tail)
     {
@@ -219,7 +219,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     LL_FOREACH(pos_node, _ctx->_tailPos)
     {
         coord_tracker_h _npos = CAST(coord_tracker_h , pos_node);
-        aoc_2d_eng_draw_part_at(_ctx->_eng, &_npos->_coord, "#");
+        aoc_2d_eng_draw_part_at(_ctx->_eng, &_npos->_coord, "#", "");
     }
 
     _ctx->_result = dll_size(&_ctx->_tailPos);

@@ -91,7 +91,7 @@ int aoc_2d_eng_extend_one_direction(aoc_2d_eng_h _eng, size_t steps, AOC_2D_DIR 
 void engine_free(aoc_2d_eng_h _eng);
 int aoc_2d_eng_draw(aoc_2d_eng_h _eng);
 
-aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *pos, char *sym, size_t props);
+aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *pos, char *sym, size_t props, const char *const fmt);
 int aoc_2d_eng_append_obj(aoc_2d_eng_h _eng, aoc_2d_obj_h _obj);
 aoc_2d_obj_h aoc_2d_eng_get_obj_by_name(aoc_2d_eng_h _eng, const char *name);
 aoc_2d_obj_h aoc_2d_eng_get_obj_by_position(aoc_2d_eng_h _eng, coord_t *_pos);
@@ -116,8 +116,8 @@ int engine_cursor_user_stats(struct ascii_2d_engine *_eng);
 
 int engine_cursor_exit_drawing_area(struct ascii_2d_engine *_eng);
 
-int aoc_2d_eng_draw_part_at(aoc_2d_eng_h _eng, coord_t *_pos, char *_sym);
-int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym);
+int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const char *fmt);
+int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym, const char *fmt);
 size_t aoc_2d_eng_get_dist_between_objects(aoc_2d_eng_h _eng, aoc_2d_obj_h _a, aoc_2d_obj_h _b);
 int aoc_2d_eng_move_one_step_towards(aoc_2d_eng_h _eng, aoc_2d_obj_h _a, coord_t _pos);
 
@@ -143,7 +143,7 @@ typedef struct aoc_2d_obj_ref *aoc_2d_obj_ref_h;
 aoc_2d_obj_ref_h aoc_2d_obj_ref(aoc_2d_obj_h _obj);
 void aoc_2d_obj_ref_free(void *arg);
 void aoc_2d_eng_prompt_stats(aoc_2d_eng_h _eng);
-struct dll_head *aoc_2d_eng_prompt_obj_list_with_a_part_at_position(aoc_2d_eng_h _eng, coord_t *_pos);
+dll_head_t *aoc_2d_eng_prompt_obj_list_with_a_part_at_position(aoc_2d_eng_h _eng, coord_t *_pos);
 
 char *strpos(coord_t *pos);
 char *strobjcnt(aoc_2d_eng_h _eng);

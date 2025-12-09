@@ -12,7 +12,7 @@ struct context
 {
     aoc_2d_eng_h _engine;
     dll_head_h _rollspositions;
-    dll_head_t _parsers;
+    struct dll_head _parsers;
     size_t _result;
 };
 
@@ -31,7 +31,7 @@ static int parserolls(void *arg, char *str)
 
         char _objname[] = "roll9999999";
         sprintf(_objname, "roll%-3s", strobjcnt(_eng));
-        aoc_2d_obj_h _objh = aoc_2d_obj_ctor(_eng, _objname, &_pos, "@", OBJ_PROPERTY_STATIC);
+        aoc_2d_obj_h _objh = aoc_2d_obj_ctor(_eng, _objname, &_pos, "@", OBJ_PROPERTY_STATIC, GREEN);
         if (!_objh)
             _ret = ENOMEM;
         if (!_ret)
@@ -84,8 +84,8 @@ static size_t trimaccessiblepositions(aoc_2d_eng_h eng, dll_head_h allpos)
             liberated++;
             coord_tracker_h _trkh = (coord_tracker_h)_posn;
             coord_t *_posh = &_trkh->_coord;
-            aoc_2d_eng_draw_part_at(eng, _posh, "x");
-
+            aoc_2d_eng_draw_part_at(eng, _posh, "x", RED);
+            //usleep(1000 * 50);
             _dummy._next = _posn->_next;
             dll_node_disconnect(allpos, _posn);
             free(_posn);
@@ -94,8 +94,6 @@ static size_t trimaccessiblepositions(aoc_2d_eng_h eng, dll_head_h allpos)
             _posn = &_dummy;
         }
     }
-
-    aoc_ans("removed %lu rolls out of %lu", liberated, startlen);
     return liberated;
 }
 typedef struct context *aoc_context_h;

@@ -18,7 +18,7 @@ int objectsparser(void *arg, char *str)
         while (_strpi)
         {
             _ctx->_cursor._x = _strpi - _start;
-            aoc_2d_obj_h _nobj = aoc_2d_obj_ctor(_ctx->_eng, _srcsym, &_ctx->_cursor, _srcsym, OBJ_FLAG_STATIC);
+            aoc_2d_obj_h _nobj = aoc_2d_obj_ctor(_ctx->_eng, _srcsym, &_ctx->_cursor, _srcsym, OBJ_FLAG_STATIC, "");
             aoc_2d_eng_append_obj(_ctx->_eng, _nobj);
             _strpi = strchr(_strpi + 1, *_srcsym);
         }
@@ -39,8 +39,9 @@ int initpropagation(context_h ctx)
     ctx->_cursor = aoc_2d_eng_get_obj_position(eng, start);
     ctx->_cursor._y++;
 
-    aoc_2d_obj_h beam = aoc_2d_obj_ctor(eng, "beam", &ctx->_cursor, "|", OBJ_FLAG_MOBILE);
+    aoc_2d_obj_h beam = aoc_2d_obj_ctor(eng, "beam", &ctx->_cursor, "|", OBJ_FLAG_MOBILE, "");
     aoc_2d_eng_append_obj(eng, beam);
+
     aoc_2d_obj_ref_h beamref = aoc_2d_obj_ref(beam);
     dll_node_append(&ctx->_activebeams, &beamref->_node);
 
@@ -52,10 +53,10 @@ int loopbeampropagations(context_h ctx)
     aoc_2d_eng_h eng = ctx->_eng;
     int ret = 0;
     int active = 1;
-
+    
+    dll_node_t ghostnode = {0};
     while (active)
     {
-        aoc_info("still looping, result = %lu", ctx->_result);
         LL_FOREACH(beamnode, ctx->_activebeams)
         {
             active = 0;
@@ -85,7 +86,7 @@ int loopbeampropagations(context_h ctx)
                                                        ._y = ctx->_cursor._y + 1}};
                         ARR_FOREACH(_it, _postoaddbeamsat)
                         {
-                            aoc_2d_obj_h nbeam = aoc_2d_obj_ctor(eng, "beam", &_postoaddbeamsat[_it], "|", OBJ_FLAG_MOBILE);
+                            aoc_2d_obj_h nbeam = aoc_2d_obj_ctor(eng, "beam", &_postoaddbeamsat[_it], "|", OBJ_FLAG_MOBILE, "");
                             if (!nbeam)
                                 continue;
                             aoc_2d_eng_append_obj(eng, nbeam);
@@ -99,7 +100,13 @@ int loopbeampropagations(context_h ctx)
             {
                 beamnode->_obsolete = true;
                 aoc_2d_eng_obj_delete(eng, originbeam);
+
+                ghostnode._next = beamnode->_next;
                 dll_node_disconnect(&ctx->_activebeams, beamnode);
+                free(beamnode);
+                if (!ghostnode._next)
+                    break;
+                beamnode = &ghostnode;
             }
         }
     }

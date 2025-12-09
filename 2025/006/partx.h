@@ -12,9 +12,9 @@
 
 typedef struct
 {
-    dll_head_t _params[16];
+    struct dll_head _params[16];
     dll_node_h _paramnodes[16];
-    dll_head_t _ops;
+    struct dll_head _ops;
     char** _instr;
     size_t _instrcnt;
     char* _opstr;
@@ -47,7 +47,7 @@ extern parser_t octoopsparser;
 
 typedef struct context
 {
-    dll_head_t parsers;
+    struct dll_head parsers;
     problem_t _prob;
     size_t _result;
 } context_t;

@@ -8,7 +8,7 @@
 
 struct context
 {
-    dll_head_t _parsers;
+    struct dll_head _parsers;
     size_t _usedmem;
     fdir_t *_cdir;
     fdir_t *_root;

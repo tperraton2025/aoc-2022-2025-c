@@ -22,7 +22,7 @@ typedef struct object *aoc_2d_obj_h;
 typedef struct object
 {
     struct dll_node _node;
-    struct dll_head _parts;
+    dll_head_t _parts;
     coord_t _pos;
     char *_name;
     size_t _props;
@@ -48,7 +48,7 @@ struct ascii_2d_engine
     size_t _newlinecnt;
     coord_t _cursor;
     char _voidsym;
-    struct dll_head _objects;
+    dll_head_t _objects;
     size_t _statLine;
     size_t _PrivStatLine;
     bool _enabledraw;

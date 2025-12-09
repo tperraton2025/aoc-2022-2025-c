@@ -17,7 +17,7 @@ typedef struct elfCal
 
 typedef struct context
 {
-    dll_head_t _head;
+    struct dll_head _head;
     size_t _result;
 } context_t;
 

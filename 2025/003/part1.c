@@ -11,7 +11,6 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
         return ENOMEM;
 
     struct context *_ctx = CTX_CAST(_blk->_data);
-
     _ctx->_tofind = 2;
     _ctx->_result = 0;
     return 0;
@@ -26,46 +25,18 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 
     populatejoltages(_ctx, _blk->_str);
 
-    _ctx->_lastpickedind = 0;
-
-    LL_FOREACH(_startjoltit, _ctx->_originbyrating)
-    {
-        _ctx->_pickedinlist[_ctx->_lastpickedind] = pickearliestwithhighestbyrating((joltage_h)_startjoltit);
-        joltage_h _nextjoltage = picknextelligiblebyrating(_ctx);
-
-        if (_nextjoltage)
-        {
-            _ctx->_pickedinlist[++_ctx->_lastpickedind] = (joltage_h)_nextjoltage;
-            break;
-        }
-        else
-        {
-            _ctx->_lastpickedind = 0;
-            ARR_FOREACH(_it, _ctx->_pickedinlist)
-            {
-                _ctx->_pickedinlist[_it] = 0;
-            }
-            continue;
-        }
-    }
+    _ctx->_root = joltagetreechoice(NULL, &_ctx->_originbyrating, (joltage_h)_ctx->_originbyrating._first, freejoltchoice);
+    if (!_ctx->_root)
+        return EINVAL;
 
     _ctx->_conversion = base_10_conversion(0);
-    _ctx->_conversion->_lastdigit = _ctx->_tofind;
-
-    for (size_t _it = 0; _it < _ctx->_tofind; _it++)
-    {
-        _ctx->_conversion->_digits[_ctx->_tofind - _it - 1] = _ctx->_pickedinlist[_it]->_rating;
-    }
-    base_10_reverse_conversion(_ctx->_conversion);
-
-    aoc_info("selected %s +%lu", strcomb(_ctx), _ctx->_conversion->_val);
-
-    _ctx->_result += _ctx->_conversion->_val;
+    _ctx->_root->_availablebyrating = &_ctx->_originbyrating;
+    joltagepickallfeasible(_ctx->_root);
 
     dll_free_all(&_ctx->_originbyrating, free);
     dll_free_all(&_ctx->_originbyorder, free);
- 
-    free(_ctx->_conversion);
+
+    aoc_tree_free(&_ctx->_root->_treenode);
     return 0;
 }
 

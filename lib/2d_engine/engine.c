@@ -96,22 +96,24 @@ int engine_extend_drawing_area(struct ascii_2d_engine *_eng, coord_t newlimits)
     return EINVAL;
 }
 
-int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym)
+int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const char *fmt)
 {
     if (eng->_enabledraw)
     {
         coord_t _pcord = {._x = _pos->_x + eng->_partoffset._x, ._y = _pos->_y + eng->_partoffset._y};
-        aoc_2d_eng_draw_symbol_at(eng, &_pcord, _sym);
+        aoc_2d_eng_draw_symbol_at(eng, &_pcord, _sym, fmt);
+        engine_cursor_exit_drawing_area(eng);
     }
     return 0;
 }
 
-int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym)
+int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym, const char *fmt)
 {
     if (eng->_enabledraw)
     {
-        printf(MCUR_FMT "%s", _pos->_y, _pos->_x, _sym);
+        printf(MCUR_FMT "%s%s\n" RESET, _pos->_y, _pos->_x, fmt, _sym);
         engine_cursor_exit_drawing_area(eng);
+        usleep(1000 * eng->_delay);
     }
     return 0;
 }
@@ -152,7 +154,6 @@ int aoc_2d_eng_draw_objects(aoc_2d_eng_h _eng)
             aoc_2d_eng_draw_obj(_eng, _obj, NULL);
         }
         printf("\n");
-        usleep(1000 * _eng->_delay);
     }
     return 0;
 }
@@ -227,9 +228,9 @@ aoc_2d_obj_h aoc_2d_eng_get_obj_by_position(aoc_2d_eng_h _eng, coord_t *_pos)
 }
 
 /* will implement 2 methods, one by map and this one by objects linked list */
-struct dll_head *aoc_2d_eng_prompt_obj_list_with_a_part_at_position(aoc_2d_eng_h _eng, coord_t *_pos)
+dll_head_t *aoc_2d_eng_prompt_obj_list_with_a_part_at_position(aoc_2d_eng_h _eng, coord_t *_pos)
 {
-    struct dll_head *_list;
+    dll_head_t *_list;
     dll_head_init(_list);
     LL_FOREACH(_obj_node, _eng->_objects)
     {

@@ -13,9 +13,10 @@
 typedef struct object
 {
     struct dll_node _node;
-    struct dll_head _parts;
+    dll_head_t _parts;
     coord_t _pos;
     char *_name;
+    char *_fmt;
     size_t _props;
     size_t _refcnt;
 } object_t;
@@ -32,7 +33,6 @@ typedef struct part
 typedef struct part *part_h;
 
 part_h aoc_2d_eng_new_part(struct object *obj, coord_t *rpos, char sym, char *fmt);
-int aoc_2d_eng_draw_part_at(aoc_2d_eng_h _eng, coord_t *_pos, char *_sym);
 int move_within_coord(aoc_2d_eng_h _eng, coord_t *_pos, size_t _steps, AOC_2D_DIR _dir);
 void aoc_2d_eng_free_part(void *_data);
 
@@ -44,7 +44,7 @@ struct ascii_2d_engine
     size_t _newlinecnt;
     coord_t _cursor;
     char _voidsym;
-    struct dll_head _objects;
+    dll_head_t _objects;
     size_t _statCol;
     size_t _statColOffset;
     size_t _statLine;

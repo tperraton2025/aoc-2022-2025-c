@@ -42,19 +42,24 @@ void aoc_2d_eng_free_part(void *arg)
     FREE(_parth);
 }
 
-aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *pos, char *sym, size_t props)
+aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *pos, char *sym, size_t props, const char *const fmt)
 {
     struct object *_ret = NULL;
     TRY_RAII_MALLOC(_ret, sizeof(struct object));
     if (!_ret)
         return NULL;
 
-    size_t _nameLen = strnlen(name, MAX_NAME_LEN_LUI) + 1;
-    _ret->_name = malloc(_nameLen);
+    size_t _strlen = strnlen(name, MAX_NAME_LEN_LUI) + 1;
+    TRY_RAII_MALLOC(_ret->_name, _strlen);
     if (!_ret->_name)
         goto free_rt;
+    strncpy(_ret->_name, name, _strlen);
 
-    strncpy(_ret->_name, name, _nameLen);
+    _strlen = strnlen(fmt, MAX_NAME_LEN_LUI) + 1;
+    TRY_RAII_MALLOC(_ret->_fmt, _strlen);
+    if (!_ret->_fmt)
+        goto free_rt;
+    strncpy(_ret->_fmt, fmt, _strlen);
 
     char _buf[ABSOLUTE_MAX_PART_CNT] = {0};
     char *_pc;
@@ -118,6 +123,7 @@ free_ll:
     dll_free_all(&_ret->_parts, aoc_2d_eng_free_part);
 free_name:
     FREE(_ret->_name);
+    FREE(_ret->_fmt);
 free_rt:
     FREE(_ret);
     return NULL;
@@ -129,6 +135,7 @@ void aoc_2d_eng_free_obj(void *_data)
     // todo fix!!!
     // assert(0 == _obj->_refcnt && "trying to free an object with potential dangling reference");
     FREE(_obj->_name);
+    FREE(_obj->_fmt);
     dll_free_all(&_obj->_parts, aoc_2d_eng_free_part);
     FREE(_obj);
 }
@@ -157,7 +164,7 @@ int aoc_2d_eng_draw_obj(struct ascii_2d_engine *eng, struct object *obj, char *s
         LL_FOREACH_EXT(_partdllnode, obj->_parts)
         {
             _parth = CAST(part_h, _partdllnode);
-            aoc_2d_eng_draw_part(eng, _parth, specfmt);
+            aoc_2d_eng_draw_part(eng, _parth, obj->_fmt);
         }
         usleep(1000 * eng->_delay);
     }
@@ -368,7 +375,7 @@ aoc_2d_obj_ref_t *aoc_2d_obj_ref(aoc_2d_obj_h _obj)
 {
     aoc_2d_obj_ref_t *_ntracker = NULL;
     TRY_RAII_MALLOC(_ntracker, sizeof(aoc_2d_obj_ref_t));
-    
+
     if (!_ntracker)
         return NULL;
     _ntracker->_node._prev = NULL;

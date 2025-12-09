@@ -58,7 +58,7 @@ int ll_suite_create()
 
 void ll_test_suite()
 {
-    struct dll_head _ll = {0};
+    dll_head_t _ll = {0};
     dll_head_init(&_ll);
 
     CU_ASSERT_EQUAL(atoi(LL_MAX_LEN_STR), LL_MAX_LEN_LUI);

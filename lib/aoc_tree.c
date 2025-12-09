@@ -46,7 +46,7 @@ void aoc_tree_free_all_children(tree_node_h _start)
 {
     assert(_start && "NULL pointer detected");
 
-    struct dll_head *_ll = &_start->_dllchildren;
+    dll_head_t *_ll = &_start->_dllchildren;
     dll_node_h _node;
     dll_node_h _nxtNode;
     for (_node = _ll->_first; _node;)
@@ -65,7 +65,7 @@ void aoc_tree_free(tree_node_h _start)
 
     tree_node_h _root = aoc_tree_find_root(_start);
 
-    struct dll_head *_ll = &_root->_dllchildren;
+    dll_head_t *_ll = &_root->_dllchildren;
     dll_node_h _node;
     dll_node_h _nxtNode;
 

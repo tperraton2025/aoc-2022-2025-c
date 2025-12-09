@@ -3,8 +3,8 @@
 typedef struct context
 {
     rangelist_h _ranges;
-    dll_head_t _parsers;
-    dll_head_t _items;
+    struct dll_head _parsers;
+    struct dll_head _items;
 
     size_t _result;
 } context_t;

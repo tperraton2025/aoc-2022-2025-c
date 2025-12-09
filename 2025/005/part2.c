@@ -3,7 +3,7 @@
 typedef struct context
 {
     rangelist_h _ranges;
-    dll_head_t _parsers;
+    struct dll_head _parsers;
 
     size_t _result;
 } context_t;
@@ -53,7 +53,8 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 static void freeSolution(struct solutionCtrlBlock_t *_blk)
 {
     context_h _ctx = CTX_CAST(_blk->_data);
-    (void)_ctx;
+    dll_free_all(&_ctx->_ranges->_head, free);
+    free(_ctx->_ranges);
     free(_blk->_data);
 }
 

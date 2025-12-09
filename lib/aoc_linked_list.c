@@ -42,8 +42,7 @@ size_t dll_size(dll_head_h head)
 int dll_node_append(dll_head_h head, dll_node_h _new)
 {
     assert(head && _new && "NULL pointer in dll_node_append");
-    if (head->_size >= LL_MAX_LEN_LUI)
-        return ENOSPC;
+    assert (head->_size <  LL_MAX_LEN_LUI);
 
     head->_size++;
     if (head->_last)
@@ -308,21 +307,6 @@ int dll_sort(dll_head_h head, dll_compare(*comp))
     return 0;
 }
 
-int dll_trimm(dll_head_h head, void *_prop, bool (*ifeq)(void *arg, void *prop), void(free)(void *))
-{
-    if (!head || !ifeq)
-        return EINVAL;
-    LL_FOREACH_P(_node, head)
-    {
-        if (ifeq((void *)_node, _prop))
-        {
-            dll_node_disconnect(head, _node);
-            free(_node);
-        }
-    }
-    return 0;
-}
-
 dll_head_h dll_clone_trimmed(dll_head_h head, size_t nodesize, void *_prop, bool (*remiftrue)(void *arg, void *prop))
 {
     if (!head || !remiftrue)
@@ -347,18 +331,18 @@ int dll_trim_nodes(dll_head_h head, void *arg, bool (*remifeq)(void *_a, void *_
     if (!head || !remifeq || !free)
         return EINVAL;
     size_t liberated = 0;
-    dll_node_t _dummy = {0};
+    dll_node_t ghostnode = {0};
     LL_FOREACH_P(_node, head)
     {
         if (remifeq(_node, arg))
         {
             liberated++;
-            _dummy._next = _node->_next;
+            ghostnode._next = _node->_next;
             dll_node_disconnect(head, _node);
             free(_node);
-            if (!_dummy._next)
+            if (!ghostnode._next)
                 break;
-            _node = &_dummy;
+            _node = &ghostnode;
         }
     }
     return liberated;

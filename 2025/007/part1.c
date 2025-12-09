@@ -47,7 +47,6 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 static void freeSolution(struct solutionCtrlBlock_t *_blk)
 {
     context_h _ctx = CTX_CAST(_blk->_data);
-    (void)_ctx;
     dll_free_all(&_ctx->_activebeams, free);
     engine_free(_ctx->_eng);
     free(_blk->_data);

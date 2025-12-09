@@ -33,7 +33,7 @@ add_definitions(-DCONFIG_DAY="${day}" -DCONFIG_YEAR="${YEAR}")
 # unit tests deactivated for now
 # include(CTest)
 # add_test(NAME ${ProjectId}test1
-#          COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+#          COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
 #                  "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt")
 # add_test_regex(${ProjectId}test1 "inputs_routine exited normally")
 # add_test_regex(${ProjectId}test1 "graphics_routine exited normally")

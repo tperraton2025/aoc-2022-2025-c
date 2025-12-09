@@ -32,11 +32,11 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
 
     _ctx->_rollspositions = engine_get_objects_positions(_ctx->_engine);
-    size_t liberated = trimaccessiblepositions(_ctx->_engine, _ctx->_rollspositions);
+    size_t liberated = trimaccessiblepositions(_ctx->_engine, _ctx->_rollspositions); 
     while (liberated)
     {
         _ctx->_result += liberated;
-        liberated = trimaccessiblepositions(_ctx->_engine, _ctx->_rollspositions);
+        liberated = trimaccessiblepositions(_ctx->_engine, _ctx->_rollspositions); 
     }
 
     if (43 == _ctx->_result || 8493 == _ctx->_result)
@@ -56,11 +56,10 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     engine_free(_ctx->_engine);
 
-    dll_free_all(_ctx->_rollspositions, free); 
+    dll_free_all(_ctx->_rollspositions, free);
     free(_ctx->_rollspositions);
     free(_blk->_data);
 }
 
 static struct solutionCtrlBlock_t privPart2 = {._name = CONFIG_DAY " part 2", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = freeSolution};
 struct solutionCtrlBlock_t *part2 = &privPart2;
- 

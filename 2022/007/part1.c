@@ -8,7 +8,7 @@
 
 typedef struct context
 {
-    dll_head_t _parsers;
+    struct dll_head _parsers;
     size_t _usedmem;
     fdir_t *_cdir;
     fdir_t *_root;
@@ -75,7 +75,6 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     get_mem(&_ctx->_root->path);
 
-    // aoc_tree_foreach_node(&_ctx->_root->path, ls);
     LL_FOREACH(_node, _ctx->_cmds)
     {
         cmd_t *_cmd = (cmd_t *)_node;

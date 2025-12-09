@@ -14,7 +14,7 @@
 typedef struct context *aoc_context_h;
 typedef struct
 {
-    struct tree_node path;
+    tree_node_t path;
     struct dll_head _content;
     char *name;
     size_t size;

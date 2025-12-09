@@ -122,7 +122,7 @@ void *graphics_routine(void *args)
     aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_2D_DIR_DOWN);
 
     ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_cur_h,
-                                aoc_2d_obj_ctor(_gfxtask->_eng_h, "cursor", NULL, "[H]", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE),
+                                aoc_2d_obj_ctor(_gfxtask->_eng_h, "cursor", NULL, "[H]", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE, GREEN),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);

@@ -45,16 +45,16 @@ int aoc_2d_eng_draw_box(struct ascii_2d_engine *_eng)
         printf("%*lu", 1, _xx % 10);
     }
 
-    ret = aoc_2d_eng_draw_symbol_at(_eng, &_topLeft, "╔");
+    ret = aoc_2d_eng_draw_symbol_at(_eng, &_topLeft, "╔", "");
     if (ret)
         goto error;
-    ret = aoc_2d_eng_draw_symbol_at(_eng, &_topRight, "╗");
+    ret = aoc_2d_eng_draw_symbol_at(_eng, &_topRight, "╗", "");
     if (ret)
         goto error;
-    ret = aoc_2d_eng_draw_symbol_at(_eng, &_botRight, "╝");
+    ret = aoc_2d_eng_draw_symbol_at(_eng, &_botRight, "╝", "");
     if (ret)
         goto error;
-    ret = aoc_2d_eng_draw_symbol_at(_eng, &_botLeft, "╚");
+    ret = aoc_2d_eng_draw_symbol_at(_eng, &_botLeft, "╚", "");
     if (ret)
         goto error;
 
@@ -72,7 +72,7 @@ int engine_fill_drawing_area(struct ascii_2d_engine *_eng)
             for (size_t _col = _eng->_coordlimits._min._x; _col <= _eng->_coordlimits._max._x; _col++)
             {
                 coord_t _coord = {._x = _col, ._y = _line};
-                aoc_2d_eng_draw_part_at(_eng, &_coord, &_eng->_voidsym);
+                aoc_2d_eng_draw_part_at(_eng, &_coord, &_eng->_voidsym, "");
             }
         }
     }
@@ -84,10 +84,10 @@ int engine_fill_hv_line(struct ascii_2d_engine *_eng, coord_t *_start, coord_t *
     {
         if (!_eng || !_start || _dir >= AOC_2D_DIR_MAX)
             return EINVAL;
-        aoc_2d_eng_draw_symbol_at(_eng, _start, _c);
+        aoc_2d_eng_draw_symbol_at(_eng, _start, _c, "");
         put_pos(_eng, &_eng->_cursor, _start);
         do
-            aoc_2d_eng_draw_symbol_at(_eng, &_eng->_cursor, _c);
+            aoc_2d_eng_draw_symbol_at(_eng, &_eng->_cursor, _c, "");
 
         while (!move_cursor_until(_eng, _dir, 1, _end));
         engine_cursor_exit_drawing_area(_eng);
@@ -99,7 +99,7 @@ void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h _eng)
 {
     if (_eng->_enabledraw)
     {
-        dll_sort(&_eng->_objects, pickhighestcoordinates);
+        // dll_sort(&_eng->_objects, pickhighestcoordinates);
         engine_cursor_user_stats(_eng);
 
         LL_FOREACH(_node, _eng->_objects)
@@ -120,9 +120,11 @@ void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h _eng)
             struct object *_obj = CAST(struct object *, _node);
             _maxbytes += printf("%-4s ", _obj->_name);
             _maxbytes += printf("[%*ld:", 4, _obj->_pos._x);
-            _maxbytes += printf("%*ld]      ", 4, _obj->_pos._y);
+            _maxbytes += printf("%*ld]      \n", 4, _obj->_pos._y);
 
             _eng->_statColOffset = _eng->_statColOffset > _maxbytes ? _eng->_statColOffset : _maxbytes;
+            if (_eng->_statCol > 4)
+                break;
             engine_cursor_user_next_stats(_eng);
         }
         engine_put_cursor_in_footer_area(_eng);

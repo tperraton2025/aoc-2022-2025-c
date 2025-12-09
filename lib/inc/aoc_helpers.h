@@ -25,6 +25,13 @@
             memset(_p, 0, _s);  \
     }
 
+#define TRY_COPY_MALLOC(_p, _s, _i) \
+    {                               \
+        _p = malloc(_s);            \
+        if (_p)                     \
+            memcpy(_p, _i, _s);     \
+    }
+
 #define ARRAY_DIM(_arr) (sizeof(_arr) / sizeof(_arr[0]))
 #define CAST(_t, _p) ((_t)_p)
 #define MAX_LINE_LEN (1024)
@@ -37,10 +44,13 @@
 #define aoc_info(_fmt, ...) printf(_fmt "\r\n", __VA_ARGS__);
 #define aoc_err(_fmt, ...) printf(RED _fmt RESET "\r\n", __VA_ARGS__);
 #define aoc_warn(_fmt, ...) printf(YELLOW _fmt RESET "\r\n", __VA_ARGS__);
-#define aoc_ans(_fmt, ...) {printf(UGREEN _fmt RESET "\r\n", __VA_ARGS__);}
-#define aoc_prompt(_fmt, ...)      \
-    {                              \
-        printf(ERASE_FULL_LINE);   \
+#define aoc_ans(_fmt, ...)                             \
+    {                                                  \
+        printf(UGREEN _fmt RESET "\r\n", __VA_ARGS__); \
+    }
+#define aoc_prompt(_fmt, ...)           \
+    {                                   \
+        printf(ERASE_FULL_LINE);        \
         printf(_fmt "\r", __VA_ARGS__); \
     }
 

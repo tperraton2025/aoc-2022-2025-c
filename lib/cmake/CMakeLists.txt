@@ -5,6 +5,7 @@ function(add_aoc_day_test_regex year day test result1 result2)
   set(result2 ".*AOC ${year} ${day} part 2 solution is ${result2}.*\n")
   set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION
                                      "${prol1}${result1}${prol2}${result2}")
+  add_test_regex(${test} "All heap blocks were freed -- no leaks are possible")
 endfunction()
 
 function(add_test_regex test result)

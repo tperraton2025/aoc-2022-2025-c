@@ -34,7 +34,7 @@ add_definitions(-DCONFIG_DAY="${day}" -DCONFIG_YEAR="${YEAR}")
 #    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
 #    "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test1")
 #add_test(NAME ${ProjectId}test2
-#         COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+#         COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
 #                 "./data/test2.txt" --exe "${ProjectId}test2")
 #add_test(
 #  NAME ${ProjectId}input

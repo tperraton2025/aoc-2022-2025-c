@@ -7,7 +7,6 @@
 
 void engine_free(aoc_2d_eng_h _eng)
 {
-    engine_cursor_exit_drawing_area(_eng);
     dll_free_all(&_eng->_objects, aoc_2d_eng_free_obj);
     FREE(_eng);
 }
@@ -86,11 +85,7 @@ int engine_extend_drawing_area(struct ascii_2d_engine *_eng, coord_t newlimits)
         _eng->_drawlimits._max._y = newlimits._y + _eng->_partoffset._y + 1;
 
         _eng->_coordlimits._max._x = newlimits._x;
-        _eng->_coordlimits._max._y = newlimits._y;
-        // if (_eng->_drawlimits._max._x > DRAWABLE_MAX_X)
-        //     _eng->_enabledraw = false;
-        // if (_eng->_drawlimits._max._y > DRAWABLE_MAX_Y)
-        //     _eng->_enabledraw = false;
+        _eng->_coordlimits._max._y = newlimits._y; 
         return 0;
     }
     return EINVAL;

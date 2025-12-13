@@ -9,7 +9,7 @@ project(
   VERSION 0.1.0
   LANGUAGES C CXX)
 
-add_executable(${ProjectId} main.c part1.c part2.c partx.c memo.c)
+add_executable(${ProjectId} main.c part1&2.c partx.c memo.c)
 set_property(TARGET ${ProjectId} PROPERTY C_STANDARD 11)
 target_include_directories(${ProjectId} PRIVATE ${CMAKE_SOURCE_DIR}
                                                 ${CMAKE_SOURCE_DIR}/../lib/inc)
@@ -27,9 +27,9 @@ set_target_properties(
 
 add_definitions(-DCONFIG_DAY="${day}" -DCONFIG_YEAR="${YEAR}")
 # unit tests
-#include(CTest)
-#add_test(
-#  NAME ${ProjectId}test
-#  COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-#          "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test" 
-#add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "21" "40") 
+include(CTest)
+add_test(
+  NAME ${ProjectId}test
+  COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
+add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "21" "40")

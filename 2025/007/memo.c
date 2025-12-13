@@ -55,9 +55,9 @@ void addmemoentry(context_h ctx, aoc_2d_obj_ref_h beamref, aoc_2d_obj_h newsplt)
     }
 }
 
-size_t memoreport(context_h ctx, aoc_2d_obj_h top_splt_h, size_t progr)
+sizepair_t memoreport(context_h ctx, aoc_2d_obj_h top_splt_h, size_t progr)
 {
-    size_t timelines = 1;
+    sizepair_t ans = {._0 = 0LU, ._1 = 1LU};
 
     aoc_2d_eng_h eng = (aoc_2d_eng_h)ctx->_eng;
     aoc_2d_eng_draw(eng);
@@ -77,7 +77,7 @@ size_t memoreport(context_h ctx, aoc_2d_obj_h top_splt_h, size_t progr)
 
         size_t hits = aoc_2d_obj_get_collisioncounter(btm_spl_h);
         size_t btm_timeline = btm_splt_mem->_timelines;
-        timelines += (hits ? 1LU : 0LU) * btm_timeline;
+        ans._1 += (hits ? 1LU : 0LU) * btm_timeline;
     }
 
     LL_FOREACH_P(spln, ctx->_allspliters)
@@ -85,6 +85,8 @@ size_t memoreport(context_h ctx, aoc_2d_obj_h top_splt_h, size_t progr)
         aoc_2d_obj_ref_h spltref = (aoc_2d_obj_ref_h)spln;
         aoc_2d_obj_h btm_spl_h = (aoc_2d_obj_h)spltref->data;
         size_t hits = aoc_2d_obj_get_collisioncounter(btm_spl_h);
+        if (hits)
+            ans._0++;
 
         size_t splttl = 0;
         memospawn_h btm_splt_mem = (*getmemoentry(ctx, btm_spl_h));
@@ -107,16 +109,17 @@ size_t memoreport(context_h ctx, aoc_2d_obj_h top_splt_h, size_t progr)
         }
     }
 
-    (*getmemoentry(ctx, top_splt_h))->_timelines += timelines;
-    timelines = memomap[top_splt_p._x][top_splt_p._y]->_timelines;
+    (*getmemoentry(ctx, top_splt_h))->_timelines += ans._1;
+    ans._1 = memomap[top_splt_p._x][top_splt_p._y]->_timelines;
     if (ctx->_drawrequest)
-        aoc_info("[%4lu/%4lu]: %s: %s adds %lu timelines",
+        aoc_info("[%4lu/%4lu]: %s: %s impacts %lu splitters and adds %lu timelines",
                  progr,
                  ctx->_allspliters->_size,
                  aoc_2d_obj_name(top_splt_h),
                  strpos(&top_splt_p),
-                 timelines);
-    return timelines;
+                 ans._0,
+                 ans._1);
+    return ans;
 }
 
 static size_t display = 0;

@@ -52,6 +52,11 @@ typedef struct context
 
 typedef context_t *context_h;
 
+typedef struct sizepair {
+    size_t _0;
+    size_t _1;
+}sizepair_t;
+
 #define CTX_CAST(_p) ((context_h)_p)
 
 int objectsparser(void *arga, char *str);
@@ -66,5 +71,5 @@ memospawn_h *const getmemoentry(context_h ctx, aoc_2d_obj_h obj);
 void addmemoentry(context_h ctx, aoc_2d_obj_ref_h beamref, aoc_2d_obj_h newsplt);
 
 void newmemorecursion(memospawn_h memo, memospawn_h **memomap);
-size_t memoreport(context_h ctx, aoc_2d_obj_h start, size_t progr);
+sizepair_t memoreport(context_h ctx, aoc_2d_obj_h start, size_t progr);
 extern parser_t _objparser;

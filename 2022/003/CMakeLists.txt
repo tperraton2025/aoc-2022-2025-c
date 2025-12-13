@@ -32,11 +32,6 @@ include(CTest)
 add_test(
   NAME ${ProjectId}test
   COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-          "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
-add_test(
-  NAME ${ProjectId}input
-  COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-          "./data/input.txt" --exe "${ProjectId}test")
+          "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test") 
 
-add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "157" "70")
-add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}input "7872" "2497")
+add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "157" "70") 

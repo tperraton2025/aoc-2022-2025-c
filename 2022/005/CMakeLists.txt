@@ -29,11 +29,6 @@ add_definitions(-DCONFIG_DAY="${day}" -DCONFIG_YEAR="${YEAR}")
 
 # unit tests include(CTest) add_test( NAME ${ProjectId}test COMMAND
 # "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-# "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
-# add_test(NAME ${ProjectId}input COMMAND
-# "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}" "./data/input.txt"
-# "--no-draw" --exe "${ProjectId}test")
-#
-# add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "CMZ" "MCD")
-# add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}input "CWMTGHBDW"
+# "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test") 
+# add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "CMZ" "MCD") 
 # "SSCGWJCRB")

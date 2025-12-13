@@ -110,32 +110,32 @@ void *graphics_routine(void *args)
 
     coord_t windowarea = {._x = 24, ._y = 32};
 
-    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_eng_h, aoc_2d_eng_create(&windowarea, '.', 0, bycoordinatesYfirst),
+    ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->eng_h, aoc_2d_eng_create(&windowarea, '.', 0, bycoordinatesYfirst, false),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
 
     dll_head_init(&_gfxtask->_objects_ll);
 
-    aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE, AOC_2D_DIR_RIGHT);
-    aoc_2d_eng_extend_one_direction(_gfxtask->_eng_h, MAP_MID_SIZE >> 1, AOC_2D_DIR_DOWN);
+    aoc_2d_eng_extend_one_direction(_gfxtask->eng_h, MAP_MID_SIZE, AOC_2D_DIR_RIGHT);
+    aoc_2d_eng_extend_one_direction(_gfxtask->eng_h, MAP_MID_SIZE >> 1, AOC_2D_DIR_DOWN);
 
     ALLOCATE_AND_RETURN_IF_NULL(_gfxtask->_cur_h,
-                                aoc_2d_obj_ctor(_gfxtask->_eng_h, "cursor", NULL, "[H]", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE, GREEN),
+                                aoc_2d_obj_ctor(_gfxtask->eng_h, "cursor", NULL, "[H]", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE, GREEN),
                                 _gfxtask->_iRet,
                                 ENOMEM,
                                 exit);
 
     ASSIGN_AND_RETURN_IF_NOT_0(_gfxtask->_iRet,
-                               aoc_2d_eng_append_obj(_gfxtask->_eng_h, _gfxtask->_cur_h),
+                               aoc_2d_eng_append_obj(_gfxtask->eng_h, _gfxtask->_cur_h),
                                free_object);
 
-    aoc_2d_eng_draw(_gfxtask->_eng_h);
+    aoc_2d_eng_draw(_gfxtask->eng_h);
 
     char _cMsgQueueBuffer[sizeof(queue_msg_t) + 1] = {0};
 
     int keystrokeprio = 1;
-    int _ret = 0; // sem_wait(&_tasks_start_sem);
+    int _ret = 0;
 
     int mq_ret = mq_receive(_evtqueue._mqid, _cMsgQueueBuffer, EVT_SIZE_IN_BYTES, &keystrokeprio);
 
@@ -147,25 +147,25 @@ void *graphics_routine(void *args)
             if (AOC_2D_DIR_UP == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "UP");
-                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_UP, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_UP, NULL);
             }
             else if (AOC_2D_DIR_DOWN == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "DOWN");
-                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_DOWN, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_DOWN, NULL);
             }
             else if (AOC_2D_DIR_RIGHT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "RIGHT");
-                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_LEFT, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_LEFT, NULL);
             }
             else if (AOC_2D_DIR_LEFT == _cMsgQueueBuffer[0])
             {
                 sprintf(_cMsgQueueBuffer, "LEFT");
-                aoc_2d_eng_step_obj(_gfxtask->_eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_RIGHT, NULL);
+                aoc_2d_eng_step_obj(_gfxtask->eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_RIGHT, NULL);
             }
-            aoc_2d_eng_prompt(_gfxtask->_eng_h, 0, 2, "got mq", _cMsgQueueBuffer);
-            aoc_2d_eng_prompt_obj_list(_gfxtask->_eng_h);
+            aoc_2d_eng_prompt(_gfxtask->eng_h, 0, 2, "got mq", _cMsgQueueBuffer);
+            aoc_2d_eng_prompt_obj_list(_gfxtask->eng_h);
             printf("\n");
             mq_ret = 0;
         }
@@ -179,8 +179,8 @@ free_object:
         aoc_2d_eng_free_obj(_gfxtask->_cur_h);
 exit:
     mq_unlink(_evtqueue._mqname);
-    if (_gfxtask->_eng_h)
-        engine_free(_gfxtask->_eng_h);
+    if (_gfxtask->eng_h)
+        engine_free(_gfxtask->eng_h);
 
     mq_close(_evtqueue._mqid);
     aoc_info("%s exited with code: %i (%s)" RESET, __func__, _ret, strerror(_ret));

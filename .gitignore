@@ -6,6 +6,7 @@ Testing/
 
 CMakeCache.txt
 
+*input.txt
 
 *.elf
 *.bin

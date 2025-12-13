@@ -1,7 +1,9 @@
-add-auto-load-safe-path /home/thomas/src/advent-of-code/aoc-2022-2025-c/.gdbinit
+add-auto-load-safe-path ./
 
 define bs
 make all -j10
 start
 end
+
+source ./lib/scripts/pretty/aoc_pretty_printers.py
 

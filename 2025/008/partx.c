@@ -55,10 +55,10 @@ int sortdistances(dll_head_h head, dll_head_h dists)
             if (_pointa != _pointb)
             {
                 distnode_h ndist = floatnode_ctor();
-                ndist->_pointa = *P3D_H(_pointa);
-                ndist->_pointb = *P3D_H(_pointb);
-                ndist->_dist = p3ddist(&ndist->_pointa,
-                                       &ndist->_pointb);
+                ndist->_pointa = P3D_H(_pointa);
+                ndist->_pointb = P3D_H(_pointb);
+                ndist->_dist = p3ddist(ndist->_pointa,
+                                       ndist->_pointb);
 
                 dll_node_sorted_insert(dists, &ndist->_node, is_shorter_dist);
             }
@@ -133,8 +133,8 @@ void printdlist(dll_head_h head, const char *const fmt)
     LL_FOREACH_P(_node, head)
     {
         distnode_h _dist = (distnode_h)_node;
-        strncpy(_strp3da, strp3D(&_dist->_pointa), STR_LEN - 1);
-        strncpy(_strp3db, strp3D(&_dist->_pointb), STR_LEN - 1);
+        strncpy(_strp3da, strp3D(_dist->_pointa), STR_LEN - 1);
+        strncpy(_strp3db, strp3D(_dist->_pointb), STR_LEN - 1);
 
         printf("%s%s\t\t%s -> %.0f\n", fmt, _strp3da, _strp3db, _dist->_dist);
     }

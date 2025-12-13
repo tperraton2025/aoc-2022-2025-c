@@ -50,7 +50,7 @@ typedef struct
 {
     pthread_t _thr;
     struct timespec _timespec;
-    aoc_2d_eng_h _eng_h;
+    aoc_2d_eng_h eng_h;
     aoc_2d_obj_h _cur_h;
     struct dll_head _objects_ll;
     int _iRet;

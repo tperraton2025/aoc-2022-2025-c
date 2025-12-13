@@ -20,11 +20,18 @@
         _p = NULL;    \
     }
 
-#define TRY_RAII_MALLOC(_p, _s) \
-    {                           \
-        _p = malloc(_s);        \
-        if (_p)                 \
-            memset(_p, 0, _s);  \
+#define TRY_TYPE_MALLOC(_p, _t)        \
+    {                                  \
+        _p = (_t *)malloc(sizeof(_t)); \
+        if (_p)                        \
+            memset(_p, 0, sizeof(_t)); \
+    }
+
+#define TRY_ARR_MALLOC(_p, _len)   \
+    {                              \
+        _p = malloc((_len));       \
+        if (_p)                    \
+            memset(_p, 0, (_len)); \
     }
 
 #define TRY_COPY_MALLOC(_p, _s, _i) \
@@ -42,13 +49,14 @@
 
 /* array of usize max size are deemed not possible */
 #define ARR_FOREACH_REV(_it, _arr) for (size_t _it = ARRAY_DIM(_arr) - 1; _it < __SIZE_MAX__; _it--)
+#define RANGE_FOR(_it, _start, _end) for (size_t _it = _start; _it < _end; _it++)
 
 #define aoc_info(_fmt, ...) printf(_fmt "\r\n", __VA_ARGS__);
 #define aoc_err(_fmt, ...) printf(RED _fmt RESET "\r\n", __VA_ARGS__);
 #define aoc_warn(_fmt, ...) printf(YELLOW _fmt RESET "\r\n", __VA_ARGS__);
 #define aoc_ans(_fmt, ...)                             \
     {                                                  \
-        printf(UGREEN _fmt RESET "\r\n", __VA_ARGS__); \
+        printf(BGREEN _fmt RESET "\r\n", __VA_ARGS__); \
     }
 #define aoc_prompt(_fmt, ...)           \
     {                                   \

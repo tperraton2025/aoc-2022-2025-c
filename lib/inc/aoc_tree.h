@@ -1,5 +1,5 @@
-#ifndef AOC_TREE
-#define AOC_TREE
+#ifndef AOC_TREE_H
+#define AOC_TREE_H
 
 #include <aoc_linked_list.h>
 
@@ -26,7 +26,7 @@ void aoc_tree_free_all_children(tree_node_h _start);
 
 void aoc_tree_free_node(tree_node_h _a);
 tree_node_h aoc_tree_find_root(tree_node_h _start);
-void aoc_tree_free(tree_node_h _start);
+void aoc_tree_free_all(tree_node_h _start);
 
 int aoc_tree_swap(tree_node_h _a, tree_node_h _b);
 size_t aoc_tree_size(tree_node_h _start);

@@ -66,7 +66,7 @@ static void pwd(fdir_t *_dir)
         dll_node_append(&path, &_step->_llnode);
         _srch = (fdir_t *)_srch->path._parent;
     }
-    LL_FOREACH_LAST(_llnode, path)
+    LL_FOREACH_REV(_llnode, path)
     {
         printf("%s/", ((path_step_t *)_llnode)->_fref->name);
     }

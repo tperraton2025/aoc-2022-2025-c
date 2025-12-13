@@ -77,7 +77,7 @@ void tree_test_suite()
 
     CU_ASSERT(NULL == aoc_tree_search_node_by_property(&_str1->_node, (void *)"foobar is foobar 4", string_node_equal));
 
-    aoc_tree_free(&root->_node);
+    aoc_tree_free_all(&root->_node);
     aoc_info("%s", "\ntree_test_suite: all tests were ran");
 }
 

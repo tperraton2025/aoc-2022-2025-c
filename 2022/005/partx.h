@@ -24,19 +24,6 @@ static command_t *command_ctor(command_t *_ncmd)
     return ret;
 }
 
-static bool has_same_column(void *arga, void *argb)
-{
-    coord_t *_pos = (coord_t *)argb;
-    return _pos->_x == (size_t)arga;
-}
-
-static dll_node_h highest_column(dll_node_h arga, dll_node_h argb)
-{
-    coord_t *_posa = (coord_t *)arga;
-    coord_t *_posb = (coord_t *)argb;
-    return (dll_node_h)(_posa->_x > _posb->_x ? _posa : _posb);
-}
-
 static int parseblock(void *arg, char *_str);
 static int parsecommand(void *arg, char *_str);
 

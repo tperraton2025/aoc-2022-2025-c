@@ -89,7 +89,7 @@ void ll_test_suite()
     dll_node_swap(&_ll, &_str4->_node, &_str3->_node);
     ASSERT_LL_INTEGRITY(_ll, _str3, _str4, _str1);
 
-    dll_node_insert(&_ll, &_str2->_node, _ll._last);
+    dll_node_insert_before(&_ll, &_str2->_node, _ll._last);
 
     ASSERT_LL_INTEGRITY(_ll, _str3, _str4, _str2, _str1);
 

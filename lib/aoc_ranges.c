@@ -6,7 +6,7 @@ DLL_NODE_CTOR(rangenode_t, rangenode_ctor);
 rangelist_h rangelistinit()
 {
     rangelist_h nrange = NULL;
-    TRY_RAII_MALLOC(nrange, sizeof(rangelist_t));
+    TRY_TYPE_MALLOC(nrange, rangelist_t);
     return nrange;
 }
 

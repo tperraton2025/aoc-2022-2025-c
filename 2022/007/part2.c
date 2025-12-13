@@ -62,7 +62,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CAST(struct context *, _blk->_data);
-    aoc_tree_free(&_ctx->_root->path);
+    aoc_tree_free_all(&_ctx->_root->path);
     FREE(_ctx->_root);
     FREE(_blk->_data);
 }

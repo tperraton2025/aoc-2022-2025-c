@@ -70,7 +70,7 @@ static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
     int ret = 0;
-    TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
+    TRY_TYPE_MALLOC(_blk->_data, struct context);
     if (!_blk->_data)
         return ENOMEM;
     struct context *_ctx = CTX_CAST(_blk->_data);
@@ -82,7 +82,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_movs);
     dll_head_init(&_ctx->_tailPos);
 
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '.', 0, bycoordinatesYfirst);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '.', 0, bycoordinatesYfirst, false);
     if (!_ctx->_eng)
         goto error;
 
@@ -135,7 +135,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
     movement_t *nmov = NULL;
     if (2 == sscanf(_blk->_str, "%c %ld", &dir, &cnt))
     {
-        TRY_RAII_MALLOC(nmov, sizeof(movement_t));
+        TRY_TYPE_MALLOC(nmov, movement_t);
         if (!nmov)
             return ENOMEM;
         nmov->steps = cnt;
@@ -162,17 +162,17 @@ static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_obj_h _hea
     if (_ctx->_head == _head)
     {
         _ctx->_lastMovedLink = _head;
-        _ctx->_prevPosFromLastMovedLink = aoc_2d_eng_get_obj_position(_ctx->_eng, _ctx->_lastMovedLink);
+        _ctx->_prevPosFromLastMovedLink = aoc_2d_obj_get_pos(_ctx->_lastMovedLink);
         if (aoc_2d_eng_step_obj(_ctx->_eng, _head, 1LU, _dir, NULL))
-            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_eng_get_obj_name(_head));
+            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_obj_name(_head));
     }
     if (1 < aoc_2d_eng_get_dist_between_objects(_ctx->_eng, _head, _tail))
     {
         if (aoc_2d_eng_put_obj_and_redraw(_ctx->_eng, _tail, _ctx->_prevPosFromLastMovedLink))
-            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_eng_get_obj_name(_tail));
+            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_obj_name(_tail));
 
-        coord_t _npos = aoc_2d_eng_get_obj_position(_ctx->_eng, _tail);
-        _ctx->_prevPosFromLastMovedLink = aoc_2d_eng_get_obj_position(_ctx->_eng, _tail);
+        coord_t _npos = aoc_2d_obj_get_pos(_tail);
+        _ctx->_prevPosFromLastMovedLink = aoc_2d_obj_get_pos(_tail);
         track_tail(_blk, &_ctx->_prevPosFromLastMovedLink);
         _ctx->_lastMovedLink = _tail;
     }

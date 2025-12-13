@@ -1,5 +1,5 @@
-#ifndef LL_TYPES_H
-#define LL_TYPES_H
+#ifndef AOC_PRIV_LL_TYPES_H
+#define AOC_PRIV_LL_TYPES_H
 #include <stdbool.h>
 
 struct dll_head
@@ -37,6 +37,7 @@ typedef struct void_dll_node
 typedef void_dll_node_t *void_dll_node_h;
 
 typedef dll_node_h(dll_compare)(dll_node_h _a, dll_node_h _b);
+typedef dll_node_h(dll_exp_compare)(dll_node_h _a, dll_node_h _b, dll_node_h _c);
 
 typedef struct string_dll_node *string_dll_node_h;
 

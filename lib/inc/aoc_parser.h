@@ -1,5 +1,5 @@
-#ifndef parser_H
-#define parser_H
+#ifndef AOC_PARSER_H
+#define AOC_PARSER_H
 #include <errno.h>
 #include "aoc_types.h"
 #include "aoc_ranges.h"

@@ -4,163 +4,172 @@
 #include <stdarg.h>
 #include "aoc_types.h"
 
-void eng_set_refresh_delay(aoc_2d_eng_h _eng, size_t delay)
+void eng_set_refresh_delay(aoc_2d_eng_h eng, size_t delay)
 {
-    _eng->_delay = delay;
+    eng->_delay = delay;
 }
 
-int aoc_2d_eng_draw_box(struct ascii_2d_engine *_eng)
-{ 
+int aoc_2d_eng_draw_box(struct ascii_2d_engine *eng)
+{
     int ret = 0;
 
-    coord_t _topLeft = {._x = _eng->_drawlimits._min._x, ._y = _eng->_drawlimits._min._y};
-    coord_t _topRight = {._x = _eng->_drawlimits._max._x, ._y = _eng->_drawlimits._min._y};
-    coord_t _botRight = {._x = _eng->_drawlimits._max._x, ._y = _eng->_drawlimits._max._y};
-    coord_t _botLeft = {._x = _eng->_drawlimits._min._x, ._y = _eng->_drawlimits._max._y};
+    coord_t _topLeft = {._x = eng->_drawlimits._min._x, ._y = eng->_drawlimits._min._y};
+    coord_t _topRight = {._x = eng->_drawlimits._max._x, ._y = eng->_drawlimits._min._y};
+    coord_t _botRight = {._x = eng->_drawlimits._max._x, ._y = eng->_drawlimits._max._y};
+    coord_t _botLeft = {._x = eng->_drawlimits._min._x, ._y = eng->_drawlimits._max._y};
 
-    engine_fill_hv_line(_eng, &_topLeft, &_topRight, AOC_2D_DIR_RIGHT, "═");
-    engine_fill_hv_line(_eng, &_topRight, &_botRight, AOC_2D_DIR_DOWN, "║");
-    engine_fill_hv_line(_eng, &_botRight, &_botLeft, AOC_2D_DIR_LEFT, "═");
-    engine_fill_hv_line(_eng, &_botLeft, &_topLeft, AOC_2D_DIR_UP, "║");
+    engine_fill_hv_line(eng, &_topLeft, &_topRight, AOC_2D_DIR_RIGHT, "═");
+    engine_fill_hv_line(eng, &_topRight, &_botRight, AOC_2D_DIR_DOWN, "║");
+    engine_fill_hv_line(eng, &_botRight, &_botLeft, AOC_2D_DIR_LEFT, "═");
+    engine_fill_hv_line(eng, &_botLeft, &_topLeft, AOC_2D_DIR_UP, "║");
 
-    for (size_t _yy = _eng->_coordlimits._min._y; _yy <= _eng->_coordlimits._max._y; _yy++)
+    for (size_t _yy = eng->_poslim._min._y; _yy <= eng->_poslim._max._y; _yy++)
     {
-        printf(MCUR_FMT, _eng->_drawlimits._min._y + _yy + 1, 1LU);
+        printf(MCUR_FMT, eng->_drawlimits._min._y + _yy + 1, 1LU);
         printf("%*lu", 3, _yy);
     }
 
-    for (size_t _xx = _eng->_coordlimits._min._x; _xx <= _eng->_coordlimits._max._x; _xx++)
+    for (size_t _xx = eng->_poslim._min._x; _xx <= eng->_poslim._max._x; _xx++)
     {
         if (_xx >= 100)
         {
-            printf(MCUR_FMT, _eng->_drawlimits._min._y - 3, _eng->_drawlimits._min._x + _xx + 1);
+            printf(MCUR_FMT, eng->_drawlimits._min._y - 3, eng->_drawlimits._min._x + _xx + 1);
             printf("%*lu", 1, (_xx / 100) % 10);
         }
         if (_xx >= 10)
         {
-            printf(MCUR_FMT, _eng->_drawlimits._min._y - 2, _eng->_drawlimits._min._x + _xx + 1);
+            printf(MCUR_FMT, eng->_drawlimits._min._y - 2, eng->_drawlimits._min._x + _xx + 1);
             printf("%*lu", 1, (_xx / 10) % 10);
         }
-        printf(MCUR_FMT, _eng->_drawlimits._min._y - 1, _eng->_drawlimits._min._x + _xx + 1);
+        printf(MCUR_FMT, eng->_drawlimits._min._y - 1, eng->_drawlimits._min._x + _xx + 1);
         printf("%*lu", 1, _xx % 10);
     }
 
-    ret = aoc_2d_eng_draw_symbol_at(_eng, &_topLeft, "╔", "");
+    ret = aoc_2d_eng_draw_symbol_at(eng, &_topLeft, "╔", "");
     if (ret)
         goto error;
-    ret = aoc_2d_eng_draw_symbol_at(_eng, &_topRight, "╗", "");
+    ret = aoc_2d_eng_draw_symbol_at(eng, &_topRight, "╗", "");
     if (ret)
         goto error;
-    ret = aoc_2d_eng_draw_symbol_at(_eng, &_botRight, "╝", "");
+    ret = aoc_2d_eng_draw_symbol_at(eng, &_botRight, "╝", "");
     if (ret)
         goto error;
-    ret = aoc_2d_eng_draw_symbol_at(_eng, &_botLeft, "╚", "");
+    ret = aoc_2d_eng_draw_symbol_at(eng, &_botLeft, "╚", "");
     if (ret)
         goto error;
 
-    put_pos(_eng, &_eng->_cursor, &_topLeft); 
+    put_pos(eng, &eng->_cursor, &_topLeft);
 error:
     return ret;
 }
 
-int engine_fill_drawing_area(struct ascii_2d_engine *_eng)
+int engine_fill_drawing_area(struct ascii_2d_engine *eng)
 {
-    if (_eng->_enabledraw)
+    if (eng->_drawingenabled)
     {
-        for (size_t _line = _eng->_coordlimits._min._y; _line <= _eng->_coordlimits._max._y; _line++)
+        for (size_t _line = eng->_poslim._min._y; _line <= eng->_poslim._max._y; _line++)
         {
-            for (size_t _col = _eng->_coordlimits._min._x; _col <= _eng->_coordlimits._max._x; _col++)
+            for (size_t _col = eng->_poslim._min._x; _col <= eng->_poslim._max._x; _col++)
             {
                 coord_t _coord = {._x = _col, ._y = _line};
-                aoc_2d_eng_draw_part_at(_eng, &_coord, &_eng->_voidsym, "");
+                aoc_2d_eng_draw_part_at(eng, &_coord, &eng->_voidsym, "");
             }
         }
     }
 }
 
-int engine_fill_hv_line(struct ascii_2d_engine *_eng, coord_t *_start, coord_t *_end, AOC_2D_DIR _dir, const char *_c)
+int engine_fill_hv_line(struct ascii_2d_engine *eng, coord_t *_start, coord_t *_end, AOC_2D_DIR _dir, const char *_c)
 {
-    if (_eng->_enabledraw)
+    if (eng->_drawingenabled)
     {
-        if (!_eng || !_start || _dir >= AOC_2D_DIR_MAX)
+        if (!eng || !_start || _dir >= AOC_2D_DIR_MAX)
             return EINVAL;
-        aoc_2d_eng_draw_symbol_at(_eng, _start, _c, "");
-        put_pos(_eng, &_eng->_cursor, _start);
+        aoc_2d_eng_draw_symbol_at(eng, _start, _c, "");
+        put_pos(eng, &eng->_cursor, _start);
         do
-            aoc_2d_eng_draw_symbol_at(_eng, &_eng->_cursor, _c, "");
+            aoc_2d_eng_draw_symbol_at(eng, &eng->_cursor, _c, "");
 
-        while (!move_cursor_until(_eng, _dir, 1, _end));
-        aoc_2d_eng_exit_drawing_area(_eng);
+        while (!move_cursor_until(eng, _dir, 1, _end));
+        aoc_2d_eng_exit_drawing_area(eng);
     }
     return 0;
 }
 
-void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h _eng)
+void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h eng)
 {
-    if (_eng->_enabledraw)
+    if (eng->_drawingenabled)
     {
-        // dll_sort(&_eng->_objects, bycoordinatesYfirst);
-        engine_cursor_user_stats(_eng);
 
-        LL_FOREACH(_node, _eng->_objects)
+        /**
+         * work in progress: this is way too slow with large lists.
+         * so far, sorted inserts are sufficient since there
+         * are no moving object problems, but this will be necessary
+         * as coordinate changes will require adapting the order int the list
+         * for the object search to keep working
+         * dll_sort(&eng->_objects, bycoordinatesYfirst);
+         **/
+        engine_cursor_user_stats(eng);
+
+        LL_FOREACH(_node, eng->_objects)
         {
             if (_node->_obsolete)
             {
                 struct object *_obj = CAST(struct object *, _node);
-                dll_node_disconnect(&_eng->_objects, _node);
+                dll_node_disconnect(&eng->_objects, _node);
                 aoc_2d_eng_free_obj(_obj);
             }
         }
 
-        LL_FOREACH_EXT(_node, _eng->_objects)
+        LL_FOREACH_EXT(_node, eng->_objects)
         {
             if (_node->_obsolete)
                 continue;
+            eng->_statColOffset = 18;
+
             size_t _maxbytes = 0;
             struct object *_obj = CAST(struct object *, _node);
             _maxbytes += printf("%-4s ", _obj->_name);
+            _maxbytes += printf("%s%lu " RESET, _obj->_collisionscounter ? RED : RESET, _obj->_collisionscounter);
             _maxbytes += printf("[%*ld:", 4, _obj->_pos._x);
             _maxbytes += printf("%*ld]      \n", 4, _obj->_pos._y);
 
-            _eng->_statColOffset = _eng->_statColOffset > _maxbytes ? _eng->_statColOffset : _maxbytes;
-            if (_eng->_statCol > 4)
-                break;
-            engine_cursor_user_next_stats(_eng);
+            // eng->_statColOffset = eng->_statColOffset > _maxbytes ? eng->_statColOffset : _maxbytes;
+            engine_cursor_user_next_stats(eng);
         }
-        engine_put_cursor_in_footer_area(_eng);
+        engine_put_cursor_in_footer_area(eng);
     }
 }
 
-void aoc_2d_eng_erase_stats(aoc_2d_eng_h _eng)
+void aoc_2d_eng_erase_stats(aoc_2d_eng_h eng)
 {
-    if (_eng->_enabledraw)
+    if (eng->_drawingenabled)
     {
-        engine_cursor_stats(_eng);
-        printf(MCUR_FMT ERASE_LINE_FROM_CR, 0LU, _eng->_drawlimits._max._x + 1);
-        for (size_t _lines = 0; _lines < _eng->_drawlimits._max._y + 1; _lines++)
+        engine_cursor_stats(eng);
+        printf(MCUR_FMT ERASE_LINE_FROM_CR, 0LU, eng->_drawlimits._max._x + 1);
+        for (size_t _lines = 0; _lines < eng->_drawlimits._max._y + 1; _lines++)
         {
-            printf(MCUR_FMT ERASE_LINE_FROM_CR, _lines, _eng->_drawlimits._max._x + 1);
+            printf(MCUR_FMT ERASE_LINE_FROM_CR, _lines, eng->_drawlimits._max._x + 1);
         }
     }
 }
 
-void aoc_2d_eng_prompt_stats(aoc_2d_eng_h _eng)
+void aoc_2d_eng_prompt_stats(aoc_2d_eng_h eng)
 {
-    if (_eng->_enabledraw)
+    if (eng->_drawingenabled)
     {
-        engine_cursor_stats(_eng);
-        aoc_info("objects %ld", _eng->_objects._size);
-        engine_cursor_private_next_stats(_eng);
-        aoc_info("box size %s", strpos(&_eng->_coordlimits._max));
-        engine_cursor_private_next_stats(_eng);
+        engine_cursor_stats(eng);
+        aoc_info("objects %ld", eng->_objects._size);
+        engine_cursor_private_next_stats(eng);
+        aoc_info("box size %s", strpos(&eng->_poslim._max));
+        engine_cursor_private_next_stats(eng);
     }
 }
 
-void aoc_2d_eng_prompt(aoc_2d_eng_h _eng, const size_t _sleep, size_t _count, ...)
+void aoc_2d_eng_prompt(aoc_2d_eng_h eng, const size_t _sleep, size_t _count, ...)
 {
-    if (_eng->_enabledraw)
+    if (eng->_drawingenabled)
     {
-        engine_put_cursor_in_footer_area(_eng);
+        engine_put_cursor_in_footer_area(eng);
         printf(ERASE_LINE_FROM_CR);
 
         va_list _ap;

@@ -25,7 +25,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     coord_t _prelcoordmaxima = {._x = 2, ._y = 2};
 
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst, false);
 
     if (!_ctx->_eng)
         goto cleanup;
@@ -72,7 +72,7 @@ struct solutionCtrlBlock_t *part2 = &privPart2;
 
 static int crate_lift(struct context *_ctx, command_t *_cmd)
 {
-    coordboundaries_t boundaries = aoc_2d_eng_get_parts_boundaries(_ctx->_eng);
+    coordpair_t boundaries = aoc_2d_eng_get_parts_boundaries(_ctx->_eng);
     coord_t _gripper = {._x = _cmd->from, ._y = boundaries._max._y};
 
     for (size_t _ii = boundaries._max._y; _ii > boundaries._min._y;)
@@ -81,7 +81,7 @@ static int crate_lift(struct context *_ctx, command_t *_cmd)
         _ObjInCol = aoc_2d_eng_get_obj_by_position(_ctx->_eng, &_gripper);
         if (_ObjInCol)
         {
-            aoc_2d_obj_ref_t *_ntracker = aoc_2d_obj_ref(_ObjInCol);
+            aoc_2d_obj_ref_t *_ntracker = aoc_2d_obj_ref_ctor(_ObjInCol);
             if (_ntracker)
                 dll_node_append(&_ctx->_BoxStack, CAST(dll_node_h, _ntracker));
             else
@@ -93,9 +93,9 @@ static int crate_lift(struct context *_ctx, command_t *_cmd)
     }
 
     size_t nGripped = 0;
-    LL_FOREACH_LAST(_box, _ctx->_BoxStack)
+    LL_FOREACH_REV(_box, _ctx->_BoxStack)
     {
-        aoc_2d_obj_ref_t *_ntracker = aoc_2d_obj_ref(CAST(aoc_2d_obj_ref_t *, _box)->data);
+        aoc_2d_obj_ref_t *_ntracker = aoc_2d_obj_ref_ctor(CAST(aoc_2d_obj_ref_t *, _box)->data);
         if (_ntracker)
             dll_node_append(&_ctx->_grippedBoxes, CAST(dll_node_h, _ntracker));
         else
@@ -121,7 +121,7 @@ static int crate_lift(struct context *_ctx, command_t *_cmd)
         {
             aoc_2d_obj_ref_t *tracker = CAST(aoc_2d_obj_ref_t *, _node);
             _grippedObj = tracker->data;
-            _pGrippedReport += sprintf(_pGrippedReport, "%s", aoc_2d_eng_get_obj_name(_grippedObj));
+            _pGrippedReport += sprintf(_pGrippedReport, "%s", aoc_2d_obj_name(_grippedObj));
         }
 
         bool _all_blocked = false;
@@ -161,9 +161,9 @@ static int crate_change_lane(struct context *_ctx, command_t *_cmd)
             aoc_err("%s", "NULL pointer gripped box");
 
         size_t _ii = 0;
-        for (size_t i = 0; (i < 100) && (aoc_2d_eng_get_obj_position(_ctx->_eng, _grippedObj)._x != _cmd->to); i++)
+        for (size_t i = 0; (i < 100) && (aoc_2d_obj_get_pos(_grippedObj)->_x != _cmd->to); i++)
         {
-            AOC_2D_DIR dir = aoc_2d_eng_get_obj_position(_ctx->_eng, _grippedObj)._x > _cmd->to ? AOC_2D_DIR_LEFT : AOC_2D_DIR_RIGHT;
+            AOC_2D_DIR dir = aoc_2d_obj_get_pos(_grippedObj)._x > _cmd->to ? AOC_2D_DIR_LEFT : AOC_2D_DIR_RIGHT;
             aoc_2d_eng_step_obj(_ctx->_eng, _grippedObj, 1LU, dir, GREEN);
         }
         assert(_ii != 100 && "%s failed");
@@ -188,16 +188,16 @@ static int crate_deposit(struct context *_ctx, command_t *_cmd)
 
     size_t deposited = 0;
 
-    LL_FOREACH_LAST(_node, _ctx->_grippedBoxes)
+    LL_FOREACH_REV(_node, _ctx->_grippedBoxes)
     {
         _grippedObj = CAST(aoc_2d_obj_ref_t *, _node)->data;
-        _pDepositReport += sprintf(_pDepositReport, "%s", aoc_2d_eng_get_obj_name(_grippedObj));
+        _pDepositReport += sprintf(_pDepositReport, "%s", aoc_2d_obj_name(_grippedObj));
     }
 
     while (dll_size(&_ctx->_grippedBoxes) != deposited)
     {
         deposited = 0;
-        LL_FOREACH_LAST(_node, _ctx->_grippedBoxes)
+        LL_FOREACH_REV(_node, _ctx->_grippedBoxes)
         {
             _grippedObj = CAST(aoc_2d_obj_ref_t *, _node)->data;
             if (aoc_2d_eng_step_obj(_ctx->_eng, _grippedObj, 1LU, AOC_2D_DIR_DOWN, GREEN))
@@ -207,7 +207,7 @@ static int crate_deposit(struct context *_ctx, command_t *_cmd)
 
         aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "depositing", _depositReport);
     }
-    LL_FOREACH_LAST_EXT(_node, _ctx->_grippedBoxes)
+    LL_FOREACH_REV_EXT(_node, _ctx->_grippedBoxes)
     {
         _grippedObj = CAST(aoc_2d_obj_ref_t *, _node)->data;
         aoc_2d_eng_draw_obj(_ctx->_eng, _grippedObj, NULL);
@@ -268,7 +268,7 @@ static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
         if (!_ctx->_grippedBoxes._first)
             continue;
         _grippedObj = CAST(aoc_2d_obj_ref_t *, _ctx->_grippedBoxes._first)->data;
-        _p += sprintf(_p, "%c", aoc_2d_eng_get_obj_name(_grippedObj)[1]);
+        _p += sprintf(_p, "%c", aoc_2d_obj_name(_grippedObj)[1]);
         crate_deposit(_ctx, &_spell1);
     }
     aoc_ans("AOC 2022 %s solution is %s", _blk->_name, _ctx->spelling);
@@ -329,9 +329,9 @@ static int parseblock(void *arg, char *_str)
                 aoc_err("failed to append %s at %s (%s)", strpos(&_ctx->_pos), _buf, strerror(ret));
                 aoc_2d_eng_free_obj(_nobj);
             }
-            if (!dll_find_node_by_property(&_ctx->_columns, &_ctx->_pos._x, has_same_column))
+            if (!dll_find_node_by_property(&_ctx->_columns, &_ctx->_pos._x, coord_same_column))
             {
-                coord_tracker_h _trck = coordtracker_ctor();
+                coord_tracker_h _trck = coordtrackernode_ctor();
                 _trck->_coord._x = _ctx->_pos._x;
                 dll_node_sorted_insert(&_ctx->_columns, NODE_CAST(_trck), highest_column);
             }

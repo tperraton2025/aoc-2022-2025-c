@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <errno.h>
 
+#define SQUARE(_a) ((_a) * (_a))
 typedef struct base10
 {
     char _digits[64];

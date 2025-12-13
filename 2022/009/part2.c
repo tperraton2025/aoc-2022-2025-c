@@ -84,7 +84,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_tailPos);
     dll_head_init(&_ctx->_tails);
 
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst, false);
 
     if (!_ctx->_eng)
     {
@@ -186,21 +186,21 @@ static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_obj_h _hea
     if (_ctx->_head == _head)
     {
         if (aoc_2d_eng_step_obj(_ctx->_eng, _head, _dir, 1LU, NULL) == ERANGE)
-            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_eng_get_obj_name(_head));
+            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_obj_name(_head));
     }
     if (1 < aoc_2d_eng_get_dist_between_objects(_ctx->_eng, _head, _tail))
     {
-        if (aoc_2d_eng_move_one_step_towards(_ctx->_eng, _tail, aoc_2d_eng_get_obj_position(_ctx->_eng, _head)) == ERANGE)
-            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_eng_get_obj_name(_tail));
+        if (aoc_2d_eng_move_one_step_towards(_ctx->_eng, _tail, aoc_2d_obj_get_pos(_head)) == ERANGE)
+            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "collision while moving %s", aoc_2d_obj_name(_tail));
 
-        coord_t _prevTailPosition = aoc_2d_eng_get_obj_position(_ctx->_eng, _tail);
-        coord_t _npos = aoc_2d_eng_get_obj_position(_ctx->_eng, _tail);
+        coord_t _prevTailPosition = aoc_2d_obj_get_pos(_tail);
+        coord_t _npos = aoc_2d_obj_get_pos(_tail);
     }
     _ctx->_lastMovedLink = _tail;
 
-    if (0 == strcmp(aoc_2d_eng_get_obj_name(_tail), "tail 9"))
+    if (0 == strcmp(aoc_2d_obj_name(_tail), "tail 9"))
     {
-        coord_t _prevTailPosition = aoc_2d_eng_get_obj_position(_ctx->_eng, _tail);
+        coord_t _prevTailPosition = aoc_2d_obj_get_pos(_tail);
         track_tail(_blk, &_prevTailPosition);
     }
     aoc_2d_eng_prompt_obj_list(_ctx->_eng);

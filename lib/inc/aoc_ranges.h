@@ -1,5 +1,5 @@
-#ifndef AOC_RANGES
-#define AOC_RANGES
+#ifndef AOC_RANGES_H
+#define AOC_RANGES_H
 
 #include <stddef.h>
 #include "aoc_linked_list.h"

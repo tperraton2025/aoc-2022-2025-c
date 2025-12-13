@@ -59,7 +59,7 @@ void aoc_tree_free_all_children(tree_node_h _start)
     FREE(_start);
 }
 
-void aoc_tree_free(tree_node_h _start)
+void aoc_tree_free_all(tree_node_h _start)
 {
     assert(_start && "No starting node method provided");
 

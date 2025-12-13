@@ -1,5 +1,5 @@
-#ifndef AOC_TYPES
-#define AOC_TYPES
+#ifndef AOC_TYPES_H
+#define AOC_TYPES_H
 
 #include <stddef.h>
 #define u8 uint8_t

@@ -78,7 +78,38 @@ int dll_node_sorted_insert(dll_head_h head, dll_node_h _new, dll_compare sort)
         }
     }
     if (_afterNew)
-        return dll_node_insert(head, _new, _afterNew);
+        return dll_node_insert_before(head, _new, _afterNew);
+    else
+        return dll_node_append(head, _new);
+}
+
+int dll_node_exp_sorted_insert(dll_head_h head, dll_node_h _new, dll_exp_compare sort)
+{
+    assert(head && _new && "NULL pointer in dll_node_append");
+    if (head->_size > LL_MAX_LEN_LUI)
+        return ENOSPC;
+    if (!sort || head->_size < 2)
+        return dll_node_append(head, _new);
+
+    dll_node_h beforeNew = NULL;
+    dll_node_h _afterNew = NULL;
+    LL_FOREACH_P_EXT(_afterNew, head)
+    {
+        if (!_afterNew->_prev)
+        {
+            if (_new == sort(_new, _afterNew , _afterNew->_next))
+            {
+                return dll_node_insert_before(head, _new, _afterNew);
+            }
+            continue;
+        }
+        if (_new == sort(_afterNew->_prev, _new, _afterNew))
+        {
+            break;
+        }
+    }
+    if (_afterNew)
+        return dll_node_insert_before(head, _new, _afterNew);
     else
         return dll_node_append(head, _new);
 }
@@ -119,7 +150,10 @@ void dll_node_swap(dll_head_h head, dll_node_h _a, dll_node_h _b)
     assert(head->_first != head->_last);
 }
 
-int dll_node_insert(dll_head_h head, dll_node_h _a, dll_node_h _b)
+/**
+ * inserts node _a before _b
+ */
+int dll_node_insert_before(dll_head_h head, dll_node_h _a, dll_node_h _b)
 {
     assert(head && "Linked list head NULL");
     assert(_a && "Linked list _a is NULL");
@@ -136,11 +170,45 @@ int dll_node_insert(dll_head_h head, dll_node_h _a, dll_node_h _b)
     return 0;
 }
 
+/**
+ * inserts node _a after _b
+ */
+int dll_node_insert_after(dll_head_h head, dll_node_h _a, dll_node_h _b)
+{
+    assert(head && "Linked list head NULL");
+    assert(_a && "Linked list _a is NULL");
+    assert(_b && "Linked list _b is NULL");
+    head->_size++;
+    if (!_b->_next)
+        head->_last = _a;
+
+    _a->_next = _b->_next;
+    _a->_prev = _b;
+
+    if (_b->_next)
+        _b->_next->_prev = _a;
+    _b->_next = _a;
+    return 0;
+}
+
 /*  Takes out node from the list without freeing its*/
 void dll_node_disconnect(dll_head_h head, dll_node_h _a)
 {
-    assert(head->_size != 0 && "attempt to remove link from an empty sinked list");
+    assert(head->_size && "attempt to remove link from an empty sinked list");
     assert(_a && "NULL pointer provided");
+
+    /**
+     *
+     * debugging  tweak:
+     */
+    /*
+        dll_node_h _prev = _a->_prev;
+        dll_node_h _next = _a->_prev; */
+
+    /**
+     *
+     * end of debugging  tweak:
+     */
 
     head->_size--;
     if (_a->_prev)
@@ -151,6 +219,25 @@ void dll_node_disconnect(dll_head_h head, dll_node_h _a)
         _a->_next->_prev = _a->_prev;
     else
         head->_last = _a->_prev;
+
+    /** temporary assert to catch a bug
+     *
+     *
+     */
+
+    /*     LL_FOREACH_P(_node, head)
+        {
+            if (!_node)
+                break;
+            assert(_node != _a);
+            if (_a->_prev)
+                if (_node == _a->_prev)
+                    assert(_node->_next == _a->_next);
+
+            if (_a->_next)
+                if (_node == _a->_next)
+                    assert(_node->_prev == _a->_prev);
+        } */
 }
 
 void dll_node_free(dll_head_h head, dll_node_h *_a, void func(void *))
@@ -221,7 +308,8 @@ int dll_foreach_node_with_args(dll_head_h head, void *args, bool (*func)(void *_
         return EINVAL;
     LL_FOREACH_P(_node, head)
     {
-        func(_node, args);
+        if (!func(_node, args))
+            break;
     }
     return 0;
 }
@@ -261,6 +349,39 @@ dll_node_h dll_try_find_node_by_property(dll_node_h start, void *arg, bool (*equ
         current = current->_prev;
     }
     return NULL;
+}
+
+dll_head_h dll_get_nodes_by_property(dll_node_h start, void *arg, bool (*equal)(void *_a, void *_b), bool (*stop)(void *_a, void *_b))
+{
+
+    if (!start || !equal || !stop)
+        return NULL;
+
+    dll_head_h result = NULL;
+    TRY_TYPE_MALLOC(result, dll_head_t);
+    if (!result)
+        return NULL;
+
+    dll_node_h current = start;
+    while (current)
+    {
+        if (equal(current, arg))
+            dll_node_append(result, current);
+        if (stop(current, arg))
+            break;
+        current = current->_next;
+    }
+
+    current = start;
+    while (current)
+    {
+        if (equal(current, arg))
+            dll_node_append(result, current);
+        if (stop(current, arg))
+            break;
+        current = current->_prev;
+    }
+    return result;
 }
 
 dll_head_h dll_clone(dll_head_h toclone, size_t nodesize)
@@ -417,4 +538,25 @@ void dll_foreach(dll_head_h head, void *arg, void(func)(void *arga, void *argb))
     {
         func((void *)_node, arg);
     }
+}
+
+void freedllsearch(dll_search_t *search)
+{
+    free(search);
+}
+
+DLL_NODE_CTOR(dll_search_t, dllsearchnode_ctor);
+
+dll_search_t *newdllsearch(const char *const name, void *arg, bool matchtest(void *a, void *b), bool continuetest(void *a, void *b))
+{
+    dll_search_t *search = dllsearchnode_ctor();
+    search->_matchfunc = matchtest;
+    search->_continuefunc = continuetest;
+    search->_arg = arg;
+    // search->_name = malloc(strnlen(name, 16));
+    return search;
+}
+
+dll_node_h incr(dll_head_h head)
+{
 }

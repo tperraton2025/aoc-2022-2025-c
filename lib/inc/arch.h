@@ -1,6 +1,8 @@
 // Source - https://stackoverflow.com/a
 // Posted by FreakAnon, modified by community. See post 'Timeline' for change history
 // Retrieved 2025-11-19, License - CC BY-SA 4.0
+#ifndef AOC_ARCH_H
+#define AOC_ARCH_H
 
 extern "C"
 {
@@ -51,3 +53,4 @@ extern "C"
 #endif
     }
 }
+#endif

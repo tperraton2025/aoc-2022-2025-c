@@ -1,5 +1,5 @@
-#ifndef AOC_TREE
-#define AOC_TREE
+#ifndef AOC_RING_BUFFER_H
+#define AOC_RING_BUFFER_H
 #include <aoc_helpers.h>
 #include <aoc_linked_list.h>
 #include <stddef.h>

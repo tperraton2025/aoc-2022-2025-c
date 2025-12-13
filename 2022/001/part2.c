@@ -59,7 +59,7 @@ static void freeElf(void *_data)
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
     int ret = 0;
-    TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
+    TRY_TYPE_MALLOC(_blk->_data, struct context);
     if (!_blk->_data)
         return ENOMEM;
 
@@ -85,7 +85,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
                 if (ELF_CAST(_node)->_calories < ELF_CAST(_ctx->_ll._current)->_calories)
                 {
                     dll_node_disconnect(&_ctx->_ll, _ctx->_ll._current);
-                    dll_node_insert(&_ctx->_ll, _ctx->_ll._current, _node);
+                    dll_node_insert_before(&_ctx->_ll, _ctx->_ll._current, _node);
                     break;
                 }
             }

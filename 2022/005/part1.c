@@ -24,7 +24,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
  
     coord_t _prelcoordmaxima = {._x = 2, ._y = 2};
 
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst, false);
 
     if (!_ctx->_eng)
         goto cleanup;
@@ -72,14 +72,14 @@ struct solutionCtrlBlock_t *part1 = &privPart1;
 
 static int crate_lift(struct context *_ctx, command_t *_cmd)
 {
-    coordboundaries_t boundaries = aoc_2d_eng_get_parts_boundaries(_ctx->_eng);
+    coordpair_t boundaries = aoc_2d_eng_get_parts_boundaries(_ctx->_eng);
     for (size_t _ii = 0; _ii <= boundaries._max._y; _ii++)
     {
         coord_t _gripper = {._x = _cmd->from, ._y = _ii};
         _ctx->_grippedBox = aoc_2d_eng_get_obj_by_position(_ctx->_eng, &_gripper);
         if (_ctx->_grippedBox)
         {
-            aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "gripped", aoc_2d_eng_get_obj_name(_ctx->_grippedBox));
+            aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "gripped", aoc_2d_obj_name(_ctx->_grippedBox));
             while (!aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_2D_DIR_UP, GREEN))
                 aoc_2d_eng_prompt_obj_list(_ctx->_eng);
             return 0;
@@ -104,7 +104,7 @@ static int crate_change_lane(struct context *_ctx, command_t *_cmd)
 
         if (aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, dir, GREEN))
         {
-            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "moving %s failed", aoc_2d_eng_get_obj_name(_ctx->_grippedBox));
+            aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "moving %s failed", aoc_2d_obj_name(_ctx->_grippedBox));
         }
         aoc_2d_eng_prompt_obj_list(_ctx->_eng);
 
@@ -121,7 +121,7 @@ static int crate_deposit(struct context *_ctx, command_t *_cmd)
     while (!aoc_2d_eng_step_obj(_ctx->_eng, _ctx->_grippedBox, 1LU, AOC_2D_DIR_DOWN, GREEN))
     {
         aoc_2d_eng_prompt_obj_list(_ctx->_eng);
-        aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "depositing", aoc_2d_eng_get_obj_name(_ctx->_grippedBox));
+        aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "depositing", aoc_2d_obj_name(_ctx->_grippedBox));
     }
     aoc_2d_eng_draw_obj(_ctx->_eng, _ctx->_grippedBox, NULL);
     return 0;
@@ -176,7 +176,7 @@ static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
         crate_lift(_ctx, &_spell1);
         if (!_ctx->_grippedBox)
             continue;
-        _p += sprintf(_p, "%c", aoc_2d_eng_get_obj_name(_ctx->_grippedBox)[1]);
+        _p += sprintf(_p, "%c", aoc_2d_obj_name(_ctx->_grippedBox)[1]);
         crate_deposit(_ctx, &_spell1);
     }
     aoc_ans("AOC 2022 %s solution is %s", _blk->_name, _ctx->spelling);
@@ -235,9 +235,9 @@ static int parseblock(void *arg, char *_str)
             if (ret)
                 break;
         }
-        if (!dll_find_node_by_property(&_ctx->_columns, &_ctx->_pos._x, has_same_column))
+        if (!dll_find_node_by_property(&_ctx->_columns, &_ctx->_pos._x, coord_same_column))
         {
-            coord_tracker_h _trck = coordtracker_ctor();
+            coord_tracker_h _trck = coordtrackernode_ctor();
             _trck->_coord._x = _ctx->_pos._x;
             dll_node_sorted_insert(&_ctx->_columns, NODE_CAST(_trck), highest_column);
         }

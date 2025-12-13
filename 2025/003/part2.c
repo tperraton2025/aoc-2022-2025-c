@@ -5,7 +5,7 @@
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
 
-    TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
+    TRY_TYPE_MALLOC(_blk->_data, struct context);
     if (!_blk->_data)
         return ENOMEM;
 
@@ -31,7 +31,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
             goto error;
         _matchfound = joltagepickallfeasible(_ctx->_root);
 
-        aoc_tree_free(&_ctx->_root->_treenode);
+        aoc_tree_free_all(&_ctx->_root->_treenode);
         FREE(_ctx->_root);
 
         if (_matchfound)

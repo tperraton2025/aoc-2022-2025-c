@@ -9,7 +9,7 @@ project(
   VERSION 0.1.0
   LANGUAGES C CXX)
 
-add_executable(${ProjectId} main.c part1&2.c partx.c memo.c)
+add_executable(${ProjectId} main.c part1_2.c partx.c memo.c)
 set_property(TARGET ${ProjectId} PROPERTY C_STANDARD 11)
 target_include_directories(${ProjectId} PRIVATE ${CMAKE_SOURCE_DIR}
                                                 ${CMAKE_SOURCE_DIR}/../lib/inc)

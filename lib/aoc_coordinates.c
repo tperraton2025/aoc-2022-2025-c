@@ -110,11 +110,7 @@ bool coord_equal_x_lower_y(void *_a, void *_b)
 {
     coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
     coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
-    // if ((_bcord->_y < _acord->_y) && (_bcord->_x == _acord->_x))
-    //{
-    //     printf(BRED "removing %s", strpos(_acord));
-    //     printf("for %s\n" RESET, strpos(_bcord));
-    // }
+
     return ((_bcord->_y < _acord->_y) && (_bcord->_x == _acord->_x));
 }
 

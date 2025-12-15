@@ -214,8 +214,7 @@ void *inputs_routine(void *args)
         goto error;
 
     char _cByte = ' ';
-    _inp->_pxInputCharBuffer = aoc_ring_buffer(sizeof(char), 64);
-    // /_ret = sem_wait(&_tasks_start_sem);
+    _inp->_pxInputCharBuffer = aoc_ring_buffer(sizeof(char), 64); 
 
     char _nchar[5] = {0};
     while (sem_trywait(&_tasks_kill_sem))

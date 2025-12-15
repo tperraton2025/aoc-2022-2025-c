@@ -690,7 +690,6 @@ static int aoc_2d_eng_check_move_possible(aoc_2d_eng_h eng, aoc_2d_obj_h _obj, s
         }
         if (ret)
         {
-            // aoc_2d_eng_prompt_multistr(eng, 0, _obj->_name, ": collision with other object at ", strpos(&_testpos));
             break;
         }
     }

@@ -6,7 +6,6 @@
 
 struct ring_buffer
 {
-    //   aoc_linked_list_t _items;
     void **_pv_buff;
     size_t _px_head;
     size_t _px_tail;

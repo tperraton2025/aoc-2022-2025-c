@@ -502,7 +502,6 @@ dll_search_t *newdllsearch(const char *const name, void *arg, bool matchtest(voi
     search->_matchfunc = matchtest;
     search->_continuefunc = continuetest;
     search->_arg = arg;
-    // search->_name = malloc(strnlen(name, 16));
     return search;
 }
 

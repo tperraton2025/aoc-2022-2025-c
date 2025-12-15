@@ -133,7 +133,6 @@ void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h eng)
             _maxbytes += printf("[%*ld:", 4, _obj->_pos._x);
             _maxbytes += printf("%*ld]      \n", 4, _obj->_pos._y);
 
-            // eng->_statColOffset = eng->_statColOffset > _maxbytes ? eng->_statColOffset : _maxbytes;
             engine_cursor_user_next_stats(eng);
         }
         engine_put_cursor_in_footer_area(eng);

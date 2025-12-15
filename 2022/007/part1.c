@@ -15,25 +15,7 @@ typedef struct context
     size_t _memcheck;
     struct dll_head _cmds;
     size_t _result;
-} context_t;
-
-typedef stringnode_t cmd_t;
-
-//! TODO secure this
-cmd_t *command(char *name)
-{
-    cmd_t *ret = malloc(sizeof(cmd_t));
-    ret->_str = malloc(strlen(name) + 1);
-    strcpy(ret->_str, name);
-    return ret;
-}
-
-void free_cmd(void *arg)
-{
-    cmd_t *cmd = (cmd_t *)arg;
-    FREE(cmd->_str);
-    FREE(cmd);
-}
+} context_t; 
 
 #define CTX_CAST(_p) ((struct context *)_p)
 
@@ -72,7 +54,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     LL_FOREACH(_node, _ctx->_cmds)
     {
-        cmd_t *_cmd = (cmd_t *)_node;
+        stringnode_t *_cmd = (stringnode_t *)_node;
         command_executor(_ctx, _cmd->_str);
     }
 
@@ -89,7 +71,7 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CAST(struct context *, _blk->_data);
     aoc_tree_free_all(&_ctx->_root->path);
-    dll_free_all(&_ctx->_cmds, free_cmd);
+    dll_free_all(&_ctx->_cmds, string_dll_free);
     FREE(_ctx->_root);
     FREE(_blk->_data);
 }
@@ -144,7 +126,7 @@ static int parsecommand(void *arg, char *_str)
 
     if (sscanf(_str, "$ %" MAX_NAME_LEN_AS_STR "s %" MAX_NAME_LEN_AS_STR "s", _cmd, _arg) > 0)
     {
-        cmd_t *_ncom = command(_str);
+        stringnode_t *_ncom = string_dll(_str);
         dll_node_append(&_ctx->_cmds, &_ncom->_node);
 
         if (0 == strncmp("cd", _cmd, MAX_NAME_LEN_AS_USIZE))

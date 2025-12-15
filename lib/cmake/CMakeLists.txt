@@ -1,5 +1,5 @@
-function(add_aoc_day_test_regex year day test result1 result2) 
-  set(result1 ".*AOC ${year} ${day} part 1 solution is ${result1}.*\n") 
+function(add_aoc_day_test_regex year day test result1 result2)
+  set(result1 ".*AOC ${year} ${day} part 1 solution is ${result1}.*\n")
   set(result2 ".*AOC ${year} ${day} part 2 solution is ${result2}.*\n")
   set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION
                                      "${result1}${result2}")

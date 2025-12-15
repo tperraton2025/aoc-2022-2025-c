@@ -11,7 +11,6 @@ typedef struct splitter
 } splitter_t;
 typedef splitter_t *splitter_h;
 
-
 splitter_h newsplitter(splitter_h parent, aoc_2d_eng_h eng, coord_t *position);
 splitter_h splitter_findorigin(aoc_2d_eng_h eng);
 bool isparentsplitter(void *_a, void *_b);
@@ -20,13 +19,13 @@ void splitter_findtimeimpact(splitter_h splitter);
 size_t splitter_showfinalimpacts(splitter_h splitter);
 
 /**
- * 
- * This solution was abandonned as it did not yet find a way to 
- * merge parent/child relations with the splitters of same 
+ *
+ * This solution was abandonned as it did not yet find a way to
+ * merge parent/child relations with the splitters of same
  * coordinates,
  * resulted in excessive memory cost and extremely low performances;
- * 
-  */  
+ *
+ */
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
     TRY_RAII_MALLOC(_blk->_data, sizeof(struct context));
@@ -86,7 +85,6 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
 
 static struct solutionCtrlBlock_t privPart2 = {._name = CONFIG_DAY " part 2", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = freeSolution};
 struct solutionCtrlBlock_t *part2 = &privPart2;
-
 
 int linesparser(void *arg, char *str)
 {

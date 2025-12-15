@@ -123,7 +123,7 @@ size_t aoc_2d_obj_get_collisioncounter(aoc_2d_obj_h _obj)
     return _obj->_collisionscounter;
 }
 
-const char* const aoc_2d_obj_get_name(aoc_2d_obj_h _obj)
+const char *const aoc_2d_obj_get_name(aoc_2d_obj_h _obj)
 {
     return _obj->_name;
 }

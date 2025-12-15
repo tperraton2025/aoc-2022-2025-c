@@ -58,7 +58,7 @@ int initbeamexploration(context_h ctx, aoc_2d_obj_h obj)
     ctx->limits = aoc_2d_eng_get_parts_boundaries(eng);
 
     if (!ctx->_memosplits)
-        DYN2DMALLOC(ctx->_memosplits, memospawn_h, ctx->limits._max._x + 1, ctx->limits._max._y + 1);
+        DYN2DMALLOCM(ctx->_memosplits, memospawn_h, ctx->limits._max._x + 1, ctx->limits._max._y + 1);
 
     return 0;
 }

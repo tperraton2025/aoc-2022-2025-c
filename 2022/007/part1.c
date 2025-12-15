@@ -17,25 +17,21 @@ typedef struct context
     size_t _result;
 } context_t;
 
-typedef struct cmd
-{
-    struct dll_node _node;
-    char *_name;
-} cmd_t;
+typedef stringnode_t cmd_t;
 
 //! TODO secure this
 cmd_t *command(char *name)
 {
     cmd_t *ret = malloc(sizeof(cmd_t));
-    ret->_name = malloc(strlen(name) + 1);
-    strcpy(ret->_name, name);
+    ret->_str = malloc(strlen(name) + 1);
+    strcpy(ret->_str, name);
     return ret;
 }
 
 void free_cmd(void *arg)
 {
     cmd_t *cmd = (cmd_t *)arg;
-    FREE(cmd->_name);
+    FREE(cmd->_str);
     FREE(cmd);
 }
 
@@ -77,7 +73,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     LL_FOREACH(_node, _ctx->_cmds)
     {
         cmd_t *_cmd = (cmd_t *)_node;
-        command_executor(_ctx, _cmd->_name);
+        command_executor(_ctx, _cmd->_str);
     }
 
     filesearch_t _srch = {.threshold = 100000, .totalMem = 0};

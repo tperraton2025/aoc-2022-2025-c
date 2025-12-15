@@ -89,9 +89,9 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     aoc_2d_eng_parse_cli(&_ctx->_eng, argc, argv);
 
     coord_t start = {0};
-    
+
     aoc_2d_eng_get_canvas_center(&_ctx->_eng, &start);
-    
+
     _ctx->_head = aoc_2d_obj_ctor(_ctx->_eng, "head", &start, "H", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_MOBILE, "");
     _ctx->_tail = aoc_2d_obj_ctor(_ctx->_eng, "tail", &start, "T", OBJ_FLAG_NO_COLLISION | OBJ_FLAG_NO_COLLISION, "");
 

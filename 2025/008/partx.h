@@ -1,6 +1,6 @@
 #include <aoc_helpers.h>
 #include <aoc_linked_list.h>
-#include <aoc_2d_dynarr.h>
+#include <aoc_dynamic_array.h>
 #include <aoc_numeric.h>
 #include <aoc_parser.h>
 #include <string.h>
@@ -15,57 +15,22 @@
 #define DIST_STRLEN (32)
 #define STR_LEN (32)
 
-
-typedef struct uint3D
-{
-    size_t _x;
-    size_t _y;
-    size_t _z;
-} uint3D_t;
-typedef uint3D_t *uint3D_h;
-uint3D_t uint3_ctor(size_t x, size_t y, size_t z);
-
-
-typedef struct float3D
-{
-    float _x;
-    float _y;
-    float _z;
-} float3D_t;
-typedef float3D_t *float3D_h;
-float3D_t float3D_ctor(float x, float y, float z);
-
-typedef struct distnode
-{
-    dll_node_t _node;
-    float3D_t *_pointa;
-    float3D_t *_pointb;
-    float _dist;
-} distnode_t;
-typedef distnode_t *distnode_h;
-distnode_h distnode_ctor();
 #define DIST_H(_a) ((distnode_h)_a)
+#define P3D_H(_a) &((float3Dnode_h)_a)->_data
 
-typedef struct float3Dn_h
-{
-    dll_node_t _node;
-    float3D_t _data;
-} float3Dn_h_t;
-typedef float3Dn_h_t *float3Dn_h;
-float3Dn_h float3Dn_ctor();
-#define P3D_H(_a) &((float3Dn_h)_a)->_data
+#define getregion(ctx, scan) ((dll_head_h *)dyn3dget(ctx->_regions, scan))
 
 typedef struct context
 {
     dll_head_t _rawjboxlist;
-    dll_head_t _sortedjboxlist;
     dll_head_t _distances;
-    dll_head_h ***_regions;
-    size_t _segments;
     dll_head_t _parsers;
 
-    float3D_t lowest;
-    float3D_t highest;
+    dyn3darr_h _regions;
+    size_t _segments;
+
+    float3Dnode_h lowest;
+    float3Dnode_h highest;
     uint3D_t _regionssize;
     size_t _result;
 } context_t;
@@ -73,12 +38,39 @@ typedef context_t *context_h;
 
 extern parser_t float3Dparser;
 
+typedef struct distnode
+{
+    dll_node_t _node;
+    float3D_t *_pointa;
+    float3D_t *_pointb;
+    float _val;
+} distnode_t;
+typedef distnode_t *distnode_h;
+distnode_h distnode_ctor();
+
 dll_node_h is_B_or_C_nearest_A(dll_node_h _a, dll_node_h _b, dll_node_h _c);
 float p3ddist(float3D_h _a, float3D_h _b);
+void dispatchpoints(context_h ctx);
+void freeregion(void *arg);
 
-const char *const strdist(float3D_h _a, float3D_h _b);
-const char *const strp3D(float3D_h p3d_h);
-const char *const printplist(dll_head_h head, const char *const fmt);
+/**
+ * 3D float coordinates point
+ */
+const char *const strfloat3d(float3D_h p3d_h);
 
-int sortdistances(dll_head_h head, dll_head_h dists);
-void printdlist(dll_head_h head, const char *const fmt);
+/**
+ * 3D point list
+ */
+void printplist(dll_head_h head, const char *const fmt);
+
+/**
+ *  Distances from 2 3D points
+ */
+const char *const strdist(distnode_h _dist, const char *const fmt);
+
+size_t printregions(context_h ctx);
+size_t missingmeasures(dll_head_h head);
+
+void sortdistances(dll_head_h head, dll_head_h dists);
+void measuredistances(context_h ctx);
+size_t printdlist(dll_head_h head, const char *const fmt);

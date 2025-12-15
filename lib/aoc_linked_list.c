@@ -97,7 +97,7 @@ int dll_node_exp_sorted_insert(dll_head_h head, dll_node_h _new, dll_exp_compare
     {
         if (!_afterNew->_prev)
         {
-            if (_new == sort(_new, _afterNew , _afterNew->_next))
+            if (_new == sort(_new, _afterNew, _afterNew->_next))
             {
                 return dll_node_insert_before(head, _new, _afterNew);
             }
@@ -416,11 +416,6 @@ dll_head_h dll_clone_sorted(dll_head_h toclone, dll_compare(*comp), size_t nodes
     }
     return _sorted;
 }
-typedef struct
-{
-    struct dll_node _node;
-    char *_str;
-} teststr_t;
 
 /* brutal while waiting for better */
 int dll_sort(dll_head_h head, dll_compare(*comp))
@@ -484,52 +479,6 @@ int dll_trim_nodes(dll_head_h head, void *arg, bool (*remifeq)(void *_a, void *_
         }
     }
     return liberated;
-}
-
-string_dll_node_h string_dll(const char *const name)
-{
-    string_dll_node_h _ret = malloc(sizeof(string_dll_node_t));
-    if (!_ret)
-        return NULL;
-    _ret->_str = malloc(strnlen(name, MAX_STR_DLL_LEN) + 1);
-    if (!_ret->_str)
-        goto abort;
-
-    strcpy(_ret->_str, name);
-    return _ret;
-
-abort:
-    FREE(_ret);
-    return NULL;
-}
-
-void string_dll_free(void *string)
-{
-    string_dll_node_h _stringh = (string_dll_node_h)string;
-    FREE(_stringh->_str);
-    FREE(_stringh);
-}
-
-dll_node_h string_dll_compare(dll_node_h _a, dll_node_h _b)
-{
-    string_dll_node_h _string_a = (string_dll_node_h)_a;
-    string_dll_node_h _string_b = (string_dll_node_h)_b;
-    int _ret = strcmp(_string_a->_str, _string_b->_str);
-    if (_ret >= 0)
-        return _b;
-    else
-        return _a;
-}
-
-int string_dll_rename(string_dll_node_h node, const char *const name)
-{
-    char *_nname = malloc(strnlen(name, MAX_STR_DLL_LEN) + 1);
-    if (!_nname)
-        return ENOMEM;
-    FREE(node->_str);
-    sprintf(_nname, "%s", name);
-    node->_str = _nname;
-    return 0;
 }
 
 void dll_foreach(dll_head_h head, void *arg, void(func)(void *arga, void *argb))

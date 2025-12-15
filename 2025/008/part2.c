@@ -1,6 +1,5 @@
 #include "partx.h"
 
-
 typedef context_t *context_h;
 
 #define CTX_CAST(_p) ((context_h)_p)

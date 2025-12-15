@@ -33,5 +33,4 @@ add_test(
   COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
           "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
 
-
-add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "3" "14") 
+add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "3" "14")

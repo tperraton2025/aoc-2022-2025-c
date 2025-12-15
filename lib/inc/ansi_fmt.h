@@ -1,5 +1,7 @@
 #ifndef ANSI_FMT
 #define ANSI_FMT
+
+#define ANSI_MAX_LEN (10LU)
 /* Regular Colors
 Value 	Color */
 #define BLACK "\e[0;30m"

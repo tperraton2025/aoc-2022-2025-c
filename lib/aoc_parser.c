@@ -39,6 +39,6 @@ int parse_all(dll_head_h head, char *str)
     return 0;
 }
 
-void parser_list_free(parser_h *list){
-
+void parser_list_free(parser_h *list)
+{
 }

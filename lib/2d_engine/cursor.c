@@ -2,7 +2,6 @@
 #include "engine.h"
 #include <assert.h>
 
-
 int move_cursor_until(struct ascii_2d_engine *eng, AOC_2D_DIR _dir, size_t _steps, coord_t *limit)
 {
     int ret = 0;
@@ -58,7 +57,7 @@ int move_within_coord(aoc_2d_eng_h eng, coord_t *_pos, size_t _steps, AOC_2D_DIR
         if (!N_BETWEEN_AB(_pos->_x + _steps, eng->_poslim._min._x, eng->_poslim._max._x))
             return ERANGE;
         _pos->_x += _steps;
-        break; 
+        break;
     default:
         return EINVAL;
     }

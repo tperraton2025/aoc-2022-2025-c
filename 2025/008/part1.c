@@ -9,40 +9,45 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     TRY_TYPE_MALLOC(_blk->_data, struct context);
     if (!_blk->_data)
         return ENOMEM;
-    context_h _ctx = CTX_CAST(_blk->_data);
-    parser_append(&_ctx->_parsers, &float3Dparser, _ctx);
+    context_h ctx = CTX_CAST(_blk->_data);
+    parser_append(&ctx->_parsers, &float3Dparser, ctx);
 
-    _ctx->_result = 0;
+    ctx->_segments = 1LU;
+    ctx->_regions = dyn3d1malloc(ctx->_segments, freeregion);
+    ctx->_result = 0;
     return 0;
 }
 
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
-    context_h _ctx = CTX_CAST(_blk->_data);
-    parse_all(&_ctx->_parsers, _blk->_str);
+    context_h ctx = CTX_CAST(_blk->_data);
+    parse_all(&ctx->_parsers, _blk->_str);
     return 0;
 }
 
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     context_h ctx = CTX_CAST(_blk->_data);
-    aoc_info("sorted list has size %*.lu", 3, ctx->_sortedjboxlist._size);
-    aoc_info("raw    list has size %*.lu", 3, ctx->_rawjboxlist._size);
+    dispatchpoints(ctx);
+    measuredistances(ctx);
+    size_t missing = printregions(ctx);
 
-    // sortdistances(&ctx->_rawjboxlist, &ctx->_distances);
-    // printdlist(&ctx->_distances, BGREEN);
-    DYNCUBICMALLOC(ctx->_regions, dll_head_h, (ctx->_segments + 3));
-    printplist(&ctx->_sortedjboxlist, BGREEN);
+    aoc_info("raw    list has size %*.1lu", 3, ctx->_rawjboxlist._size);
+    aoc_err("not measured         %3.1lu", missing);
+
     aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, ctx->_result);
     return 0;
 }
 
 static void freeSolution(struct solutionCtrlBlock_t *_blk)
 {
-    context_h _ctx = CTX_CAST(_blk->_data);
-    dll_free_all(&_ctx->_rawjboxlist, free);
-    dll_free_all(&_ctx->_sortedjboxlist, free);
-    dll_free_all(&_ctx->_distances, free);
+    context_h ctx = CTX_CAST(_blk->_data);
+
+    dll_free_all(&ctx->_rawjboxlist, free);
+    dll_free_all(&ctx->_distances, free);
+    dyn3dfree(ctx->_regions);
+    free(ctx->highest);
+    free(ctx->lowest);
     free(_blk->_data);
 }
 

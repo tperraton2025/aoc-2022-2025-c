@@ -22,7 +22,7 @@
     for (_it = _head_h->_first; _it != NULL; _it = _it->_next)
 
 #define LL_FOREACH_P_REV(_it, _head_h) \
-    dll_node_h _it;                \
+    dll_node_h _it;                    \
     for (_it = _head_h->_last; _it != NULL; _it = _it->_prev)
 
 #define LL_FOREACH(_it, _head) \
@@ -41,7 +41,7 @@
     for (_it = _head._last; _it != NULL; _it = _it->_prev)
 
 #define LL_FOREACH_REV(_it, _blk) \
-    dll_node_h _it;                \
+    dll_node_h _it;               \
     LL_FOREACH_REV_EXT(_it, _blk)
 
 #define LL_FOREACH_CODE_P(_it, _head, _code)                     \

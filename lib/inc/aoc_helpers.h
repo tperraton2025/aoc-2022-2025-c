@@ -46,6 +46,7 @@
 #define MAX_LINE_LEN (1024)
 
 #define ARR_FOREACH(_it, _arr) for (size_t _it = 0; _it < ARRAY_DIM(_arr); _it++)
+#define ARR_FOREACH_START(_it, _it0, _arr) for (size_t _it = _it0; _it < ARRAY_DIM(_arr); _it++)
 
 /* array of usize max size are deemed not possible */
 #define ARR_FOREACH_REV(_it, _arr) for (size_t _it = ARRAY_DIM(_arr) - 1; _it < __SIZE_MAX__; _it--)

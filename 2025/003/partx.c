@@ -129,7 +129,6 @@ size_t joltagepickallfeasible(joltchoice_h parent)
     return 0;
 }
 
-
 static char _strcomb[2048] = {0};
 char *strcomb(joltchoice_h choice)
 {
@@ -138,12 +137,12 @@ char *strcomb(joltchoice_h choice)
     joltchoice_h firstchx = choice;
     while (firstchx)
     {
-        void_dll_node_h step = malloc(sizeof(void_dll_node_t));
+        voidnode_h step = malloc(sizeof(voidnode_t));
         step->_data = (void *)firstchx->_selected;
         dll_node_append(&path, &step->_node);
         firstchx = (joltchoice_h)firstchx->_treenode._parent;
     }
-    void_dll_node_h pathnode = (void_dll_node_h)path._last;
+    voidnode_h pathnode = (voidnode_h)path._last;
     joltage_h lastchx = (joltage_h)pathnode->_data;
 
     char *_pen = &_strcomb[0];
@@ -158,7 +157,7 @@ char *strcomb(joltchoice_h choice)
             if (lastchx->_order == jolth->_order)
             {
                 _pen += sprintf(_pen, GREEN "%lu" RESET, jolth->_rating);
-                pathnode = (void_dll_node_h)pathnode->_node._prev;
+                pathnode = (voidnode_h)pathnode->_node._prev;
                 lastchx = pathnode ? (joltage_h)pathnode->_data : NULL;
             }
             else

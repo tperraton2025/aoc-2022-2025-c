@@ -26,7 +26,7 @@ int parsenum(void *arg, char *_str)
 
         if (1 == sscanf(_strpos, "%lu", &_newnum))
         {
-            intlistitem_h new = intlistnode_ctor();
+            intb10item_h new = intb10item_ctor();
             new->_int = base_10_conversion(_newnum);
             dll_node_append(&_prob->_params[_prob->_line], &new->_node);
             _anynummatch = true;
@@ -100,19 +100,6 @@ parser_t opsparser = {._func = parseops, ._name = "ops"};
 
 DLL_NODE_CTOR(charlistitem_t, charlistitem_ctor);
 
-intlistitem_h intlistnode_ctor()
-{
-    intlistitem_h _ret = malloc(sizeof(intlistitem_t));
-    return _ret;
-}
-
-void intlistnode_free(void *arg)
-{
-    intlistitem_h _ret = (intlistitem_h)arg;
-    free(_ret->_int);
-    free(arg);
-}
-
 void checkparseconsistency(context_h _ctx)
 {
     size_t _len = _ctx->_prob._params[0]._size;
@@ -143,7 +130,7 @@ size_t add(context_h _ctx)
     {
         if (!_ctx->_prob._paramnodes[_it])
             break;
-        _subresult += ((intlistitem_h)_ctx->_prob._paramnodes[_it])->_int->_val;
+        _subresult += ((intb10item_h)_ctx->_prob._paramnodes[_it])->_int->_val;
     }
     return _subresult;
 }
@@ -155,7 +142,7 @@ size_t multiply(context_h _ctx)
     {
         if (!_ctx->_prob._paramnodes[_it])
             break;
-        _subresult *= ((intlistitem_h)_ctx->_prob._paramnodes[_it])->_int->_val;
+        _subresult *= ((intb10item_h)_ctx->_prob._paramnodes[_it])->_int->_val;
     }
     return _subresult;
 }
@@ -170,7 +157,7 @@ size_t octoadd(context_h _ctx)
     {
         if (!_ctx->_prob._paramnodes[_it])
             break;
-        _highestorder = HIGHEST(_highestorder, ((intlistitem_h)_ctx->_prob._paramnodes[_it])->_int->_lastdigit);
+        _highestorder = HIGHEST(_highestorder, ((intb10item_h)_ctx->_prob._paramnodes[_it])->_int->_lastdigit);
     }
     for (size_t _order = _highestorder; _order < SIZE_MAX; _order--)
     {
@@ -178,7 +165,7 @@ size_t octoadd(context_h _ctx)
         {
             if (!_ctx->_prob._paramnodes[_it])
                 continue;
-            _octoconv->_digits[_it] = ((intlistitem_h)_ctx->_prob._paramnodes[_it])->_int->_digits[_order];
+            _octoconv->_digits[_it] = ((intb10item_h)_ctx->_prob._paramnodes[_it])->_int->_digits[_order];
         }
         _subresult += base_10_reverse_conversion(_octoconv);
         aoc_ans("+%lu", _octoconv->_val);
@@ -199,7 +186,7 @@ size_t octomult(context_h _ctx)
     {
         if (!_ctx->_prob._paramnodes[_it])
             break;
-        _highestorder = HIGHEST(_highestorder, ((intlistitem_h)_ctx->_prob._paramnodes[_it])->_int->_lastdigit);
+        _highestorder = HIGHEST(_highestorder, ((intb10item_h)_ctx->_prob._paramnodes[_it])->_int->_lastdigit);
     }
     for (size_t _order = _highestorder; _order < SIZE_MAX; _order--)
     {
@@ -207,7 +194,7 @@ size_t octomult(context_h _ctx)
         {
             if (!_ctx->_prob._paramnodes[_it])
                 break;
-            _octoconv->_digits[_it] = ((intlistitem_h)_ctx->_prob._paramnodes[_it])->_int->_digits[_order];
+            _octoconv->_digits[_it] = ((intb10item_h)_ctx->_prob._paramnodes[_it])->_int->_digits[_order];
         }
         _subresult *= base_10_reverse_conversion(_octoconv);
         aoc_ans("x%lu", _octoconv->_val);

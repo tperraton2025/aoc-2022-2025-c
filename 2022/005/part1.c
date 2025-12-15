@@ -21,7 +21,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     parser_append(&_ctx->_parsers, &blockparser, _ctx);
     parser_append(&_ctx->_parsers, &commandparser, &_ctx->_cmds);
- 
+
     coord_t _prelcoordmaxima = {._x = 2, ._y = 2};
 
     _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst, false);

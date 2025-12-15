@@ -9,13 +9,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-typedef struct intlistitem
-{
-    struct dll_node _node;
-    size_t _int;
-} intlistitem_t;
-typedef intlistitem_t *intlistitem_h;
-
 intlistitem_h intlistnode_ctor();
 
 static int parserange(void *arg, char *str)

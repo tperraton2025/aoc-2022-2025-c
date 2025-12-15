@@ -2,6 +2,7 @@
 #define AOC_LINKED_LIST_H
 
 #include <ll_types.h>
+#include <ll_items.h>
 #include <ll_defines.h>
 #include <stdbool.h>
 #include <string.h>
@@ -11,7 +12,6 @@
 #define LL_MAX_LEN_STR "10000000"
 
 #define NODE_CAST(_p) ((dll_node_h)_p)
-#define MAX_STR_DLL_LEN (1024)
 
 typedef struct dll_search
 {
@@ -60,10 +60,10 @@ dll_node_h dll_try_find_node_by_property(dll_node_h start, void *arg, bool (*equ
 
 void string_dll_free(void *string);
 
-string_dll_node_h string_dll(const char *const name);
+stringnode_h string_dll(const char *const name);
 
 dll_node_h string_dll_compare(dll_node_h _a, dll_node_h _b);
 
-int string_dll_rename(string_dll_node_h node, const char *const name);
+int string_dll_rename(stringnode_h node, const char *const name);
 
 #endif

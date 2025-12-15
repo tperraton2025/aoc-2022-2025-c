@@ -23,8 +23,9 @@ set_target_properties(
              LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
              RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-add_test(NAME ${ProjectId}
-         COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}" --exe
-                 "${ProjectId}test")
+add_test(
+  NAME ${ProjectId}
+  COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}" --exe
+          "${ProjectId}test")
 
 add_negative_test_regex(${ProjectId} "FAILED")

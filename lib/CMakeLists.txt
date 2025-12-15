@@ -7,7 +7,6 @@ enable_language(C)
 
 set(2D_ENGINE_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/tools.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/coordinates.c
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/input.c
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/cursor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/engine.c
@@ -16,7 +15,9 @@ add_library(
   libaochelpers
   aoc_solution.c
   aoc_linked_list.c
-  aoc_2d_dynarr.c
+  aoc_gen_ll.c
+  aoc_dynamic_array.c
+  aoc_coordinates.c
   aoc_parser.c
   aoc_stack.c
   aoc_ring_buffer.c

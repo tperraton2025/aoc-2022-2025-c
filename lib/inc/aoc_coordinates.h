@@ -11,13 +11,44 @@ typedef struct coord
     size_t _y;
 } coord_t;
 
-typedef struct coordpair
+typedef struct coordboundaries
 {
     coord_t _min;
     coord_t _max;
 } coordpair_t;
 
+typedef union uint2D
+{
+    struct
+    {
+        size_t _x;
+        size_t _y;
+    } _xy;
+    size_t _arr[2];
+} uint2D_t;
 
+typedef union uint3D
+{
+    struct
+    {
+        size_t _x;
+        size_t _y;
+        size_t _z;
+    } _xyz;
+    size_t _arr[3];
+} uint3D_t;
+typedef uint3D_t *uint3D_h;
+
+uint3D_t uintarray_ctor(size_t x, size_t y, size_t z);
+uint3D_t uintarray_sum(const uint3D_t *const a, const uint3D_t *const b);
+
+/**
+ * 3D size_t indexes for regions
+ */
+const char *const struint3D(const uint3D_t *const a);
+int adduint3D(uint3D_t *a, uint3D_t *b);
+
+int scanuint_array(size_t *arr, size_t min, size_t max, size_t dim);
 /*
  * Coordinates comparators
  */

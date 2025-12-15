@@ -1,5 +1,55 @@
+
 #include "aoc_coordinates.h"
 #include "aoc_ranges.h"
+
+uint3D_t uintarray_ctor(size_t x, size_t y, size_t z);
+
+uint3D_t uintarray_sum(const uint3D_t *const a, const uint3D_t *const b)
+{
+    uint3D_t sum = {0};
+    ARR_FOREACH(ind, a->_arr)
+    {
+        sum._arr[ind] = a->_arr[ind] + b->_arr[ind];
+    }
+    // printf("%lu %lu %lu\n", a->_xyz._x, a->_xyz._y, a->_xyz._z);
+    return sum;
+}
+
+int scanuint_array(size_t *array, size_t min, size_t max, size_t dim)
+{
+    assert(min < max);
+    bool carryover = false;
+    int ret = 0;
+    RANGE_FOR(ind, 0LU, dim)
+    {
+        assert(array[ind] < max + 1);
+        array[ind]++;
+        if (array[ind] > max)
+        {
+            array[ind] = min;
+            if (ind == dim - 1)
+            {
+                RANGE_FOR(clearind, 0LU, dim)
+                {
+                    array[clearind] = min;
+                }
+
+                return EOVERFLOW;
+            }
+            continue;
+        }
+        break;
+    }
+    /**
+     * debuging
+     * RANGE_FOR(ind, 0LU, dim)
+     * {
+     *     printf("%lu ", array[ind]);
+     * }
+     * printf("\n");
+     * */
+    return ret;
+}
 
 bool coord_dist_more_than_2(void *_a, void *_b)
 {

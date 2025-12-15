@@ -21,25 +21,6 @@ typedef struct
     size_t _line;
 } problem_t;
 
-typedef struct intlistitem
-{
-    struct dll_node _node;
-    base10_h _int;
-} intlistitem_t;
-typedef intlistitem_t *intlistitem_h;
-
-intlistitem_h intlistnode_ctor();
-void intlistnode_free(void *arg);
-
-typedef struct strlistitem
-{
-    struct dll_node _node;
-    char _char;
-} charlistitem_t;
-typedef charlistitem_t *charlistitem_h;
-
-charlistitem_h charlistitem_ctor();
-
 extern parser_t numparser;
 extern parser_t opsparser;
 extern parser_t octonumparser;

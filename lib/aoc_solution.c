@@ -94,8 +94,8 @@ int aocFileLessSolution(struct solutionCtrlBlock_t *_sol, int argc, char *argv[]
 
     clock_t end = clock();
     clock_t timelapse = end - start;
- 
-    double _ms = timelapse / (double)(CLOCKS_PER_SEC / 1000); 
+
+    double _ms = timelapse / (double)(CLOCKS_PER_SEC / 1000);
     aoc_info("returned %s in %4.3fms", strerror(ret), _ms);
 
     return ret;

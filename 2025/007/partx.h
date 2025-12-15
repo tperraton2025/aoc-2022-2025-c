@@ -1,6 +1,6 @@
 #include <aoc_helpers.h>
 #include <aoc_linked_list.h>
-#include <aoc_2d_dynarr.h>
+#include <aoc_dynamic_array.h>
 #include <aoc_2d_engine.h>
 #include <aoc_parser.h>
 #include <aoc_tree.h>
@@ -52,10 +52,11 @@ typedef struct context
 
 typedef context_t *context_h;
 
-typedef struct sizepair {
+typedef struct sizepair
+{
     size_t _0;
     size_t _1;
-}sizepair_t;
+} sizepair_t;
 
 #define CTX_CAST(_p) ((context_h)_p)
 
@@ -66,7 +67,7 @@ aoc_2d_obj_h beamfindsplit(aoc_2d_eng_h eng, aoc_2d_obj_h beam);
 aoc_2d_obj_h beamexplore(context_h ctx, aoc_2d_obj_h start);
 size_t beamexploit(context_h ctx, aoc_2d_obj_h obj);
 void beamsplit(context_h ctx, dll_node_h beamnode, aoc_2d_obj_h objunder);
- 
+
 memospawn_h *const getmemoentry(context_h ctx, aoc_2d_obj_h obj);
 void addmemoentry(context_h ctx, aoc_2d_obj_ref_h beamref, aoc_2d_obj_h newsplt);
 

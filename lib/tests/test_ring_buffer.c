@@ -18,7 +18,7 @@ void rb_test_suite();
 int rb_suite_create()
 {
     CU_pSuite suite = NULL;
-    // Add our suite to the registry
+    /** Add our suite to the registry */
     suite = CU_add_suite("AOC ring buffer tests", NULL, NULL);
     if (NULL == suite)
     {

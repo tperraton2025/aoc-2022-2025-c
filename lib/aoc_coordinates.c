@@ -11,7 +11,6 @@ uint3D_t uintarray_sum(const uint3D_t *const a, const uint3D_t *const b)
     {
         sum._arr[ind] = a->_arr[ind] + b->_arr[ind];
     }
-    // printf("%lu %lu %lu\n", a->_xyz._x, a->_xyz._y, a->_xyz._z);
     return sum;
 }
 

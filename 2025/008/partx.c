@@ -293,11 +293,7 @@ size_t printregions(context_h ctx)
         }
         validregioncount++;
         distances += (*region)->_size;
-        // aoc_info("%s region has %lu has points ", struint3D(&scanall), (*region)->_size);
-
         size_t missing = missingmeasures(*region);
-        // if (missing)
-        //     aoc_err("%lu distances not measured", missing);
         notmeasured += missing;
 
         sortdistances(*region, &ctx->_distances);

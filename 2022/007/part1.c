@@ -164,13 +164,10 @@ static int command_executor(aoc_context_h _ctx, char *_str)
     char _cmd[16] = {0};
     char _arg[16] = {0};
 
-    // printf("%s", _str);
     if (sscanf(_str, "$ %15s %15s", _cmd, _arg) > 0)
     {
         if (0 == strncmp("cd", _cmd, 15))
             _ctx->_cdir = cd(_ctx->_cdir, _arg);
-        // else if (0 == strncmp("ls", _cmd, 15))
-        //     uglyls((tree_node_h)_ctx->_cdir);
         assert(_ctx->_cdir);
     }
     return EINVAL;

@@ -37,7 +37,7 @@ static bool _string_node_equal(void *_a, void *_b);
 int ll_suite_create()
 {
     CU_pSuite suite = NULL;
-    // Add our suite to the registry
+    /** Add our suite to the registry */
     suite = CU_add_suite("AOC Linked list tests", NULL, NULL);
     if (NULL == suite)
     {

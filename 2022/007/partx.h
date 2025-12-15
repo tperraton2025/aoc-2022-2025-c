@@ -118,10 +118,8 @@ static fdir_t *cd(fdir_h _fsp, char *_str)
     }
     if (_npwd)
     {
-        // pwd(_npwd);
         return _npwd;
     }
-    // aoc_info("dir %s not found in %s", _str, _fsp->name);
     return _fsp;
 }
 
@@ -295,7 +293,6 @@ static void sum_files_above_mem_lim(void *arg, tree_node_h _a)
     LL_FOREACH(_dllfiles, _fsp->_content)
     {
         file_t *_f = (file_t *)_dllfiles;
-        // if (_f->size > PART1_MEM_LIM)
         _tot->totalMem += _f->size;
     }
 }

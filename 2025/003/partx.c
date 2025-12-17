@@ -137,13 +137,13 @@ char *strcomb(joltchoice_h choice)
     joltchoice_h firstchx = choice;
     while (firstchx)
     {
-        voidnode_h step = malloc(sizeof(voidnode_t));
-        step->_data = (void *)firstchx->_selected;
+        voidpnode_h step = malloc(sizeof(voidpnode_t));
+        step->_ptr = (void *)firstchx->_selected;
         dll_node_append(&path, &step->_node);
         firstchx = (joltchoice_h)firstchx->_treenode._parent;
     }
-    voidnode_h pathnode = (voidnode_h)path._last;
-    joltage_h lastchx = (joltage_h)pathnode->_data;
+    voidpnode_h pathnode = (voidpnode_h)path._last;
+    joltage_h lastchx = (joltage_h)pathnode->_ptr;
 
     char *_pen = &_strcomb[0];
 
@@ -157,8 +157,8 @@ char *strcomb(joltchoice_h choice)
             if (lastchx->_order == jolth->_order)
             {
                 _pen += sprintf(_pen, GREEN "%lu" RESET, jolth->_rating);
-                pathnode = (voidnode_h)pathnode->_node._prev;
-                lastchx = pathnode ? (joltage_h)pathnode->_data : NULL;
+                pathnode = (voidpnode_h)pathnode->_node._prev;
+                lastchx = pathnode ? (joltage_h)pathnode->_ptr : NULL;
             }
             else
                 _pen += sprintf(_pen, RED "%lu" RESET, jolth->_rating);

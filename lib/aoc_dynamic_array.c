@@ -8,8 +8,8 @@ dyn2darr_h dyn2d1malloc(const coord_t _len, void dealloc(void *arg))
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_1_BLOCK;
 
-    array->_map = malloc((_len._y + 1) * (_len._x + 1) * sizeof(void *));
-    memset(array->_map, 0, (_len._y + 1) * (_len._x + 1) * sizeof(void *));
+    array->_map = malloc((_len._y) * (_len._x) * sizeof(void *));
+    memset(array->_map, 0, (_len._y) * (_len._x) * sizeof(void *));
 
     return array;
 }
@@ -57,7 +57,7 @@ void dyn2dfree(dyn2darr_h array)
             if (scan._xy._y && !scan._xy._x && cellp)
                 free(cellp);
         }
-    } while (!scanuint_array(scan._arr, 0LU, array->_len._x, ARRAY_DIM(scan._arr)));
+    } while (!scanuint3d(&scan, array->_len._x - 1));
 
     FREE(array->_map);
     FREE(array);
@@ -68,25 +68,30 @@ dyn3darr_h dyn3d1malloc(const size_t _len, void dealloc(void *arg))
     dyn3darr_h array;
     TRY_TYPE_MALLOC(array, dyn3darr_t);
     array->_len = _len;
+    assert(array->_len != 1LU);
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_1_BLOCK;
 
-    size_t blocksize = (_len + 1) * (_len + 1) * (_len + 1) * sizeof(void *);
+    size_t blocksize = (_len) * (_len) * (_len) * sizeof(void *);
     array->_map = malloc(blocksize);
     assert(array->_map);
     memset(array->_map, 0, blocksize);
-
-    uint3D_t scan = {0};
-    do
-    {
-        void **test = dyn3dget(array, &scan);
-        assert(*test == NULL);
-    } while (!scanuint_array(scan._arr, 0LU, array->_len, ARRAY_DIM(scan._arr)));
-
+    /** this debug test might be useful in the future.
+        uint3D_t scan = {0};
+        do
+        {
+            void **test = dyn3dget(array, &scan);
+            *test = NULL;
+        } while (!scanuint3d(scan._arr, 0LU, array->_len - 1, ARRAY_DIM(scan._arr)));
+    */
     return array;
 }
 
-/** only for the sake of actual understanding. The number of allocation is a strong penalty */
+/**
+ * Only for the sake of actual understanding.
+ * The number of allocation is too strong of a penalty
+ * */
+
 dyn3darr_h dyn3dMmalloc(const size_t _len, void dealloc(void *arg))
 {
     dyn3darr_h array;
@@ -94,7 +99,7 @@ dyn3darr_h dyn3dMmalloc(const size_t _len, void dealloc(void *arg))
     array->_len = _len;
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_M_BLOCK;
-    const size_t arraydim = (_len + 1) * sizeof(void *);
+    const size_t arraydim = (_len) * sizeof(void *);
 
     /** allocation for all pointers on z axis */
     array->_map = malloc(arraydim);
@@ -103,13 +108,13 @@ dyn3darr_h dyn3dMmalloc(const size_t _len, void dealloc(void *arg))
     /** now it starts (T-T) */
     void *****map = (void *****)&array->_map;
 
-    RANGE_FOR(itz, 0LU, (_len + 1))
+    RANGE_FOR(itz, 0LU, (_len))
     {
         /** allocation for all pointers on y axis */
         (*map)[itz] = malloc(arraydim);
         memset((*map)[itz], 0, _len);
 
-        RANGE_FOR(ity, 0LU, (_len + 1))
+        RANGE_FOR(ity, 0LU, (_len))
         {
             /** allocation for all pointers on x axis */
             (*map)[itz][ity] = malloc(arraydim);
@@ -151,7 +156,7 @@ void dyn3dfree(dyn3darr_h array)
             if (scan._xyz._z && !scan._xyz._y && !scan._xyz._x)
                 free(((void ****)array->_map)[scan._xyz._z - 1]);
         }
-    } while (!scanuint_array(scan._arr, 0LU, array->_len, ARRAY_DIM(scan._arr)));
+    } while (!scanuint3d(&scan, array->_len - 1));
 
     FREE(array->_map);
     FREE(array);
@@ -160,9 +165,17 @@ void dyn3dfree(dyn3darr_h array)
 void **dyn3dget(dyn3darr_h array, uint3D_h cell)
 {
     if (array->_alloctype == ALLOC_TYPE_1_BLOCK)
+    {
+        if ((cell->_xyz._x) >= array->_len ||
+            (cell->_xyz._y) >= array->_len ||
+            (cell->_xyz._z) >= array->_len)
+        {
+            aoc_alarm("bad regions scanning %s", struint3D(cell));
+        }
         return &(((void **)array->_map)[(cell->_xyz._x) +
-                                        (cell->_xyz._y * array->_len) +
-                                        (cell->_xyz._z * array->_len * array->_len)]);
+                                        (cell->_xyz._y * (array->_len)) +
+                                        (cell->_xyz._z * (array->_len) * (array->_len))]);
+    }
     else if (array->_alloctype == ALLOC_TYPE_M_BLOCK)
         return &(((void ****)array->_map)[cell->_xyz._z][cell->_xyz._y][cell->_xyz._x]);
     else
@@ -172,7 +185,7 @@ void **dyn3dget(dyn3darr_h array, uint3D_h cell)
 void **dyn2dget(dyn3darr_h array, coord_t *cell)
 {
     if (array->_alloctype == ALLOC_TYPE_1_BLOCK)
-        return &((void **)array->_map)[cell->_x + cell->_y * array->_len];
+        return &((void **)array->_map)[cell->_x + cell->_y * (array->_len)];
     else if (array->_alloctype == ALLOC_TYPE_M_BLOCK)
         return &((void ***)array->_map)[cell->_y][cell->_x];
     else

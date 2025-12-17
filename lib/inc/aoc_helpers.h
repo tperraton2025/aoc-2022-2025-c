@@ -52,7 +52,11 @@
 #define ARR_FOREACH_REV(_it, _arr) for (size_t _it = ARRAY_DIM(_arr) - 1; _it < __SIZE_MAX__; _it--)
 #define RANGE_FOR(_it, _start, _end) for (size_t _it = _start; _it < _end; _it++)
 
+#define STR_BUFF_LEN(_str) (sizeof(_str))
+#define STR_BUFFER(name, default) static char name[] = default;
+
 #define aoc_info(_fmt, ...) printf(_fmt "\r\n", __VA_ARGS__);
+#define aoc_alarm(_fmt, ...) printf(RED "!!!!\t" _fmt "\t!!!!\r\n" RESET, __VA_ARGS__);
 #define aoc_err(_fmt, ...) printf(RED _fmt RESET "\r\n", __VA_ARGS__);
 #define aoc_warn(_fmt, ...) printf(YELLOW _fmt RESET "\r\n", __VA_ARGS__);
 #define aoc_ans(_fmt, ...)                             \

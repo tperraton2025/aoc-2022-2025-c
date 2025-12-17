@@ -90,7 +90,7 @@ void ll_test_suite()
     ASSERT_LL_INTEGRITY(_ll, _str1, _str2, _str3, _str4);
 
     CU_ASSERT(1 == dll_count_nodes_by_property(&_ll, _str4->_str, _string_node_equal));
-    CU_ASSERT(_str4 == TS_CAST(dll_find_node_by_property(&_ll, _str4->_str, _string_node_equal)));
+    CU_ASSERT(_str4 == TS_CAST(dll_node_find_by_property(&_ll, _str4->_str, _string_node_equal)));
 
     dll_free_all(&_ll, free_test_string);
     aoc_info("%s", "ll_test_suite: all tests were ran");

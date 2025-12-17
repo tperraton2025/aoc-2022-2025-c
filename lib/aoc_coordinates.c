@@ -2,9 +2,9 @@
 #include "aoc_coordinates.h"
 #include "aoc_ranges.h"
 
-uint3D_t uintarray_ctor(size_t x, size_t y, size_t z);
+uint3D_t uint3d_ctor(size_t x, size_t y, size_t z);
 
-uint3D_t uintarray_sum(const uint3D_t *const a, const uint3D_t *const b)
+uint3D_t uint3d_sum(const uint3D_t *const a, const uint3D_t *const b)
 {
     uint3D_t sum = {0};
     ARR_FOREACH(ind, a->_arr)
@@ -14,23 +14,117 @@ uint3D_t uintarray_sum(const uint3D_t *const a, const uint3D_t *const b)
     return sum;
 }
 
-int scanuint_array(size_t *array, size_t min, size_t max, size_t dim)
+bool uint3d_eq(const uint3D_t *const a, const uint3D_t *const b)
 {
-    assert(min < max);
+    return !memcmp(a->_arr, b->_arr, 3LU);
+}
+
+STR_BUFFER(_struint3D, "[000:000:000] ");
+const char *const struint3D(const uint3D_t *const a)
+{
+    snprintf(_struint3D, sizeof(_struint3D) - 1, "[%lu,%lu,%lu]", a->_xyz._x, a->_xyz._y, a->_xyz._z);
+    return _struint3D;
+}
+
+int expuint3d(uint3D_t *array, uint3D_t *max)
+{
+    size_t *_max = max->_arr;
+    size_t *_arr = array->_arr;
+    bool carryover = false;
+    int ret = 0;
+    bool couldinc = false;
+    RANGE_FOR(ind, 0LU, 3LU)
+    {
+        if (_arr[ind] < _max[ind])
+        {
+            _arr[ind]++;
+            couldinc = true;
+        }
+    }
+    return couldinc ? 0 : EOVERFLOW;
+}
+
+int shruint3d(uint3D_t *array, uint3D_t *min)
+{
+    size_t *_min = min->_arr;
+    size_t *_arr = array->_arr;
+
+    bool carryover = false;
+    int ret = 0;
+    bool coulddec = false;
+    RANGE_FOR(ind, 0LU, 3LU)
+    {
+        if (_arr[ind] > _min[ind])
+        {
+            _arr[ind]--;
+            coulddec = true;
+        }
+    }
+    return coulddec ? 0 : ERANGE;
+}
+
+int bscanuint3d(uint3D_t *array, uint3D_t *min, uint3D_t *max)
+{
+    size_t *_array = array->_arr;
+    size_t *_min = min->_arr;
+    size_t *_max = max->_arr;
+
+    for (size_t ind = 3LU - 1; ind < __SIZE_MAX__; ind--)
+    {
+        if (_min[ind] <= _max[ind])
+            break;
+        assert(_min[ind] <= _max[ind]);
+    }
+
+    bool carryover = false;
+    int ret = 0;
+    RANGE_FOR(ind, 0LU, 3LU)
+    {
+        _array[ind]++;
+        if (_array[ind] > _max[ind])
+        {
+            _array[ind] = _min[ind];
+            if (ind == 3LU - 1)
+            {
+                RANGE_FOR(clearind, 0LU, 3LU)
+                {
+                    _array[clearind] = _min[clearind];
+                }
+                return EOVERFLOW;
+            }
+            continue;
+        }
+        break;
+    }
+    /**
+     * debuging
+     * RANGE_FOR(ind, 0LU, 3LU)
+     * {
+     *     printf("%lu ", array[ind]);
+     * }
+     * printf("\n");
+     * */
+    return ret;
+}
+
+int scanuint(uint3D_t *array, size_t max, size_t dim)
+{
+    size_t *_array = array->_arr;
+
     bool carryover = false;
     int ret = 0;
     RANGE_FOR(ind, 0LU, dim)
     {
-        assert(array[ind] < max + 1);
-        array[ind]++;
-        if (array[ind] > max)
+        assert(_array[ind] < max + 1);
+        _array[ind]++;
+        if (_array[ind] > max)
         {
-            array[ind] = min;
+            _array[ind] = 0LU;
             if (ind == dim - 1)
             {
                 RANGE_FOR(clearind, 0LU, dim)
                 {
-                    array[clearind] = min;
+                    _array[clearind] = 0LU;
                 }
 
                 return EOVERFLOW;
@@ -41,7 +135,7 @@ int scanuint_array(size_t *array, size_t min, size_t max, size_t dim)
     }
     /**
      * debuging
-     * RANGE_FOR(ind, 0LU, dim)
+     * RANGE_FOR(ind, 0LU, 3LU)
      * {
      *     printf("%lu ", array[ind]);
      * }

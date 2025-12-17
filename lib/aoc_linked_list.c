@@ -11,6 +11,13 @@ void dll_head_init(dll_head_h head)
     head->_size = 0;
 }
 
+dll_head_h dll_head_ctor()
+{
+    dll_head_h new = NULL;
+    TRY_TYPE_MALLOC(new, dll_head_t);
+    return new;
+}
+
 void dll_free_all(dll_head_h head, void (*_caller)(void *_data))
 {
     assert(head && "Linked list context is NULL");
@@ -72,6 +79,56 @@ int dll_node_sorted_insert(dll_head_h head, dll_node_h _new, dll_compare sort)
     dll_node_h _afterNew = NULL;
     LL_FOREACH_P_EXT(_afterNew, head)
     {
+        if (!_afterNew)
+            break;
+        if (_new == sort(_afterNew, _new))
+        {
+            break;
+        }
+    }
+    if (_afterNew)
+        return dll_node_insert_before(head, _new, _afterNew);
+    else
+        return dll_node_append(head, _new);
+}
+
+int dll_node_sorted_insert_if_absent(dll_head_h head, dll_node_h new, dll_compare sort, dll_equal excl)
+{
+    assert(head && new && "NULL pointer in dll_node_append");
+    if (head->_size > LL_MAX_LEN_LUI)
+        return ENOSPC;
+    if (!sort)
+        return dll_node_append(head, new);
+    dll_node_h _afterNew = NULL;
+    LL_FOREACH_P_EXT(_afterNew, head)
+    {
+        if (!_afterNew)
+            break;
+        if (new == sort(_afterNew, new))
+        {
+            if (excl(new, _afterNew))
+                return EALREADY;
+            break;
+        }
+    }
+    if (_afterNew)
+        return dll_node_insert_before(head, new, _afterNew);
+    else
+        return dll_node_append(head, new);
+}
+
+int dll_node_sorted_insert_rev(dll_head_h head, dll_node_h _new, dll_compare sort)
+{
+    assert(head && _new && "NULL pointer in dll_node_append");
+    if (head->_size > LL_MAX_LEN_LUI)
+        return ENOSPC;
+    if (!sort)
+        return dll_node_insert_before(head, _new, head->_first);
+    dll_node_h _afterNew = NULL;
+    LL_FOREACH_P_EXT(_afterNew, head)
+    {
+        if (!_afterNew)
+            break;
         if (_new == sort(_afterNew, _new))
         {
             break;
@@ -201,6 +258,7 @@ void dll_node_disconnect(dll_head_h head, dll_node_h _a)
      *
      * debugging  tweak:
      */
+
     /*
         dll_node_h _prev = _a->_prev;
         dll_node_h _next = _a->_prev; */
@@ -254,6 +312,8 @@ int dll_find_node(dll_head_h head, dll_node_h _a)
 {
     LL_FOREACH_P(_node, head)
     {
+        if (!_node)
+            break;
         if (!_node->_next)
             break;
         if (_node == _a)
@@ -314,7 +374,7 @@ int dll_foreach_node_with_args(dll_head_h head, void *args, bool (*func)(void *_
     return 0;
 }
 
-dll_node_h dll_find_node_by_property(dll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b))
+dll_node_h dll_node_find_by_property(dll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b))
 {
     if (!head || !equal)
         return NULL;
@@ -505,6 +565,19 @@ dll_search_t *newdllsearch(const char *const name, void *arg, bool matchtest(voi
     return search;
 }
 
-dll_node_h incr(dll_head_h head)
+int dll_join(dll_head_h dlla, dll_head_h dllb)
 {
+    assert(dlla->_size + dllb->_size < LL_MAX_LEN_LUI);
+    if (dlla->_size + dllb->_size > LL_MAX_LEN_LUI)
+        return ENOSPC;
+
+    if (!dllb->_size)
+        return 0;
+
+    dlla->_last->_next = dllb->_first;
+    dllb->_first->_prev = dlla->_last;
+
+    dlla->_last = dllb->_last;
+    dlla->_size += dllb->_size;
+    return 0;
 }

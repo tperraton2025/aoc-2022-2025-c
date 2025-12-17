@@ -9,7 +9,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-intlistitem_h intlistnode_ctor();
 
 static int parserange(void *arg, char *str)
 {
@@ -29,19 +28,15 @@ static int parseitem(void *arg, char *str)
 {
     dll_head_h _itlist = (dll_head_h)arg;
     size_t _item = 0;
-    if (1 == sscanf(str, "%lu\n", &_item))
-    {
-        intlistitem_h nintlist = intlistnode_ctor();
-        nintlist->_int = _item;
-        dll_node_append(_itlist, &nintlist->_node);
-    }
+    if (1 == sscanf(str, "%lu\n", &_item)) 
+        dll_node_append(_itlist, intnode_ctor(_item));  
     return 0;
 }
 
 static parser_t _rangeparser = {._name = "ranges", ._func = parserange};
 static parser_t _itemparser = {._name = "items", ._func = parseitem};
 
-static bool checkexpired(rangelist_h list, intlistitem_h item)
+static bool checkexpired(rangelist_h list, intnode_h item)
 {
     LL_FOREACH(_rangen, list->_head)
     {

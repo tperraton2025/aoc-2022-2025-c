@@ -111,7 +111,7 @@ static void freeSolution(struct solutionCtrlBlock_t *_blk)
 
     ARR_FOREACH(_it, _ctx->_prob._params)
     {
-        dll_free_all(&_ctx->_prob._params[_it], intb10item_free);
+        dll_free_all(&_ctx->_prob._params[_it], intb10node_free);
     }
     dll_free_all(&_ctx->_prob._ops, free);
 

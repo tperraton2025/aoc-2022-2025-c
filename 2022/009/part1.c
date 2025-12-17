@@ -60,7 +60,7 @@ static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 
     _npos->_coord._x = _pos->_x;
     _npos->_coord._y = _pos->_y;
-    if (NULL == dll_find_node_by_property(&_ctx->_tailPos, (void *)_npos, coord_equal))
+    if (NULL == dll_node_find_by_property(&_ctx->_tailPos, (void *)_npos, coord_equal))
         return dll_node_append(&_ctx->_tailPos, NODE_CAST(_npos));
     else
         FREE(_npos);

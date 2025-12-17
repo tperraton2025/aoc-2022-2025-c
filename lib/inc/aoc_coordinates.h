@@ -39,8 +39,9 @@ typedef union uint3D
 } uint3D_t;
 typedef uint3D_t *uint3D_h;
 
-uint3D_t uintarray_ctor(size_t x, size_t y, size_t z);
-uint3D_t uintarray_sum(const uint3D_t *const a, const uint3D_t *const b);
+uint3D_t uint3d_ctor(size_t x, size_t y, size_t z);
+uint3D_t uint3d_sum(const uint3D_t *const a, const uint3D_t *const b);
+bool uint3d_eq(const uint3D_t *const a, const uint3D_t *const b);
 
 /**
  * 3D size_t indexes for regions
@@ -48,7 +49,13 @@ uint3D_t uintarray_sum(const uint3D_t *const a, const uint3D_t *const b);
 const char *const struint3D(const uint3D_t *const a);
 int adduint3D(uint3D_t *a, uint3D_t *b);
 
-int scanuint_array(size_t *arr, size_t min, size_t max, size_t dim);
+#define scanuint2d(arr, max) (scanuint, max, 2LU)
+#define scanuint3d(arr, max) (scanuint, max, 3LU)
+
+int scanuint(uint3D_t *array, size_t max, size_t dim);
+int expuint3d(uint3D_t *array, uint3D_t *max);
+int shruint3d(uint3D_t *array, uint3D_t *min);
+int bscanuint3d(uint3D_t *array, uint3D_t *min, uint3D_t *max);
 /*
  * Coordinates comparators
  */

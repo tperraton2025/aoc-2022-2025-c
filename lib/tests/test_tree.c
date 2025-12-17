@@ -119,7 +119,7 @@ static int tree_node_integrity(test_string_t *_string, test_str_arr_t *_expct)
             if (_expct->_len)
             {
                 test_string_t *_child_tstr = _expct->_arr[_ii];
-                dll_node_h _found_node = dll_find_node_by_property(&_string->_node._dllchildren, _child_tstr->_str, string_node_equal);
+                dll_node_h _found_node = dll_node_find_by_property(&_string->_node._dllchildren, _child_tstr->_str, string_node_equal);
 
                 CU_ASSERT(NULL != _found_node)
                 if (0 == _ii)

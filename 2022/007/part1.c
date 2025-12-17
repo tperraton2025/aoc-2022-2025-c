@@ -71,7 +71,7 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CAST(struct context *, _blk->_data);
     aoc_tree_free_all(&_ctx->_root->path);
-    dll_free_all(&_ctx->_cmds, string_dll_free);
+    dll_free_all(&_ctx->_cmds, stringnode_free);
     FREE(_ctx->_root);
     FREE(_blk->_data);
 }
@@ -126,7 +126,7 @@ static int parsecommand(void *arg, char *_str)
 
     if (sscanf(_str, "$ %" MAX_NAME_LEN_AS_STR "s %" MAX_NAME_LEN_AS_STR "s", _cmd, _arg) > 0)
     {
-        stringnode_t *_ncom = string_dll(_str);
+        stringnode_t *_ncom = stringnode_ctor(_str);
         dll_node_append(&_ctx->_cmds, &_ncom->_node);
 
         if (0 == strncmp("cd", _cmd, MAX_NAME_LEN_AS_USIZE))

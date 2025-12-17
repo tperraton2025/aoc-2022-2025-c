@@ -42,7 +42,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     LL_FOREACH(_itemn, _ctx->_items)
     {
-        intlistitem_h _itemh = (intlistitem_h)_itemn;
+        intnode_h _itemh = (intnode_h)_itemn;
         if (checkexpired(_ctx->_ranges, _itemh))
             _ctx->_result++;
     }

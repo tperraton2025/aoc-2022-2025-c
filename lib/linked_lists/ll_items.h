@@ -13,21 +13,23 @@ typedef struct stringnode
     char *_str;
 } stringnode_t;
 typedef stringnode_t *stringnode_h;
+void stringnode_free(void *string);
 
-typedef struct voidnode
+typedef struct voidpnode
 {
     struct dll_node _node;
-    void *_data;
-} voidnode_t;
-typedef voidnode_t *voidnode_h;
+    void *_ptr;
+} voidpnode_t;
+typedef voidpnode_t *voidpnode_h;
+dll_node_h voidpnode_ctor(void *ptr);
 
-typedef struct intlistitem
+typedef struct intnode
 {
     struct dll_node _node;
     size_t _int;
-} intlistitem_t;
-typedef intlistitem_t *intlistitem_h;
-intlistitem_h intlistnode_ctor();
+} intnode_t;
+typedef intnode_t *intnode_h;
+dll_node_h intnode_ctor();
 
 typedef struct charlistitem
 {
@@ -42,11 +44,11 @@ typedef struct intb10item
 {
     struct dll_node _node;
     base10_h _int;
-} intb10item_t;
-typedef intb10item_t *intb10item_h;
+} intb10node_t;
+typedef intb10node_t *intb10node_h;
 
-intb10item_h intb10item_ctor();
-void intb10item_free(void *arg);
+intb10node_h intb10node_ctor();
+void intb10node_free(void *arg);
 
 typedef struct floatnode
 {
@@ -54,7 +56,7 @@ typedef struct floatnode
     float _val;
 } floatnode_t;
 typedef floatnode_t *floatnode_h;
-floatnode_h floatnode_ctor(float val);
+dll_node_h floatnode_ctor(float val);
 
 typedef struct float3D
 {
@@ -71,6 +73,7 @@ typedef struct float3Dnode_h
     float3D_t _data;
 } float3Dnode_t;
 typedef float3Dnode_t *float3Dnode_h;
-float3Dnode_h float3Dnode_ctor(const float3D_t const data);
+dll_node_h float3Dnode_ctor(const float3D_t const data);
 
+dll_node_h intcomphighest(dll_node_h arga, dll_node_h argb);
 #endif

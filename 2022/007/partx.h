@@ -147,7 +147,7 @@ static void uglyls(tree_node_h _dir)
         file_t *_f = (file_t *)_dllfiles;
         char *_fname = malloc(strlen("0000000000000000000") + strlen(_f->name) + 1);
         sprintf(_fname, "%ld %s", _f->size, _f->name);
-        stringnode_h _nName = string_dll(_fname);
+        stringnode_h _nName = stringnode_ctor(_fname);
         dll_node_sorted_insert(&namelist, &_nName->_node, uglyls_compare);
         FREE(_fname);
     }
@@ -156,7 +156,7 @@ static void uglyls(tree_node_h _dir)
         fdir_t *_d = (fdir_t *)_dllsubdirs;
         char *_dname = malloc(strlen("dir ") + strlen(_d->name) + 1);
         sprintf(_dname, "dir %s", _d->name);
-        stringnode_h _nName = string_dll(_dname);
+        stringnode_h _nName = stringnode_ctor(_dname);
         dll_node_sorted_insert(&namelist, &_nName->_node, uglyls_compare);
         FREE(_dname);
     }
@@ -164,7 +164,7 @@ static void uglyls(tree_node_h _dir)
     {
         printf("%s\n", ((stringnode_t *)_sdll)->_str);
     }
-    dll_free_all(&namelist, string_dll_free);
+    dll_free_all(&namelist, stringnode_free);
 }
 
 static void ls(tree_node_h _dir)

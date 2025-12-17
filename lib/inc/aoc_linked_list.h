@@ -27,6 +27,8 @@ typedef struct dll_search_t *dll_search_h;
 
 dll_search_t *newdllsearch(const char *const name, void *arg, bool matchtest(void *a, void *b), bool continuetest(void *a, void *b));
 dll_search_t *dllsearchnode_ctor();
+dll_head_h dll_head_ctor();
+
 
 void dll_head_init(dll_head_h head);
 int dll_sort(dll_head_h head, dll_compare(*comp));
@@ -34,7 +36,8 @@ void dll_free_all(dll_head_h head, void (*_caller)(void *_data));
 
 void dll_foreach(dll_head_h head, void *arg, void(func)(void *arga, void *argb));
 
-int dll_node_append(dll_head_h head, dll_node_h _new);
+int dll_node_append(dll_head_h head, dll_node_h _new); 
+
 int dll_find_node(dll_head_h head, dll_node_h _a);
 int dll_node_insert_before(dll_head_h head, dll_node_h _a, dll_node_h _b);
 int dll_node_insert_after(dll_head_h head, dll_node_h _a, dll_node_h _b);
@@ -50,20 +53,25 @@ void dll_node_disconnect(dll_head_h head, dll_node_h _a);
 
 size_t dll_size(dll_head_h head);
 void dll_node_free(dll_head_h head, dll_node_h *_a, void func(void *));
+
+/** methods by property  */
+int dll_node_sorted_insert_by_property(dll_head_h head, dll_node_h _new, void *prop, dll_equal sort);
+int dll_node_sorted_insert_if_absent(dll_head_h head, dll_node_h new, dll_compare sort, dll_equal excl);
+
 size_t dll_count_nodes_by_property(dll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b));
 size_t dll_try_count_nodes_by_property(dll_node_h start, void *arg, bool (*equal)(void *_a, void *_b), bool (*stop)(void *_a, void *_b));
+dll_node_h dll_node_find_by_property(dll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b));
+dll_node_h dll_try_find_node_by_property(dll_node_h start, void *arg, bool (*equal)(void *_a, void *_b), bool (*stop)(void *_a, void *_b));
 
 dll_head_h dll_clone(dll_head_h head, size_t nodesize);
 dll_head_h dll_clone_sorted(dll_head_h head, dll_compare(*comp), size_t nodesize);
-dll_node_h dll_find_node_by_property(dll_head_h head, void *_prop, bool (*equal)(void *_a, void *_b));
-dll_node_h dll_try_find_node_by_property(dll_node_h start, void *arg, bool (*equal)(void *_a, void *_b), bool (*stop)(void *_a, void *_b));
 
-void string_dll_free(void *string);
+int dll_join(dll_head_h dlla, dll_head_h dllb);
 
-stringnode_h string_dll(const char *const name);
+stringnode_h stringnode_ctor(const char *const name);
 
-dll_node_h string_dll_compare(dll_node_h _a, dll_node_h _b);
+dll_node_h stringnode_compare(dll_node_h _a, dll_node_h _b);
 
-int string_dll_rename(stringnode_h node, const char *const name);
+int stringnode_rename(stringnode_h node, const char *const name);
 
 #endif

@@ -25,7 +25,10 @@ struct dll_node
 typedef struct dll_node dll_node_t;
 typedef struct dll_node *dll_node_h;
 
+typedef bool(dll_equal)(dll_node_h _a, dll_node_h _b);
 typedef dll_node_h(dll_compare)(dll_node_h _a, dll_node_h _b);
 typedef dll_node_h(dll_exp_compare)(dll_node_h _a, dll_node_h _b, dll_node_h _c);
+
+typedef int(dll_test)(dll_node_h _a, dll_node_h _b);
 
 #endif

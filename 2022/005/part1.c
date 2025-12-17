@@ -235,7 +235,7 @@ static int parseblock(void *arg, char *_str)
             if (ret)
                 break;
         }
-        if (!dll_find_node_by_property(&_ctx->_columns, &_ctx->_pos._x, coord_same_column))
+        if (!dll_node_find_by_property(&_ctx->_columns, &_ctx->_pos._x, coord_same_column))
         {
             coord_tracker_h _trck = coordtrackernode_ctor();
             _trck->_coord._x = _ctx->_pos._x;

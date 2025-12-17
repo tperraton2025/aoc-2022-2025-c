@@ -1,4 +1,5 @@
 add-auto-load-safe-path ./
+set confirm off
 
 define bs
 make all -j10

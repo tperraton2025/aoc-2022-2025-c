@@ -1,57 +1,90 @@
 #include "partx.h"
 
-void freeregion(void *arg)
+void pointnode_free(void *arg)
 {
-    dll_free_all((dll_head_h)arg, free);
+    dll_free_all(&((pointnode_h)arg)->_connections, free);
     free(arg);
 }
 
-DLL_NODE_CTOR(distnode_t, distnode_ctor);
+void freeregion(void *arg)
+{
+    dll_free_all((dll_head_h)arg, pointnode_free);
+    free(arg);
+}
+
+dll_node_h pointnode_ctor(float3D_h p3dref)
+{
+    pointnode_h npointnode = NULL;
+    TRY_TYPE_MALLOC(npointnode, pointnode_t);
+    npointnode->_f3d = p3dref;
+    npointnode->_shortestdist = 9000000000000.0f;
+    return &npointnode->_node;
+}
+
+dll_node_h pointrefnode_ctor(float dist, pointnode_h pointa, pointnode_h pointb)
+{
+    pointrefnode_h ret = NULL;
+    TRY_TYPE_MALLOC(ret, pointrefnode_t);
+    ret->_dist = dist;
+    ret->_first_point = pointa;
+    ret->_second_point = pointb;
+    return &ret->_node;
+}
+
+bool areonoftwopoints(void *arga, void *argb)
+{
+    return ((float3D_h *)argb)[0] == ((pointnode_h)((voidpnode_h)arga)->_ptr)->_f3d ||
+           ((float3D_h *)argb)[1] == ((pointnode_h)((voidpnode_h)arga)->_ptr)->_f3d;
+}
+
+bool aresamepoints(void *arga, void *argb)
+{
+    return ((float3D_h)argb) == ((pointnode_h)((voidpnode_h)arga)->_ptr)->_f3d;
+}
+
+bool issamepairofpoints(dll_node_h arga, dll_node_h argb)
+{
+    return ((pointrefnode_h)arga)->_first_point == ((pointrefnode_h)argb)->_second_point &&
+           ((pointrefnode_h)arga)->_second_point == ((pointrefnode_h)argb)->_first_point;
+}
 
 dll_node_h is_B_or_C_nearest_A(dll_node_h _a, dll_node_h _b, dll_node_h _c);
 
 int parse3dcoordinates(void *arg, char *str)
 {
     context_h ctx = (context_h)arg;
-    if (!ctx->lowest)
+    if (!ctx->_lowest)
     {
-        ctx->lowest = float3Dnode_ctor(float3D_ctor(0.0f, 0.0f, 0.0f));
-        ctx->highest = float3Dnode_ctor(float3D_ctor(0.0f, 0.0f, 0.0f));
+        ctx->_lowest = (float3Dnode_h)float3Dnode_ctor(float3D_ctor(0.0f, 0.0f, 0.0f));
+        ctx->_highest = (float3Dnode_h)float3Dnode_ctor(float3D_ctor(0.0f, 0.0f, 0.0f));
     }
     float sx, sy, sz;
     if (3 == sscanf(str, "%f,%f,%f", &sx, &sy, &sz))
     {
-        float3Dnode_h n3d = float3Dnode_ctor(float3D_ctor(sx, sy, sz));
-        dll_node_append(&ctx->_rawjboxlist, &n3d->_node);
-        ctx->highest->_data._x = HIGHEST(ctx->highest->_data._x, sx);
-        ctx->highest->_data._y = HIGHEST(ctx->highest->_data._y, sy);
-        ctx->highest->_data._z = HIGHEST(ctx->highest->_data._x, sz);
-        ctx->lowest->_data._x = LOWEST(ctx->lowest->_data._x, sx);
-        ctx->lowest->_data._y = LOWEST(ctx->lowest->_data._y, sy);
-        ctx->lowest->_data._z = LOWEST(ctx->lowest->_data._z, sz);
+        dll_node_append(&ctx->_inputpoints, float3Dnode_ctor(float3D_ctor(sx, sy, sz)));
+        ctx->_highest->_data._x = HIGHEST(ctx->_highest->_data._x, sx);
+        ctx->_highest->_data._y = HIGHEST(ctx->_highest->_data._y, sy);
+        ctx->_highest->_data._z = HIGHEST(ctx->_highest->_data._x, sz);
+        ctx->_lowest->_data._x = LOWEST(ctx->_lowest->_data._x, sx);
+        ctx->_lowest->_data._y = LOWEST(ctx->_lowest->_data._y, sy);
+        ctx->_lowest->_data._z = LOWEST(ctx->_lowest->_data._z, sz);
         return 0;
     }
     return EINVAL;
 }
 
-dll_node_h is_shorter_dist(dll_node_h _a, dll_node_h _b)
+dll_node_h shorterdistpointref(dll_node_h _a, dll_node_h _b)
 {
-    distnode_h _dista = DIST_H(_a);
-    distnode_h _distb = DIST_H(_b);
-    return _dista->_val < _distb->_val ? _a : _b;
+    pointrefnode_h _dista = ((pointrefnode_h)_a);
+    pointrefnode_h _distb = ((pointrefnode_h)_b);
+    return _dista->_dist < _distb->_dist ? _a : _b;
 }
 
-void sortdistances(dll_head_h head, dll_head_h sorteddist)
+dll_node_h shorterdistvoidpointref(dll_node_h _a, dll_node_h _b)
 {
-    LL_FOREACH_P(distn, head)
-    {
-        distnode_h refndist = (distnode_h)distn;
-        distnode_h ndist = distnode_ctor();
-        ndist->_pointa = refndist->_pointa;
-        ndist->_pointb = refndist->_pointb;
-        ndist->_val = refndist->_val;
-        dll_node_sorted_insert(sorteddist, &ndist->_node, is_shorter_dist);
-    }
+    pointrefnode_h _dista = (pointrefnode_h)((voidpnode_h)_a)->_ptr;
+    pointrefnode_h _distb = (pointrefnode_h)((voidpnode_h)_b)->_ptr;
+    return _dista->_dist < _distb->_dist ? _a : _b;
 }
 
 parser_t float3Dparser = {._name = "3d coord parser",
@@ -71,211 +104,380 @@ dll_node_h is_B_or_C_nearest_A(dll_node_h _a, dll_node_h _b, dll_node_h _c)
     return p3ddist(B, A) < p3ddist(B, C) ? _b : _c;
 }
 
-#define STR_BUFF_LEN(_str) (sizeof(_str))
-#define STR_BUFFER(name, default) static char name[STR_BUFF_LEN(default)] = default;
-
-STR_BUFFER(_strp3d, "[00000000:00000000:00000000] ");
-const char *const strfloat3d(float3D_h p3d_h)
+STR_BUFFER(_strp3d, "       [00000000:00000000:00000000]    ");
+const char *const strfloat3d(float3D_h p3d_h, const char *const fmt)
 {
-    snprintf(_strp3d, sizeof(_strp3d) - 1, "[%5.0f,%5.0f,%5.0f]", p3d_h->_x, p3d_h->_y, p3d_h->_z);
+    snprintf(_strp3d, sizeof(_strp3d) - 1, "%s[%5.0f,%5.0f,%5.0f]" RESET, fmt, p3d_h->_x, p3d_h->_y, p3d_h->_z);
     return _strp3d;
 }
 
-void printplist(dll_head_h head, const char *const fmt)
+void printpreflist(dll_head_h distances)
 {
-    LL_FOREACH_P(_pointn, head)
+    size_t printlen = 0;
+    LL_FOREACH_P(node, distances)
     {
-        float3D_h p3d_h = &((float3Dnode_h)_pointn)->_data;
-        printf("%s\n", strfloat3d(p3d_h));
-    }
-}
+        pointrefnode_h pointref = (pointrefnode_h)node;
+        pointnode_h pnode_h = (pointnode_h)(pointref->_first_point);
 
-STR_BUFFER(_strdist, "[00000000,00000000,00000000] <--> [00000000,00000000,00000000] = 000000000000000")
-const char *const strdist(distnode_h _dist, const char *const fmt)
-{
-    char *pstr = _strdist;
-    pstr += snprintf(pstr, ANSI_MAX_LEN, "%s", fmt);
-    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_pointa));
-    pstr += snprintf(pstr, sizeof(" <--> "), " <--> ");
-    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_pointb));
-    pstr += snprintf(pstr, 10, " = %.0f", _dist->_val);
-    assert(pstr - _strdist < sizeof(_strdist));
-    return _strdist;
-}
-
-size_t printdlist(dll_head_h head, const char *const fmt)
-{
-    size_t missingdist = 0;
-    LL_FOREACH_P(distn, head)
-    {
-        distnode_h disth = (distnode_h)distn;
-        float3D_h p3d_h = disth->_pointa;
-        if (!disth->_pointb)
-            missingdist++;
-        p3d_h = disth->_pointb;
-        if (p3d_h)
+        printf("%s ", strfloat3d(pnode_h->_f3d, GREEN));
+        if (++printlen > 5)
         {
-            printf("%s%s", fmt, strdist(disth, ""));
+            printf(" ... ");
+            break;
         }
-        printf("\n");
     }
-    printf(RESET "\n");
-    return missingdist;
 }
 
-size_t missingmeasures(dll_head_h head)
+void printdlist(dll_head_h distances)
+{
+    size_t printlen = 0;
+    LL_FOREACH_P(node, distances)
+    {
+        pointrefnode_h pointref = (pointrefnode_h)node;
+        pointnode_h pnode_h = (pointnode_h)(pointref->_first_point);
+
+        printf("%5.0f ", pnode_h->_shortestdist);
+        if (++printlen > 5)
+        {
+            printf(" ... ");
+            break;
+        }
+    }
+}
+
+void printplist(dll_head_h points)
+{
+    size_t printlen = 0;
+    LL_FOREACH_P(node, points)
+    {
+        pointnode_h pnode_h = (pointnode_h)node;
+
+        printf("%s ", strfloat3d(pnode_h->_f3d, GREEN));
+        if (++printlen > 5)
+        {
+            printf(" ... ");
+            break;
+        }
+    }
+}
+
+size_t printdistancesegs(context_h ctx, bool verbose)
+{
+    size_t sorteddistances = 0;
+    size_t printlen = 0;
+    ARR_FOREACH(ind, ctx->_distances)
+    {
+        if (ctx->_distances[ind]._size && verbose)
+        {
+            printf("\n");
+            printf("-- distance segment %5lu: %5lu ", ind, ctx->_distances[ind]._size);
+            printdlist(&ctx->_distances[ind]);
+        }
+        sorteddistances += ctx->_distances[ind]._size;
+    }
+    if (verbose)
+        printf("\n");
+    return sorteddistances;
+}
+
+STR_BUFFER(_strpoint, "[00000000,00000000,00000000] <--> [00000000,00000000,00000000] = 000000000000000")
+const char *const strpoint(pointnode_h _dist, const char *const fmt)
+{
+    char *pstr = _strpoint;
+    pstr += snprintf(pstr, ANSI_MAX_LEN, "%s", fmt);
+    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_f3d, ""));
+    pstr += snprintf(pstr, sizeof(" <--> "), " <--> ");
+    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_closest->_f3d, ""));
+    pstr += snprintf(pstr, 10, " = %.0f", _dist->_shortestdist);
+    assert(pstr - _strpoint < sizeof(_strpoint));
+    return _strpoint;
+}
+
+STR_BUFFER(_strpref, "[00000000,00000000,00000000] <--> [00000000,00000000,00000000] = 000000000000000")
+const char *const strpref(pointrefnode_h _dist, const char *const fmt)
+{
+    char *pstr = _strpref;
+    pstr += snprintf(pstr, ANSI_MAX_LEN, "%s", fmt);
+    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_first_point->_f3d, ""));
+    pstr += snprintf(pstr, sizeof(" <--> "), " <--> ");
+    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_second_point->_f3d, ""));
+    pstr += snprintf(pstr, 10, " = %.0f", _dist->_dist);
+    assert(pstr - _strpref < sizeof(_strpref));
+    return _strpref;
+}
+
+size_t missingmeasures(context_h ctx)
 {
     size_t missingdist = 0;
-    LL_FOREACH_P(distn, head)
+    uint3D_t scan = {0};
+    do
     {
-        distnode_h disth = (distnode_h)distn;
-        float3D_h p3d_h = disth->_pointa;
-        if (!disth->_pointb)
-            missingdist++;
-        p3d_h = disth->_pointb;
-    }
+        dll_head_h region = &ctx->_regions[scan._xyz._x][scan._xyz._y][scan._xyz._z];
+        LL_FOREACH_P(distn, region)
+        {
+            pointnode_h disth = (pointnode_h)distn;
+            float3D_h p3d_h = disth->_f3d;
+            if (!disth->_connections._size && !disth->_closest)
+                missingdist++;
+        }
+    } while (!scanuint3d(&scan, RSIZE));
     return missingdist;
 }
 
 uint3D_t selectregion(context_h ctx, float3D_h np3d)
 {
-    if (!ctx->_regionssize._xyz._x)
-    {
-        ctx->_regionssize._xyz._x = (ctx->highest->_data._x - ctx->lowest->_data._x) / (1.0f * ctx->_segments);
-        ctx->_regionssize._xyz._y = (ctx->highest->_data._y - ctx->lowest->_data._y) / (1.0f * ctx->_segments);
-        ctx->_regionssize._xyz._z = (ctx->highest->_data._z - ctx->lowest->_data._z) / (1.0f * ctx->_segments);
-    }
+    uint3D_t ind = {0};
 
-    uint3D_t ret = {0};
-    for (size_t _regind = 0; _regind < ctx->_segments - 1; _regind++)
-    {
-        if (np3d->_x > _regind * ctx->_regionssize._xyz._x)
-            ret._xyz._x++;
-        if (np3d->_y > _regind * ctx->_regionssize._xyz._y)
-            ret._xyz._y++;
-        if (np3d->_z > _regind * ctx->_regionssize._xyz._z)
-            ret._xyz._z++;
-    }
-    assert(ret._xyz._x <= ctx->_segments);
-    assert(ret._xyz._y <= ctx->_segments);
-    assert(ret._xyz._z <= ctx->_segments);
-    return ret;
+    ind._xyz._x = ((size_t)((np3d->_x / ctx->_highest->_data._x * (1.0f * RSIZE))));
+    ind._xyz._y = ((size_t)((np3d->_y / ctx->_highest->_data._y * (1.0f * RSIZE))));
+    ind._xyz._z = ((size_t)((np3d->_z / ctx->_highest->_data._z * (1.0f * RSIZE))));
+
+    ind._xyz._x = ind._xyz._x ? ind._xyz._x - 1 : 0LU;
+    ind._xyz._y = ind._xyz._y ? ind._xyz._y - 1 : 0LU;
+    ind._xyz._z = ind._xyz._z ? ind._xyz._z - 1 : 0LU;
+
+    assert(ind._xyz._x < RSIZE);
+    assert(ind._xyz._y < RSIZE);
+    assert(ind._xyz._z < RSIZE);
+    return ind;
 }
 
 void dispatchpoints(context_h ctx)
 {
 
-    LL_FOREACH(_pn, ctx->_rawjboxlist)
+    LL_FOREACH(_pn, ctx->_inputpoints)
     {
-        float3D_h np3d = (float3D_h) & ((float3Dnode_h)_pn)->_data;
-        distnode_h ndist = distnode_ctor();
-        ndist->_pointa = np3d;
-        ndist->_val = 9000000000000.0f;
+        float3D_h p3dref = (float3D_h) & ((float3Dnode_h)_pn)->_data;
 
-        uint3D_t selreg = selectregion(ctx, np3d);
-        dll_head_h *region = getregion(ctx, &selreg);
-        if (!*region)
-        {
-            *region = (dll_head_h)malloc(sizeof(dll_head_t));
-            dll_head_init(*region);
-        }
-        size_t size = sizeof(distnode_t);
-        dll_node_append(*region, &ndist->_node);
+        uint3D_t selreg = selectregion(ctx, p3dref);
+        dll_node_append(&getregion(ctx, selreg), pointnode_ctor(p3dref));
     }
 }
 
-void keepclosestpoints(dll_head_h regiona, dll_head_h regionb)
+size_t sortpointsreferencesbydistance(context_h ctx, dll_head_h regiona, dll_head_h regionb, bool verbose)
 {
+    size_t distancesscanned = 0;
+
+    if (verbose)
+    {
+        printf("-- scanning" GREEN " (%lu) " RESET, regiona->_size);
+        printplist(regiona);
+        printf("and " GREEN " (%lu) " RESET, regionb->_size);
+        printplist(regionb);
+        printf("\n");
+    }
+
     LL_FOREACH_P(_pna, regiona)
     {
-        distnode_h dista = (distnode_h)_pna;
+        pointnode_h pointa_h = (pointnode_h)_pna;
         LL_FOREACH_P(_pnb, regionb)
         {
-            /** trimming out when a points distance to itself is measured  */
-            if (_pna == _pnb)
-                continue;
-            distnode_h distb = (distnode_h)_pnb;
-            float ndist = p3ddist(dista->_pointa, distb->_pointa);
+            /**
+             *
+             * stopping when a points distance to itself is measured
+             * this happens when regiona == regionb.
+             * (which is necessary for regions with several points)
+             * In order to prevent double measurement of distances,
+             * between points of same regions, the search must stop
+             * at the middle of the regiona point set.
+             * when regiona != regionb, _pna == _pnb never happens
+             * as regions are exclusive in points distribution.
+             *
+             * Although, this does not remove the cases of regions
+             * alternatively searched as regiona and regionb,
+             * as peekscubicsubregion cannot discriminate regions
+             * previously polled as center or head.
+             *
+             * */
 
-            if (dista->_val > ndist)
+            if (_pna == _pnb)
+                break;
+
+            pointnode_h pointb_h = (pointnode_h)_pnb;
+
+            float ndist = p3ddist(pointa_h->_f3d, pointb_h->_f3d);
+
+            float distanceind = ndist / ctx->_longestdistance * (ARRAY_DIM(ctx->_distances) * 1.0f);
+            size_t index = (size_t)(distanceind);
+            assert(index < ARRAY_DIM(ctx->_distances));
+
+            dll_node_h new = pointrefnode_ctor(ndist, pointa_h, pointb_h);
+            int insert = dll_node_sorted_insert_if_absent(&ctx->_distances[index],
+                                                          new,
+                                                          shorterdistpointref, issamepairofpoints);
+            if (insert)
+                free(new);
+            distancesscanned++;
+
+            if (pointa_h->_shortestdist > ndist)
             {
-                dista->_val = ndist;
-                distb->_val = ndist;
-                dista->_pointb = distb->_pointa;
-                distb->_pointb = dista->_pointa;
+                pointa_h->_shortestdist = ndist;
+                pointa_h->_closest = pointb_h;
+            }
+            if (pointb_h->_shortestdist > ndist)
+            {
+                pointb_h->_shortestdist = ndist;
+                pointb_h->_closest = pointa_h;
+            }
+        }
+    }
+    return distancesscanned;
+}
+
+void connectpoints(context_h ctx, size_t *connections, pointnode_h pointa_h, pointnode_h pointb_h, bool verbose)
+{
+    dll_node_sorted_insert(&pointa_h->_connections, voidpnode_ctor(pointb_h), shorterdistvoidpointref);
+    dll_node_sorted_insert(&pointb_h->_connections, voidpnode_ctor(pointa_h), shorterdistvoidpointref);
+
+    if (verbose)
+    {
+        printf("%4lu -- ", *connections);
+        printf("%s %s (%lu)", "connected", strfloat3d(pointa_h->_f3d, GREEN), pointa_h->_connections._size);
+        printf("\tand %s (%lu)\n", strfloat3d(pointb_h->_f3d, GREEN), pointb_h->_connections._size);
+    }
+    (*connections)++;
+}
+
+size_t connect_x_unconnectedpoints(context_h ctx, size_t x, bool verbose)
+{
+    size_t connections = 1LU;
+    ARR_FOREACH(ind, ctx->_distances)
+    {
+        if (connections > x)
+            break;
+        LL_FOREACH(pointaref, ctx->_distances[ind])
+        {
+            pointrefnode_h pointref = (pointrefnode_h)pointaref;
+            pointnode_h first = pointref->_first_point;
+            pointnode_h second = pointref->_second_point;
+            connectpoints(ctx, &connections, first, second, verbose);
+            first->_connected = true;
+            second->_connected = true;
+            if (connections > x)
+            {
+                return ((size_t)(first->_f3d->_x * second->_f3d->_x));
             }
         }
     }
 }
 
-STR_BUFFER(_struint3D, "[000:000:000] ");
-const char *const struint3D(const uint3D_t *const a)
+void connectalluntilonecircuit(context_h ctx, bool verbose)
 {
-    snprintf(_struint3D, sizeof(_struint3D) - 1, "[%lu,%lu,%lu]", a->_xyz._x, a->_xyz._y, a->_xyz._z);
-    return _struint3D;
+    size_t connections = 1LU;
+    ARR_FOREACH(ind, ctx->_distances)
+    {
+        LL_FOREACH(pointaref, ctx->_distances[ind])
+        {
+            pointrefnode_h pointref = (pointrefnode_h)pointaref;
+            pointnode_h first = pointref->_first_point;
+            pointnode_h second = pointref->_second_point;
+            connectpoints(ctx, &connections, first, second, verbose);
+            first->_connected = true;
+            second->_connected = true;
+        }
+    }
 }
 
-void measuredistances(context_h ctx)
+void distancessearchedscan(context_h ctx, bool verbose)
 {
     bool atleastone = false;
 
-    /** making a smaller selection of points for a manageable iteration time */
+    /**
+     * We are making a smaller selection of points for a manageable iteration time.
+     *  Then scan for the shortest distance between each points in two consecutive
+     *  regions. It scans twice each region on purpose to compare distances
+     *  from every points with all the points in the previous and the next
+     *  reion.
+     */
 
-    size_t scanned = 0;
+    size_t distancesscanned = 0;
 
-    RANGE_FOR(ind, 0, ctx->_segments + 2)
+    ctx->_regions_origin._xyz._x = 0LU;
+    ctx->_regions_origin._xyz._y = 0LU;
+    ctx->_regions_origin._xyz._x = 0LU;
+
+    ctx->_regions_end._xyz._x = RSIZE - 1;
+    ctx->_regions_end._xyz._y = RSIZE - 1;
+    ctx->_regions_end._xyz._z = RSIZE - 1;
+
+    uint3D_t head = ctx->_regions_origin;
+    int done = 0;
+
+    do
     {
-        uint3D_t scanall = {0};
-
-        /**
-         * focusing on all regions of same z coordinate.
-         *  in the region mapping, an incrementation of the z coordinate
-         *  happens when the (x,y) combinations were all used
-         */
-        scanall._xyz._z = ind;
-        printf(BGREEN "scanning from %s", struint3D(&scanall));
-
-        dll_head_h *frstregiona_p = getregion(ctx, &scanall);
-        dll_head_h *frstregionb_p = getregion(ctx, &scanall);
-
-        scanall._xyz._z++;
-
-        printf(" until %s\n" RESET, struint3D(&scanall));
-
-        assert(scanall._xyz._z <= ctx->_segments + 2);
-        dll_head_h *lastregiona_p = getregion(ctx, &scanall);
-        dll_head_h *lastregionb_p = getregion(ctx, &scanall);
-
-        scanall._xyz._z--;
-
-        while (frstregiona_p < lastregiona_p)
+        while (!(getregion(ctx, head)._size) &&
+               !done)
         {
-            while (frstregionb_p < lastregionb_p)
-            {
-                if (*frstregiona_p)
-                {
-                    /* aoc_info("region a %lu has points ",
-                             (*frstregiona_p)->_size);
-                     */
-                    scanned += (*frstregiona_p)->_size;
-                }
-                if (*frstregiona_p && *frstregionb_p)
-                {
-                    keepclosestpoints(*frstregiona_p, *frstregionb_p);
-                }
-                frstregionb_p += sizeof(void *);
-            }
-            frstregionb_p = getregion(ctx, &scanall);
-            frstregiona_p += sizeof(void *);
+            done = bscanuint3d(&head, &ctx->_regions_origin, &ctx->_regions_end);
         }
-        aoc_info("region pointers scanned %lu points ", scanned);
-    }
+        peekcubicsubregion(ctx, &head, verbose);
+        if (done)
+            break;
+        done = bscanuint3d(&head, &ctx->_regions_origin, &ctx->_regions_end);
+    } while (!done);
+
+    size_t sorteddistances = printdistancesegs(ctx, verbose);
+
+    aoc_info("-- region pointers tested %lu shortest distances", sorteddistances);
 }
 
-size_t printregions(context_h ctx)
+size_t peekcubicsubregion(context_h ctx, uint3D_t *center, bool verbose)
 {
-    uint3D_t scanall = {._arr = {0LU, 0LU, 0LU}};
+    uint3D_t _cubemax = *center;
+    uint3D_t _cubemin = *center;
+    uint3D_t _head = _cubemin;
+    uint3D_t _center = *center;
+    size_t result = 0LU;
+    bool found = false;
 
+    while (!found)
+    {
+        int exp = expuint3d(&_cubemax, &ctx->_regions_end);
+        int shr = shruint3d(&_cubemin, &ctx->_regions_origin);
+        if (verbose)
+        {
+            printf(YELLOW "-- expanded %s ", struint3D(&_cubemin));
+            printf(" %s \n" RESET, struint3D(&_cubemax));
+        }
+        if (exp && shr)
+            return result;
+
+        _head = _cubemin;
+        do
+        {
+            if (uint3d_eq(&_head, &_center))
+                continue;
+            if (getregion(ctx, _head)._size)
+            {
+                found = true;
+                break;
+            }
+        } while (!bscanuint3d(&_head, &_cubemin, &_cubemax));
+    }
+
+    _head = _cubemin;
+    do
+    {
+        dll_head_h first_region = &getregion(ctx, _center);
+        dll_head_h second_region = &getregion(ctx, _head);
+        if (second_region->_size)
+        {
+            if (verbose)
+            {
+                printf("-- regions" GREEN " %s ", struint3D(&_center));
+                printf(" %s \n" RESET, struint3D(&_head));
+            }
+            result += sortpointsreferencesbydistance(ctx,
+                                                     first_region,
+                                                     second_region, verbose);
+        }
+    } while (!bscanuint3d(&_head, &_cubemin, &_cubemax));
+
+    return result;
+}
+
+size_t scanregions(context_h ctx, bool verbose)
+{
     size_t distances = 0;
     size_t notmeasured = 0;
 
@@ -283,45 +485,122 @@ size_t printregions(context_h ctx)
     size_t emptyregioncount = 0;
     size_t validregioncount = 0;
 
+    uint3D_t scan = ctx->_regions_origin;
+
     do
     {
-        dll_head_h *region = (getregion(ctx, &scanall));
-        if (!*region)
+        if (!(getregion(ctx, scan)._size))
         {
             emptyregioncount++;
             continue;
         }
         validregioncount++;
-        distances += (*region)->_size;
-        size_t missing = missingmeasures(*region);
+        distances += getregion(ctx, scan)._size;
+        size_t missing = missingmeasures(ctx);
         notmeasured += missing;
+    } while (!bscanuint3d(&scan, &ctx->_regions_origin, &ctx->_regions_end));
 
-        sortdistances(*region, &ctx->_distances);
+    if (verbose)
+    {
+        ARR_FOREACH(ind, ctx->_distances)
+        {
+            LL_FOREACH(node, ctx->_distances[ind])
+            {
+                pointrefnode_h pointref = (pointrefnode_h)node;
+                printf("%s\n", strpref(pointref, ""));
+            }
+        }
+    }
 
-    } while (!scanuint_array(scanall._arr, 0, ctx->_segments, ARRAY_DIM(scanall._arr)));
     totalregioncount = emptyregioncount + validregioncount;
 
-    assert(distances == 20LU || distances == 1000LU);
-    assert(((ctx->_segments + 1) * (ctx->_segments + 1) * (ctx->_segments + 1)) == totalregioncount);
+    assert((distances == 20) || (distances == 1000));
 
-    printf(BGREEN "there are a total of %lu/%lu occupied regions, for a total of %lu points\n" RESET,
+    printf("-- there are a total of %lu/%lu occupied regions, for a total of %lu points\n",
            validregioncount, totalregioncount,
            distances);
-    printf(YELLOW "%lu regions are empty\n" RESET,
+    printf("-- %lu regions are empty\n",
            emptyregioncount);
 
-    printdlist(&ctx->_distances, BGREEN);
     return notmeasured;
 }
 
-void getcircuitsizes(context_h ctx)
-{
-    dll_node_t ghostnode;
-    dll_head_t circuitsizes;
+void getconnections(pointnode_h origin, pointnode_h current, pointnode_h from, dll_head_h circuit, bool verbose);
 
-    LL_FOREACH(node, ctx->_distances)
+void getcircuitsize(pointnode_h start, pointnode_h origin, bool verbose)
+{
+    dll_head_t circuitsizes = {0};
+    dll_head_t circuit = {0};
+
+    if (verbose)
+        printf("\n--start-- (%p)\n", start);
+
+    getconnections(start, NULL, NULL, &circuit, verbose);
+    if (verbose)
+        printf("\t\t\t\t\t\t");
+    if (verbose)
     {
-        size_t circuitsize = 1;
-        distnode_h distn = (distnode_h)node;
+        LL_FOREACH(pnode, circuit)
+        {
+            voidpnode_h vpnode = (voidpnode_h)pnode;
+            float3D_h f3d = (float3D_h) & (((pointnode_h)(vpnode->_ptr))->_f3d);
+            printf("%s ", strfloat3d(f3d, GREEN));
+        }
+        printf("\n");
+    }
+    dll_free_all(&circuit, free);
+    dll_free_all(&circuitsizes, free);
+}
+
+void getconnections(pointnode_h origin, pointnode_h current, pointnode_h from, dll_head_h circuit, bool verbose)
+{
+    origin->_scanned = true;
+    if (!from)
+        from = origin;
+
+    if (!current)
+        current = origin;
+    dll_node_append(circuit, voidpnode_ctor((void *)current));
+    current->_scanned = true;
+
+    if (verbose)
+    {
+        printf(BLUE "added %s (%p)\n", strfloat3d(current->_f3d, GREEN), current);
+        printf(BLUE "entered %s\n", __func__);
+        printf(BLUE "connections: %lu\n", current->_connections._size);
+    }
+
+    LL_FOREACH(pnode, current->_connections)
+    {
+        voidpnode_h pointh = (voidpnode_h)pnode;
+        pointnode_h pnodeh = (pointnode_h)pointh->_ptr;
+
+        if (pnodeh != origin && pnodeh != from && !pnodeh->_scanned)
+        {
+            getconnections(origin, pnodeh, current, circuit, verbose);
+        }
+    }
+    current->_node._obsolete = true;
+}
+
+void reinitconnections(pointnode_h origin, pointnode_h current, pointnode_h from, dll_head_h circuit, bool verbose)
+{
+    origin->_scanned = false;
+    if (!from)
+        from = origin;
+
+    if (!current)
+        current = origin;
+    current->_scanned = false;
+
+    LL_FOREACH(pnode, current->_connections)
+    {
+        voidpnode_h pointh = (voidpnode_h)pnode;
+        pointnode_h pnodeh = (pointnode_h)pointh->_ptr;
+
+        if (pnodeh != origin && pnodeh != from && pnodeh->_scanned)
+        {
+            reinitconnections(origin, pnodeh, current, circuit, verbose);
+        }
     }
 }

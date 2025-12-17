@@ -39,7 +39,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     dispatchpoints(ctx);
     distancessearchedscan(ctx, false);
     size_t missing = scanregions(ctx, false);
-    connect_x_unconnectedpoints(ctx, 1000, false);
+    connect_x_unconnectedpoints(ctx, 10, false);
     getallcircuitssizes1(ctx, false);
 
     if (missing)

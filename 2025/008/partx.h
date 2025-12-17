@@ -50,6 +50,7 @@ typedef struct context
     float _longestdistance;
 
     float _z_segment;
+    size_t _circuitcount;
 
     size_t _result;
 } context_t;

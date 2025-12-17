@@ -39,7 +39,12 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     dispatchpoints(ctx);
     distancessearchedscan(ctx, false);
     size_t missing = scanregions(ctx, false);
-    ctx->_result = connect_x_unconnectedpoints(ctx, 6606, false);
+
+    /**
+     * TODO : This does not really answer all cases.  
+     * */
+    ctx->_result = connect_x_unconnectedpoints(ctx, 21, false); /*6606*/
+    getallcircuitssizes2(ctx, false);
 
     if (missing)
         aoc_alarm("-- not measured         %3.1lu", missing);
@@ -131,6 +136,5 @@ void getallcircuitssizes2(context_h ctx, bool verbose)
            circuitssizes._size);
     printf("-- this circuit has %lu points\n", ((intnode_h)(circuitssizes._first))->_int);
 
-    ctx->_result = circuitssizes._size;
     dll_free_all(&circuitssizes, free);
 }

@@ -82,7 +82,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_movs);
     dll_head_init(&_ctx->_tailPos);
 
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '.', 0, bycoordinatesYfirst, false);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '.', 0, objh_byYfirst, false);
     if (!_ctx->_eng)
         goto error;
 

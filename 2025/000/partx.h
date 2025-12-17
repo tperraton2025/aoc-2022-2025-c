@@ -1,5 +1,6 @@
 #include <aoc_helpers.h>
 #include <aoc_linked_list.h>
+#include <aoc_parser.h>
 #include <string.h>
 #include <stdint.h>
 #include <math.h>

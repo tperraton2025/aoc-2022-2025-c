@@ -11,7 +11,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_parsers);
 
     coord_t _max_xy = {1, 1};
-    _ctx->_eng = aoc_2d_eng_create(&_max_xy, '.', 0, bycoordinatesYfirst, false);
+    _ctx->_eng = aoc_2d_eng_create(&_max_xy, '.', 0, objh_byYfirst, false);
     aoc_2d_eng_disable_draw(_ctx->_eng);
     parser_append(&_ctx->_parsers, &blockparser, _ctx->_eng);
     _ctx->_result = 0;
@@ -30,7 +30,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
 
-    _ctx->_rollspositions = aoc_2d_eng_list_obj_pos(_ctx->_eng);
+    _ctx->_rollspositions = aoc_2d_eng_list_obj_pos(_ctx->_eng, NULL);
     size_t liberated = trimaccessiblepositions(_ctx->_eng, _ctx->_rollspositions);
     while (liberated)
     {

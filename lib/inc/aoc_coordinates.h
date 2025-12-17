@@ -77,8 +77,8 @@ bool coord_same_column(void *arga, void *argb);
 /** dll_node_h func(dll_node_h, dll_node_h) */
 dll_node_h picklowestY(dll_node_h arga, dll_node_h argb);
 dll_node_h highest_column(dll_node_h arga, dll_node_h argb);
-dll_node_h bycoordinatesXfirst(dll_node_h arga, dll_node_h argb);
-dll_node_h bycoordinatesYfirst(dll_node_h arga, dll_node_h argb);
+dll_node_h objh_byXfirst(dll_node_h arga, dll_node_h argb);
+dll_node_h objh_byYfirst(dll_node_h arga, dll_node_h argb);
 dll_node_h pickhighestY(dll_node_h arga, dll_node_h argb);
 
 typedef struct coord_tracker
@@ -90,8 +90,7 @@ typedef struct coord_tracker
 typedef coord_tracker_t *coord_tracker_h;
 
 /*TODO make private*/
-coord_tracker_h coordtrackernode_ctor();
-coord_tracker_h coordtracker_ctor(coord_t *coord);
+dll_node_h coordtrackernode_ctor(coord_t *coord);
 char *strpos(const coord_t *const pos);
 
 bool coord_equal(void *_a, void *_b);

@@ -24,7 +24,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     coord_t _prelcoordmaxima = {._x = 2, ._y = 2};
 
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, bycoordinatesYfirst, false);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, objh_byYfirst, false);
 
     if (!_ctx->_eng)
         goto cleanup;
@@ -237,9 +237,7 @@ static int parseblock(void *arg, char *_str)
         }
         if (!dll_node_find_by_property(&_ctx->_columns, &_ctx->_pos._x, coord_same_column))
         {
-            coord_tracker_h _trck = coordtrackernode_ctor();
-            _trck->_coord._x = _ctx->_pos._x;
-            dll_node_sorted_insert(&_ctx->_columns, NODE_CAST(_trck), highest_column);
+            dll_node_sorted_insert(&_ctx->_columns, coordtrackernode_ctor(&_ctx->_pos), highest_column);
         }
         _ctx->_pos._x++;
     }

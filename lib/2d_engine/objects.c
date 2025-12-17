@@ -136,7 +136,7 @@ char *strobj(aoc_2d_obj_h obj)
     return _strobj;
 }
 
-dll_node_h bycoordinatesXfirst(dll_node_h arga, dll_node_h argb)
+dll_node_h objh_byXfirst(dll_node_h arga, dll_node_h argb)
 {
     coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
     coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
@@ -145,10 +145,28 @@ dll_node_h bycoordinatesXfirst(dll_node_h arga, dll_node_h argb)
     return posa->_x > posb->_x ? arga : argb;
 }
 
-dll_node_h bycoordinatesYfirst(dll_node_h arga, dll_node_h argb)
+dll_node_h objh_byYfirst(dll_node_h arga, dll_node_h argb)
 {
     coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
     coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
+    if (posa->_y == posb->_y)
+        return posa->_x > posb->_x ? arga : argb;
+    return posa->_y > posb->_y ? arga : argb;
+}
+
+dll_node_h posh_byXfirst(dll_node_h arga, dll_node_h argb)
+{
+    coord_t *posa = ((coord_t *)arga);
+    coord_t *posb = ((coord_t *)argb);
+    if (posa->_x == posb->_x)
+        return posa->_y > posb->_y ? arga : argb;
+    return posa->_x > posb->_x ? arga : argb;
+}
+
+dll_node_h posh_byYfirst(dll_node_h arga, dll_node_h argb)
+{
+    coord_t *posa = ((coord_t *)arga);
+    coord_t *posb = ((coord_t *)argb);
     if (posa->_y == posb->_y)
         return posa->_x > posb->_x ? arga : argb;
     return posa->_y > posb->_y ? arga : argb;

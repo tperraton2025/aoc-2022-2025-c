@@ -574,21 +574,17 @@ dll_head_h aoc_2d_eng_list_objects(aoc_2d_eng_h eng, const char *const incl, con
     return _objlist;
 }
 
-dll_head_h aoc_2d_eng_list_obj_pos(aoc_2d_eng_h eng)
+dll_head_h aoc_2d_eng_list_obj_pos(aoc_2d_eng_h eng, dll_compare *comp)
 {
 
     dll_head_h _poslists = malloc(sizeof(dll_head_t));
     dll_head_init(_poslists);
 
-    LL_FOREACH(_objn, eng->_objects)
+    LL_FOREACH(node, eng->_objects)
     {
-        if (_objn->_obsolete)
+        if (node->_obsolete)
             continue;
-        aoc_2d_obj_h _objh = (aoc_2d_obj_h)_objn;
-        coord_tracker_h _ntr = coordtrackernode_ctor();
-        _ntr->_coord._x = _objh->_pos._x;
-        _ntr->_coord._y = _objh->_pos._y;
-        dll_node_append(_poslists, &_ntr->_node);
+        dll_node_sorted_insert(_poslists, coordtrackernode_ctor(&((aoc_2d_obj_h)node)->_pos), comp);
     }
     return _poslists;
 }
@@ -608,10 +604,7 @@ dll_head_h aoc_2d_eng_list_obj_pos_arg(aoc_2d_eng_h eng, void *arg, bool func(vo
             continue;
         if (!func(arg, _objn))
             continue;
-        coord_tracker_h _ntr = coordtrackernode_ctor();
-        _ntr->_coord._x = _objh->_pos._x;
-        _ntr->_coord._y = _objh->_pos._y;
-        dll_node_append(_poslists, &_ntr->_node);
+        dll_node_append(_poslists, coordtrackernode_ctor(&_objh->_pos));
     }
     return _poslists;
 }

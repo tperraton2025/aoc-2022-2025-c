@@ -76,4 +76,7 @@ typedef float3Dnode_t *float3Dnode_h;
 dll_node_h float3Dnode_ctor(const float3D_t const data);
 
 dll_node_h intcomphighest(dll_node_h arga, dll_node_h argb);
+
+dll_node_h posh_byXfirst(dll_node_h arga, dll_node_h argb);
+dll_node_h posh_byYfirst(dll_node_h arga, dll_node_h argb);
 #endif

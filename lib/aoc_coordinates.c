@@ -219,22 +219,21 @@ dll_node_h highest_column(dll_node_h arga, dll_node_h argb)
     coord_t *_posa = (coord_t *)arga;
     coord_t *_posb = (coord_t *)argb;
     return (dll_node_h)(_posa->_x > _posb->_x ? _posa : _posb);
-}
+} 
 
-DLL_NODE_CTOR(coord_tracker_t, coordtrackernode_ctor)
-
-coord_tracker_h coordtracker_ctor(coord_t *coord)
+dll_node_h coordtrackernode_ctor(coord_t *coord)
 {
-    coord_tracker_h new = coordtrackernode_ctor();
+    coord_tracker_h new = NULL; 
+    TRY_TYPE_MALLOC(new, coord_tracker_t);
     new->_coord._x = coord->_x;
     new->_coord._y = coord->_y;
-    return new;
+    return &new->_node;
 }
 
-static char _strpos[] = "[00000x00000]";
+static char _strpos[] = "[" STR(__SIZE_MAX__) ":" STR(__SIZE_MAX__) "]";
 /*! warning: not thread safe */
 char *strpos(const coord_t *const pos)
 {
-    snprintf(_strpos, ARRAY_DIM(_strpos), "[%*.1lu x%*.1lu]", 4, pos->_x, 4, pos->_y);
+    snprintf(_strpos, ARRAY_DIM(_strpos), "[%.1lu:%.1lu]", pos->_x, pos->_y); 
     return _strpos;
 }

@@ -9,8 +9,8 @@
 #include "aoc_2d_object.h"
 #include "aoc_linked_list.h"
 
-#define ABSOLUTE_MAX_X (4096)
-#define ABSOLUTE_MAX_Y (4096)
+#define ABSOLUTE_MAX_X (100000000)
+#define ABSOLUTE_MAX_Y (100000000)
 
 #define DRAWABLE_MAX_X (64)
 #define DRAWABLE_MAX_Y (128)
@@ -128,7 +128,7 @@ size_t engine_last_line(aoc_2d_eng_h eng);
 /**
  * listing API
  */
-dll_head_h aoc_2d_eng_list_obj_pos(aoc_2d_eng_h eng);
+dll_head_h aoc_2d_eng_list_obj_pos(aoc_2d_eng_h eng, dll_compare *comp);
 dll_head_h aoc_2d_eng_list_obj_pos_arg(aoc_2d_eng_h eng, void *arg, bool func(void *arga, void *argb));
 dll_head_h aoc_2d_eng_list_objects(aoc_2d_eng_h eng, const char *const incl, const char *const excl);
 

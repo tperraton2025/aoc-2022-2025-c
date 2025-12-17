@@ -106,7 +106,7 @@ void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h eng)
          * are no moving object problems, but this will be necessary
          * as coordinate changes will require adapting the order int the list
          * for the object search to keep working
-         * dll_sort(&eng->_objects, bycoordinatesYfirst);
+         * dll_sort(&eng->_objects, objh_byYfirst);
          **/
         engine_cursor_user_stats(eng);
 

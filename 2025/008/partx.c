@@ -12,6 +12,11 @@ void freeregion(void *arg)
     free(arg);
 }
 
+typenode_ctor(pointref,
+              new->_dist = dist;
+              new->_first_point = pointa;
+              new->_second_point = pointb, float dist, pointnode_h pointa, pointnode_h pointb);
+
 dll_node_h pointnode_ctor(float3D_h p3dref)
 {
     pointnode_h npointnode = NULL;
@@ -20,17 +25,7 @@ dll_node_h pointnode_ctor(float3D_h p3dref)
     npointnode->_shortestdist = 9000000000000.0f;
     return &npointnode->_node;
 }
-
-dll_node_h pointrefnode_ctor(float dist, pointnode_h pointa, pointnode_h pointb)
-{
-    pointrefnode_h ret = NULL;
-    TRY_TYPE_MALLOC(ret, pointrefnode_t);
-    ret->_dist = dist;
-    ret->_first_point = pointa;
-    ret->_second_point = pointb;
-    return &ret->_node;
-}
-
+ 
 bool areonoftwopoints(void *arga, void *argb)
 {
     return ((float3D_h *)argb)[0] == ((pointnode_h)((voidpnode_h)arga)->_ptr)->_f3d ||

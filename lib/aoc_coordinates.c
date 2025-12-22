@@ -146,8 +146,8 @@ int scanuint(uint3D_t *array, size_t max, size_t dim)
 
 bool coord_dist_more_than_2(void *_a, void *_b)
 {
-    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
-    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    coord_t *_acord = &CAST(coordnode_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coordnode_h, _b)->_coord;
     size_t distx = ABSDIFF(_acord->_x, _bcord->_x);
     size_t disty = ABSDIFF(_acord->_y, _bcord->_y);
     return distx > 2 && disty > 2;
@@ -155,8 +155,8 @@ bool coord_dist_more_than_2(void *_a, void *_b)
 
 bool coord_dist_less_than_2(void *_a, void *_b)
 {
-    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
-    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    coord_t *_acord = &CAST(coordnode_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coordnode_h, _b)->_coord;
     size_t distx = ABSDIFF(_acord->_x, _bcord->_x);
     size_t disty = ABSDIFF(_acord->_y, _bcord->_y);
     return distx < 2 && disty < 2;
@@ -164,46 +164,46 @@ bool coord_dist_less_than_2(void *_a, void *_b)
 
 bool coord_on_adjacent_columns(void *_a, void *_b)
 {
-    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
-    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    coord_t *_acord = &CAST(coordnode_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coordnode_h, _b)->_coord;
     size_t distx = ABSDIFF(_acord->_x, _bcord->_x);
     return distx < 2;
 }
 
 bool coord_higher_y(void *_a, void *_b)
 {
-    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
-    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    coord_t *_acord = &CAST(coordnode_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coordnode_h, _b)->_coord;
     return _bcord->_y > _acord->_y;
 }
 
 bool coord_lower_y(void *_a, void *_b)
 {
-    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
-    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    coord_t *_acord = &CAST(coordnode_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coordnode_h, _b)->_coord;
     return _bcord->_y < _acord->_y;
 }
 
 bool coord_x_equal(void *_a, void *_b)
 {
-    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
-    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    coord_t *_acord = &CAST(coordnode_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coordnode_h, _b)->_coord;
     return _acord->_x == _bcord->_x;
 }
 
 /** return true if _b point has higher Y on same X */
-bool coord_equal_x_higher_y(void *_a, void *_b)
+bool coordnodes_equal_x_higher_y(void *_a, void *_b)
 {
-    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
-    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    coord_t *_acord = &CAST(coordnode_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coordnode_h, _b)->_coord;
     return ((_bcord->_y > _acord->_y) && (_acord->_x == _bcord->_x));
 }
 
 /** return true if _b point has higher Y on same X */
-bool coord_equal_x_lower_y(void *_a, void *_b)
+bool coordnodes_equal_x_lower_y(void *_a, void *_b)
 {
-    coord_t *_acord = &CAST(coord_tracker_h, _a)->_coord;
-    coord_t *_bcord = &CAST(coord_tracker_h, _b)->_coord;
+    coord_t *_acord = &CAST(coordnode_h, _a)->_coord;
+    coord_t *_bcord = &CAST(coordnode_h, _b)->_coord;
 
     return ((_bcord->_y < _acord->_y) && (_bcord->_x == _acord->_x));
 }
@@ -219,14 +219,96 @@ dll_node_h highest_column(dll_node_h arga, dll_node_h argb)
     coord_t *_posa = (coord_t *)arga;
     coord_t *_posb = (coord_t *)argb;
     return (dll_node_h)(_posa->_x > _posb->_x ? _posa : _posb);
-} 
+}
 
-dll_node_h coordtrackernode_ctor(coord_t *coord)
+/** return true if _b point has higher Y on same X */
+dll_node_h coordnodes_equal_y_lower_x(dll_node_h arga, dll_node_h argb)
 {
-    coord_tracker_h new = NULL; 
-    TRY_TYPE_MALLOC(new, coord_tracker_t);
+    coord_t *_posa = (coord_t *)arga;
+    coord_t *_posb = (coord_t *)argb;
+
+    if ((_posa->_y != _posb->_y))
+        return argb;
+    return _posa->_x < _posb->_x ? arga : argb;
+}
+
+dll_node_h coord_y_aligned(dll_node_h arga, dll_node_h argb)
+{
+    coord_t *posa = (coord_t *)arga;
+    coord_t *posb = (coord_t *)argb;
+    if (posa->_x == posb->_x)
+        return posa->_y > posb->_y ? arga : argb;
+    return posa->_x > posb->_x ? arga : argb;
+}
+
+dll_node_h coordnode_ctor(coord_t *coord)
+{
+    coordnode_h new = NULL;
+    TRY_TYPE_MALLOC(new, coordnode_t);
     new->_coord._x = coord->_x;
     new->_coord._y = coord->_y;
+    return &new->_node;
+}
+
+bool coordt_equal(void *arga, void *argb)
+{
+    coord_t *posa = (coord_t *)arga;
+    coord_t *posb = (coord_t *)argb;
+    return (posa->_x == posb->_x) && (posa->_y == posb->_y);
+}
+
+dll_node_h coordpairnode_ctor(coordpair_h pair)
+{
+    coordpairnode_h new = NULL;
+    TRY_TYPE_MALLOC(new, coordpairnode_t);
+    new->_pair._max = pair->_max;
+    new->_pair._min = pair->_min;
+    return &new->_node;
+}
+
+dll_node_h coordpair_equal_y_lower_x(dll_node_h _a, dll_node_h _b)
+{
+    coordpairnode_h apair = ((coordpairnode_h)_a);
+    coordpairnode_h bpair = ((coordpairnode_h)_b);
+
+    if (apair->_pair._max._y == bpair->_pair._max._y)
+        return apair->_pair._max._x < bpair->_pair._max._x ? _a : _b;
+
+    if (apair->_pair._max._y == bpair->_pair._min._y)
+        return apair->_pair._max._x < bpair->_pair._min._x ? _a : _b;
+    return _b;
+}
+
+/** return true if _b point has higher Y on same X */
+dll_node_h coordnode_equal_x_higher_y(dll_node_h _a, dll_node_h _b)
+{
+    coord_t *apos = &((coordnode_h)_a)->_coord;
+    coord_t *bpos = &((coordnode_h)_b)->_coord;
+
+    if (apos->_x == bpos->_x)
+        return apos->_y > bpos->_y ? _a : _b;
+    return apos->_x < bpos->_x ? _a : _b;
+}
+
+dll_node_h coordpair_equal_y_higher_x(dll_node_h _a, dll_node_h _b)
+{
+    coordpairnode_h apair = ((coordpairnode_h)_a);
+    coordpairnode_h bpair = ((coordpairnode_h)_b);
+
+    if (apair->_pair._max._y == bpair->_pair._max._y)
+        return apair->_pair._max._x > bpair->_pair._max._x ? _a : _b;
+
+    if (apair->_pair._max._y == bpair->_pair._min._y)
+        return apair->_pair._max._x > bpair->_pair._min._x ? _a : _b;
+    return _b;
+}
+
+dll_node_h coordrefpairnode_ctor(coordpair_h pair)
+{
+    coordrefpairnode_h new = NULL;
+    TRY_TYPE_MALLOC(new, coordrefpairnode_t);
+    new->_first = &pair->_max;
+    new->_second = &pair->_min;
     return &new->_node;
 }
 
@@ -234,6 +316,28 @@ static char _strpos[] = "[" STR(__SIZE_MAX__) ":" STR(__SIZE_MAX__) "]";
 /*! warning: not thread safe */
 char *strpos(const coord_t *const pos)
 {
-    snprintf(_strpos, ARRAY_DIM(_strpos), "[%.1lu:%.1lu]", pos->_x, pos->_y); 
+    snprintf(_strpos, ARRAY_DIM(_strpos), "[%.1lu:%.1lu]", pos->_x, pos->_y);
     return _strpos;
 }
+
+static char _strpospair[] = "[" STR(__SIZE_MAX__) ":" STR(__SIZE_MAX__) "],[" STR(__SIZE_MAX__) ":" STR(__SIZE_MAX__) "]";
+/*! warning: not thread safe */
+char *strpospair(const coordpair_h const pair)
+{
+    snprintf(_strpospair,
+             ARRAY_DIM(_strpospair),
+             "[%.1lu:%.1lu],[%.1lu:%.1lu]",
+             pair->_max._x,
+             pair->_max._y,
+             pair->_min._x,
+             pair->_min._y);
+    return _strpospair;
+}
+
+bool coordnodes_equal(void *_a, void *_b)
+{
+    coordnode_h apos = CAST(coordnode_h, _a);
+    coordnode_h bpos = CAST(coordnode_h, _b);
+    return (apos->_coord._x == bpos->_coord._x) && (apos->_coord._y == bpos->_coord._y);
+}
+

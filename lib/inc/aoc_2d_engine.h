@@ -18,9 +18,6 @@
 #define ABSOLUTE_MAX_STAT_LEN (128)
 #define ABSOLUTE_MAX_STATS_LINES (128)
 
-#define COORD_RANGE_CHECK(_coord, _range) (N_BETWEEN_AB(_coord._x, _range._min._x, _range._max._x) && N_BETWEEN_AB(_coord._y, _range._min._y, _range._max._y))
-#define COORD_RANGE_CHECK_P(_coord, _range) (N_BETWEEN_AB(_coord->_x, _range._min._x, _range._max._x) && N_BETWEEN_AB(_coord->_y, _range._min._y, _range._max._y))
-
 #define COORD_MAXIMA_CHECK(_a, _b) (_a._x <= _b._x) && (_a._y <= _b._y)
 #define BOUNDARY_CHECK_P(_a, _b) (_a->_x <= _b->_x) && (_a->_y <= _b->_y)
 
@@ -69,9 +66,12 @@ void aoc_2d_eng_erase_stats(aoc_2d_eng_h eng);
 aoc_2d_eng_h aoc_2d_eng_create(coord_t *partcoordmaxima, char _voidsym, size_t delay, dll_compare *comp, bool collisionmap);
 void aoc_2d_obj_delete(aoc_2d_eng_h eng, struct object *obj);
 void aoc_2d_eng_free_obj(void *_data);
-void eng_set_refresh_delay(aoc_2d_eng_h eng, size_t delay);
+
+void aoc_2d_eng_setrefreshdelay(aoc_2d_eng_h eng, size_t delay);
+size_t aoc_2d_eng_getrefreshdelay(aoc_2d_eng_h eng);
+
 int aoc_2d_eng_draw_objects(aoc_2d_eng_h eng);
-int aoc_2d_eng_draw_obj(struct ascii_2d_engine *eng, struct object *obj, char *specfmt);
+int aoc_2d_eng_draw_obj(aoc_2d_eng_h eng,  aoc_2d_obj_h obj, char *specfmt);
 
 int aoc_2d_eng_extend_one_direction(aoc_2d_eng_h eng, size_t steps, AOC_2D_DIR _dir);
 void engine_free(aoc_2d_eng_h eng);
@@ -80,7 +80,7 @@ int aoc_2d_eng_draw(aoc_2d_eng_h eng);
 aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *pos, char *sym, size_t props, const char *const fmt);
 int aoc_2d_eng_append_obj(aoc_2d_eng_h eng, aoc_2d_obj_h _obj);
 aoc_2d_obj_h aoc_2d_eng_get_obj_by_name(aoc_2d_eng_h eng, const char *name);
-aoc_2d_obj_h aoc_2d_eng_get_obj_by_position(aoc_2d_eng_h eng, coord_t *_pos);
+aoc_2d_obj_h aoc_2d_eng_get_obj_by_position(aoc_2d_eng_h eng, const coord_t *const _pos);
 size_t aoc_2d_eng_get_obj_count(aoc_2d_eng_h eng);
 
 int aoc_2d_eng_step_obj(aoc_2d_eng_h eng, aoc_2d_obj_h _obj, size_t steps, AOC_2D_DIR dir, char *_fmt);

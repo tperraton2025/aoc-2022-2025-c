@@ -23,7 +23,7 @@
     {                                         \
         uint3D_t scan = ctx->_regions_origin; \
         do
-#define scanregionend(scan)                                           \
+#define scanregionend(scan)                                                \
     while (!bscanuint3d(&scan, &ctx->_regions_origin, &ctx->_regions_end)) \
         ;                                                                  \
     }
@@ -73,16 +73,12 @@ typedef struct pointnode
 typedef pointnode_t *pointnode_h;
 dll_node_h pointnode_ctor(float3D_h p3dref);
 
-typedef struct pointref
-{
-    dll_node_t _node;
-    pointnode_h _first_point;
-    pointnode_h _second_point;
-    float _dist;
-} pointrefnode_t;
+typedef_dllnode(pointref,
+                pointnode_h _first_point;
+                pointnode_h _second_point;
+                float _dist;);
 
 typedef pointrefnode_t *pointrefnode_h;
-dll_node_h pointrefnode_ctor(float dist, pointnode_h pointa, pointnode_h pointb);
 void pointrefnode_free(pointrefnode_h arg);
 
 dll_node_h is_B_or_C_nearest_A(dll_node_h _a, dll_node_h _b, dll_node_h _c);

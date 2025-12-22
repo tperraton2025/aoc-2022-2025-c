@@ -8,6 +8,7 @@ enable_language(C)
 set(2D_ENGINE_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/tools.c
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/input.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/zones.c
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/cursor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/engine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/2d_engine/objects.c)

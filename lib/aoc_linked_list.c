@@ -69,19 +69,19 @@ int dll_node_append(dll_head_h head, dll_node_h _new)
     return 0;
 }
 
-int dll_node_sorted_insert(dll_head_h head, dll_node_h _new, dll_compare sort)
+int dll_node_sorted_insert(dll_head_h head, dll_node_h _new, dll_compare comp)
 {
     assert(head && _new && "NULL pointer in dll_node_append");
     if (head->_size > LL_MAX_LEN_LUI)
         return ENOSPC;
-    if (!sort)
+    if (!comp)
         return dll_node_append(head, _new);
     dll_node_h _afterNew = NULL;
     LL_FOREACH_P_EXT(_afterNew, head)
     {
         if (!_afterNew)
             break;
-        if (_new == sort(_afterNew, _new))
+        if (_new == comp(_afterNew, _new))
         {
             break;
         }

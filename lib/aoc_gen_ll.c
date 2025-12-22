@@ -106,3 +106,12 @@ dll_node_h intcomphighest(dll_node_h arga, dll_node_h argb)
 {
     return ((intnode_h)arga)->_int > ((intnode_h)argb)->_int ? arga : argb;
 }
+
+dll_node_h voidparrnode_ctor(void **data, size_t len)
+{
+    voidparrnode_h new = NULL;
+    TRY_TYPE_MALLOC(new, voidparrnode_t);
+    new->_len = len;
+    memcpy(&new->_ptr, data, len * sizeof(void *));
+    return &new->_node;
+}

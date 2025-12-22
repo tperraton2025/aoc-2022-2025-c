@@ -4,9 +4,14 @@
 #include <stdarg.h>
 #include "aoc_types.h"
 
-void eng_set_refresh_delay(aoc_2d_eng_h eng, size_t delay)
+void aoc_2d_eng_setrefreshdelay(aoc_2d_eng_h eng, size_t delay)
 {
     eng->_delay = delay;
+}
+
+size_t aoc_2d_eng_getrefreshdelay(aoc_2d_eng_h eng)
+{
+    return eng->_delay;
 }
 
 int aoc_2d_eng_draw_box(struct ascii_2d_engine *eng)
@@ -106,7 +111,7 @@ void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h eng)
          * are no moving object problems, but this will be necessary
          * as coordinate changes will require adapting the order int the list
          * for the object search to keep working
-         * dll_sort(&eng->_objects, objh_byYfirst);
+         * dll_sort(&eng->_objects, objref_ydecr_xdecr);
          **/
         engine_cursor_user_stats(eng);
 
@@ -184,11 +189,4 @@ void aoc_2d_eng_prompt(aoc_2d_eng_h eng, const size_t _sleep, size_t _count, ...
             usleep(_sleep * 1000);
         printf("\n");
     }
-}
-
-bool coord_equal(void *_a, void *_b)
-{
-    coord_tracker_h _aNode = CAST(coord_tracker_h, _a);
-    coord_tracker_h _bNode = CAST(coord_tracker_h, _b);
-    return (_aNode->_coord._x == _bNode->_coord._x) && (_aNode->_coord._y == _bNode->_coord._y);
 }

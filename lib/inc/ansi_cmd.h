@@ -14,10 +14,10 @@
 #define MCURCO(_n) "\e[%ldG"             /**   moves cursor to column # */
 #define CUR_REPORT "\e[6n"               /**  request cursor position (reports as "\e"[#;#R") */
 #define MCURUPSCRL "\e M"                /**   moves cursor one line up, scrolling if needed */
-#define SAVECUR "\e 7"                   /**  save cursor position (DEC) */
-#define CURPOSREST1 "\e 8"               /**  restores the cursor to the last saved position (DEC) */
-#define RESCUR "\e[s"                    /**  save cursor position (SCO) */
-#define CURPOSREST2 "\e[u"               /**  restores the cursor to the last saved position (SCO) */
+#define SAVECUR1 "\e 7"                 /**  save cursor position (DEC) */
+#define RESTCUR1 "\e 8"                 /**  restores the cursor to the last saved position (DEC) */
+#define SAVECUR2 "\e[s"                  /**  save cursor position (SCO) */
+#define RESTCUR2 "\e[u"                  /**  restores the cursor to the last saved position (SCO) */
 #define ERASE_DISPLAY "\e[2J"            /** 	erase in display (same as ESC[0J) */
 #define ERASE_ALL_FROM_CURSOR "\e[0J"    /** 	erase from cursor until end of screen */
 #define ERASE_BACK "\e[1J"               /** 	erase from cursor to beginning of screen */

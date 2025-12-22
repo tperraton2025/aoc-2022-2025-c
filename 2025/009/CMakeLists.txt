@@ -30,7 +30,9 @@ add_definitions(-DCONFIG_DAY="${day}" -DCONFIG_YEAR="${YEAR}")
 include(CTest)
 add_test(
   NAME ${ProjectId}test
-  COMMAND "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-          "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" --exe "${ProjectId}test")
+  COMMAND
+    "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" "--no-draw" --exe
+    "${ProjectId}test")
 
 add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "50" "0")

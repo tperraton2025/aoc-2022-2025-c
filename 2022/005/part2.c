@@ -1,9 +1,11 @@
-#include "part2.h"
+#include "partx.h"
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
 
-    _blk->_data = malloc(sizeof(struct context));
+    _blk->_data = NULL;
+    TRY_TYPE_MALLOC(_blk->_data,struct context);
+    
     if (!_blk->_data)
         return ENOMEM;
 
@@ -25,12 +27,13 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 
     coord_t _prelcoordmaxima = {._x = 2, ._y = 2};
 
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, objh_byYfirst, false);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, objref_ydecr_xdecr, false);
 
     if (!_ctx->_eng)
         goto cleanup;
 
     aoc_2d_eng_parse_cli(_ctx->_eng, argc, argv);
+    _ctx->_verbose = aoc_2d_eng_isdrawing(_ctx->_eng);
     return 0;
 
 cleanup:
@@ -51,10 +54,10 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     char test[16] = {0};
 
-    aoc_2d_eng_extend_one_direction(_ctx->_eng, 20, AOC_2D_DIR_UP);
+    aoc_2d_eng_extend_one_direction(_ctx->_eng, 75, AOC_2D_DIR_UP);
 
-    aoc_2d_eng_draw(_ctx->_eng);
-    crane_action(_ctx);
+    aoc_2d_eng_draw(_ctx->_eng); 
+    crane_action(_ctx, true);
     aoc_spell_ans(_blk);
 
     return 0;
@@ -63,6 +66,12 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 static void free_solution(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CAST(struct context *, _blk->_data);
+    
+    LL_FOREACH(colnode, _ctx->_columns){
+        dll_free_all(&((columnnode_h)colnode)->_boxes, free);
+    }
+    dll_free_all(&_ctx->_columns, free); 
+    dll_free_all(&_ctx->_grippedBoxes, free);
     engine_free(_ctx->_eng);
     FREE(_blk->_data);
 }
@@ -70,272 +79,4 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
 static struct solutionCtrlBlock_t privPart2 = {._name = CONFIG_DAY " part 2", ._prologue = prologue, ._handler = handler, ._epilogue = epilogue, ._free = free_solution};
 struct solutionCtrlBlock_t *part2 = &privPart2;
 
-static int crate_lift(struct context *_ctx, command_t *_cmd)
-{
-    coordpair_t boundaries = aoc_2d_eng_get_parts_boundaries(_ctx->_eng);
-    coord_t _gripper = {._x = _cmd->from, ._y = boundaries._max._y};
-
-    for (size_t _ii = boundaries._max._y; _ii > boundaries._min._y;)
-    {
-        aoc_2d_obj_h _ObjInCol = NULL;
-        _ObjInCol = aoc_2d_eng_get_obj_by_position(_ctx->_eng, &_gripper);
-        if (_ObjInCol)
-        {
-            aoc_2d_obj_ref_t *_ntracker = aoc_2d_obj_ref_ctor(_ObjInCol);
-            if (_ntracker)
-                dll_node_append(&_ctx->_BoxStack, CAST(dll_node_h, _ntracker));
-            else
-                aoc_err("%s:%d aoc_2d_obj_ref failed", __FILE__, __LINE__);
-        }
-        else
-            break;
-        move_within_window(_ctx->_eng, &_gripper, 1, AOC_2D_DIR_UP);
-    }
-
-    size_t nGripped = 0;
-    LL_FOREACH_REV(_box, _ctx->_BoxStack)
-    {
-        aoc_2d_obj_ref_t *_ntracker = aoc_2d_obj_ref_ctor(CAST(aoc_2d_obj_ref_t *, _box)->data);
-        if (_ntracker)
-            dll_node_append(&_ctx->_grippedBoxes, CAST(dll_node_h, _ntracker));
-        else
-            aoc_err("%s:%d aoc_2d_obj_ref failed", __FILE__, __LINE__);
-
-        nGripped++;
-        if (nGripped == _cmd->count)
-            break;
-    }
-
-    aoc_2d_eng_prompt_obj_list(_ctx->_eng);
-
-    size_t _ll_size = dll_size(&_ctx->_grippedBoxes);
-    if (_ll_size)
-    {
-        aoc_2d_obj_h _grippedObj = NULL;
-        char *_grippedReport = malloc(5 * _ll_size);
-        char *_pGrippedReport = _grippedReport;
-        if (!_grippedReport)
-            return 0;
-        memset(_grippedReport, '\0', 5 * _ll_size);
-        LL_FOREACH(_node, _ctx->_grippedBoxes)
-        {
-            aoc_2d_obj_ref_t *tracker = CAST(aoc_2d_obj_ref_t *, _node);
-            _grippedObj = tracker->data;
-            _pGrippedReport += sprintf(_pGrippedReport, "%s", aoc_2d_obj_name(_grippedObj));
-        }
-
-        bool _all_blocked = false;
-        while (!_all_blocked)
-        {
-            _all_blocked = true;
-            LL_FOREACH(_node, _ctx->_grippedBoxes)
-            {
-                aoc_2d_obj_ref_t *tracker = CAST(aoc_2d_obj_ref_t *, _node);
-                _grippedObj = tracker->data;
-                tracker->_blocked = (0 != aoc_2d_eng_step_obj(_ctx->_eng, _grippedObj, 1LU, AOC_2D_DIR_UP, GREEN));
-                if (!tracker->_blocked)
-                    _all_blocked = false;
-            }
-            aoc_2d_eng_prompt_obj_list(_ctx->_eng);
-        }
-
-        aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "gripped", _grippedReport);
-        FREE(_grippedReport);
-        return 0;
-    }
-
-    char _coord_str[4] = "";
-    sprintf(_coord_str, "%3ld", _cmd->from);
-    aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "nothing to grip at", _coord_str);
-    return 1;
-}
-
-static int crate_change_lane(struct context *_ctx, command_t *_cmd)
-{
-    int ret = 0;
-    aoc_2d_obj_h _grippedObj = NULL;
-    LL_FOREACH(_node, _ctx->_grippedBoxes)
-    {
-        _grippedObj = CAST(aoc_2d_obj_ref_t *, _node)->data;
-        if (!_grippedObj)
-            aoc_err("%s", "NULL pointer gripped box");
-
-        size_t _ii = 0;
-        for (size_t i = 0; (i < 100) && (aoc_2d_obj_get_pos(_grippedObj)->_x != _cmd->to); i++)
-        {
-            AOC_2D_DIR dir = aoc_2d_obj_get_pos(_grippedObj)._x > _cmd->to ? AOC_2D_DIR_LEFT : AOC_2D_DIR_RIGHT;
-            aoc_2d_eng_step_obj(_ctx->_eng, _grippedObj, 1LU, dir, GREEN);
-        }
-        assert(_ii != 100 && "%s failed");
-    }
-    aoc_2d_eng_prompt_obj_list(_ctx->_eng);
-
-    char _coord_str[4] = "";
-    sprintf(_coord_str, "%3ld", _cmd->from);
-    aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "at lane %ld", _coord_str);
-    return 0;
-}
-
-static int crate_deposit(struct context *_ctx, command_t *_cmd)
-{
-    aoc_2d_obj_h _grippedObj = NULL;
-    if (!dll_size(&_ctx->_grippedBoxes))
-        return 0;
-
-    char *_depositReport = malloc(5 * dll_size(&_ctx->_grippedBoxes));
-    memset(_depositReport, '\0', 5 * dll_size(&_ctx->_grippedBoxes));
-    char *_pDepositReport = _depositReport;
-
-    size_t deposited = 0;
-
-    LL_FOREACH_REV(_node, _ctx->_grippedBoxes)
-    {
-        _grippedObj = CAST(aoc_2d_obj_ref_t *, _node)->data;
-        _pDepositReport += sprintf(_pDepositReport, "%s", aoc_2d_obj_name(_grippedObj));
-    }
-
-    while (dll_size(&_ctx->_grippedBoxes) != deposited)
-    {
-        deposited = 0;
-        LL_FOREACH_REV(_node, _ctx->_grippedBoxes)
-        {
-            _grippedObj = CAST(aoc_2d_obj_ref_t *, _node)->data;
-            if (aoc_2d_eng_step_obj(_ctx->_eng, _grippedObj, 1LU, AOC_2D_DIR_DOWN, GREEN))
-                deposited++;
-        }
-        aoc_2d_eng_prompt_obj_list(_ctx->_eng);
-
-        aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "depositing", _depositReport);
-    }
-    LL_FOREACH_REV_EXT(_node, _ctx->_grippedBoxes)
-    {
-        _grippedObj = CAST(aoc_2d_obj_ref_t *, _node)->data;
-        aoc_2d_eng_draw_obj(_ctx->_eng, _grippedObj, NULL);
-    }
-
-    aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "deposited", _depositReport);
-    FREE(_depositReport);
-    dll_free_all(&_ctx->_grippedBoxes, aoc_2d_obj_ref_free);
-    dll_free_all(&_ctx->_BoxStack, aoc_2d_obj_ref_free);
-    return 0;
-}
-
-static int crane_action(struct context *_ctx)
-{
-    size_t inc = 0;
-    char _sCnt[4] = "";
-    char _SFrom[4] = "";
-    char _sDest[4] = "";
-
-    LL_FOREACH(_node, _ctx->_cmds)
-    {
-        inc++;
-        command_t *_cmd = CAST(command_t *, _node);
-        sprintf(_sCnt, "%3ld", _cmd->count);
-        sprintf(_SFrom, "%3ld", _cmd->from);
-        sprintf(_sDest, "%3ld", _cmd->to);
-        aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "move", _sCnt, "from", _SFrom, "to", _sDest);
-
-        if (crate_lift(_ctx, _cmd))
-            continue;
-        if (crate_change_lane(_ctx, _cmd))
-            continue;
-        if (crate_deposit(_ctx, _cmd))
-            continue;
-    }
-    dll_free_all(&_ctx->_cmds, free);
-    dll_free_all(&_ctx->_columns, free);
-    char _uCmdCnt[4] = "";
-    sprintf(_uCmdCnt, "%3ld", inc);
-    aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, _uCmdCnt, "program finished commands executed");
-    return 0;
-}
-
-static void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
-{
-    struct context *_ctx = CAST(struct context *, _blk->_data);
-    aoc_2d_obj_h _grippedObj = NULL;
-
-    size_t _colCount = _ctx->_columns._size + 1;
-    _ctx->spelling = malloc(4);
-    char *_p = _ctx->spelling;
-    memset(_ctx->spelling, '\0', _colCount);
-    for (size_t _col = 0; _col < _colCount; _col++)
-    {
-        command_t _spell1 = {.count = 1, .from = _col * 4, .to = _col * 4};
-        crate_lift(_ctx, &_spell1);
-
-        if (!_ctx->_grippedBoxes._first)
-            continue;
-        _grippedObj = CAST(aoc_2d_obj_ref_t *, _ctx->_grippedBoxes._first)->data;
-        _p += sprintf(_p, "%c", aoc_2d_obj_name(_grippedObj)[1]);
-        crate_deposit(_ctx, &_spell1);
-    }
-    aoc_ans("AOC 2022 %s solution is %s", _blk->_name, _ctx->spelling);
-    FREE(_ctx->spelling);
-}
-
-static int parsecommand(void *arg, char *_str)
-{
-    dll_head_h _cmds = (dll_head_h)arg;
-    int match = 0;
-    int ret = 0;
-    command_t _nc = {0};
-    match = sscanf(_str, "move %ld from %ld to %ld", &_nc.count, &_nc.from, &_nc.to);
-    if (3 == match)
-    {
-        _nc.from *= 4;
-        _nc.to *= 4;
-        command_t *_pnc = command_ctor(&_nc);
-        if (!_pnc)
-            return ENOMEM;
-        ret = dll_node_append(_cmds, CAST(dll_node_h, _pnc));
-        if (ret)
-        {
-            FREE(_pnc);
-            return ENOMEM;
-        }
-        return 0;
-    }
-    return -1;
-}
-
-static int parseblock(void *arg, char *_str)
-{
-    aoc_context_h _ctx = (aoc_context_h)arg;
-    int match = 0;
-    int ret = 0;
-    size_t _len = strnlen(_str, MAX_LINE_LEN);
-    if (_len <= 3)
-        return -1;
-    _ctx->_pos._x = 1;
-
-    char _buf[] = "[A]";
-
-    for (char *_ss = strchr(_str, '['); _ss; _ss = strchr(_ss + 1, '['))
-    {
-        _ctx->_pos._x = (_ss - _str);
-        memcpy(_buf, _ss, 3);
-        match += sscanf(_buf, "[%c]", &_buf[1]);
-        if (!match)
-            continue;
-        if (N_BETWEEN_AB(_buf[1], 'A', 'Z'))
-        {
-            aoc_2d_obj_h _nobj = aoc_2d_obj_ctor(_ctx->_eng, _buf, &_ctx->_pos, _buf, OBJ_FLAG_MOBILE, "");
-            ret = aoc_2d_eng_append_obj(_ctx->_eng, _nobj);
-
-            if (ret)
-            {
-                aoc_err("failed to append %s at %s (%s)", strpos(&_ctx->_pos), _buf, strerror(ret));
-                aoc_2d_eng_free_obj(_nobj);
-            }
-            if (!dll_node_find_by_property(&_ctx->_columns, &_ctx->_pos._x, coord_same_column))
-            { 
-                dll_node_sorted_insert(&_ctx->_columns, coordtrackernode_ctor(&_ctx->_pos), highest_column);
-            }
-        }
-        _ctx->_pos._x++;
-    }
-    _ctx->_pos._y++;
-    return match ? 0 : -1;
-}
+ 

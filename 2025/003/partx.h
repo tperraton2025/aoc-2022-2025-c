@@ -17,7 +17,7 @@
 
 typedef struct joltage
 {
-    DLL_DECLARE()
+    dll_node_t _node;
     struct joltage *_other;
     size_t _rating;
     size_t _order;

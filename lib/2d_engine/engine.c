@@ -132,8 +132,8 @@ void aoc_2d_eng_parse_cli(aoc_2d_eng_h eng, int argc, char **argv)
                 aoc_2d_eng_disable_draw(eng);
             if ((0 == strcmp(argv[_iarg], "--draw-delay")) && argc > (_iarg + 1))
             {
-                if (sscanf(argv[_iarg + 1], "%3lu", &delay))
-                    eng_set_refresh_delay(eng, delay);
+                if (sscanf(argv[_iarg + 1], "%lu", &delay))
+                    aoc_2d_eng_setrefreshdelay(eng, delay);
                 else
                     aoc_err("%s", "--draw-delay not recognized, using default delay");
             }
@@ -148,7 +148,7 @@ void aoc_2d_eng_parse_cli(aoc_2d_eng_h eng, int argc, char **argv)
             }
         }
 
-    eng_set_refresh_delay(eng, delay);
+    aoc_2d_eng_setrefreshdelay(eng, delay);
     aoc_2d_eng_extend_one_direction(eng, canvassize >> 1, AOC_2D_DIR_RIGHT);
     aoc_2d_eng_extend_one_direction(eng, canvassize >> 1, AOC_2D_DIR_DOWN);
 }
@@ -193,8 +193,11 @@ int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const c
     if (eng->_drawingenabled)
     {
         coord_t _pcord = {._x = _pos->_x + eng->_partoffset._x, ._y = _pos->_y + eng->_partoffset._y};
+        printf(SAVECUR2);
         aoc_2d_eng_draw_symbol_at(eng, &_pcord, _sym, fmt);
-        aoc_2d_eng_exit_drawing_area(eng);
+        printf(RESTCUR2);
+        // aoc_2d_eng_exit_drawing_area(eng);
+        usleep(1000 * eng->_delay);
     }
     return 0;
 }
@@ -203,7 +206,7 @@ int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym,
 {
     if (eng->_drawingenabled)
     {
-        printf(SAVECUR MCUR_FMT "%s%s\n" RESET, _pos->_y, _pos->_x, fmt, _sym);
+        printf(MCUR_FMT "%s%s\n" RESET, _pos->_y, _pos->_x, fmt, _sym);
         aoc_2d_eng_exit_drawing_area(eng);
         usleep(1000 * eng->_delay);
     }
@@ -297,9 +300,9 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h eng, aoc_2d_obj_h newobj)
         return ERANGE;
     int ret = 0;
     if (eng->_objsort)
-        ret = dll_node_sorted_insert(&eng->_objects, CAST(dll_node_h, newobj), eng->_objsort);
+        ret = dll_node_sorted_insert(&eng->_objects, (dll_node_h)newobj, eng->_objsort);
     else
-        dll_node_append(&eng->_objects, CAST(dll_node_h, newobj));
+        dll_node_append(&eng->_objects, (dll_node_h)newobj);
     if (ret)
     {
         aoc_err("Failed to append %s at %s: %s", newobj->_name, strpos(&newobj->_pos), strerror(ret));
@@ -312,7 +315,7 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h eng, aoc_2d_obj_h newobj)
         if (ret)
         {
             /* user has responsibility to free the unusable object */
-            dll_node_disconnect(&eng->_objects, CAST(dll_node_h, newobj));
+            dll_node_disconnect(&eng->_objects, (dll_node_h)newobj);
             aoc_err("Failed to append %s at %s: %s", newobj->_name, strpos(&newobj->_pos), strerror(ret));
             return ERANGE;
         }
@@ -343,7 +346,7 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h eng, aoc_2d_obj_h newobj)
  * in cases with a large number of objects, a map imposes itself, regarless of the space it
  * takes, as collision detections requires to iterate an incalculable amount of times.
  */
-aoc_2d_obj_h aoc_2d_eng_get_obj_by_position(aoc_2d_eng_h eng, coord_t *_pos)
+aoc_2d_obj_h aoc_2d_eng_get_obj_by_position(aoc_2d_eng_h eng, const coord_t *const _pos)
 {
     if (eng->_collisionmapenabled)
     {
@@ -537,7 +540,7 @@ void aoc_2d_eng_foreach_objpos_arg(aoc_2d_eng_h eng, void *arg, bool func(void *
         if (_it->_obsolete)
             continue;
         aoc_2d_obj_h _obj = (aoc_2d_obj_h)_it;
-        coord_tracker_t _temp = {0};
+        coordnode_t _temp = {0};
         _temp._coord._x = _obj->_pos._x;
         _temp._coord._y = _obj->_pos._y;
         if (!func(arg, &_temp))
@@ -584,7 +587,7 @@ dll_head_h aoc_2d_eng_list_obj_pos(aoc_2d_eng_h eng, dll_compare *comp)
     {
         if (node->_obsolete)
             continue;
-        dll_node_sorted_insert(_poslists, coordtrackernode_ctor(&((aoc_2d_obj_h)node)->_pos), comp);
+        dll_node_sorted_insert(_poslists, coordnode_ctor(&((aoc_2d_obj_h)node)->_pos), comp);
     }
     return _poslists;
 }
@@ -604,7 +607,7 @@ dll_head_h aoc_2d_eng_list_obj_pos_arg(aoc_2d_eng_h eng, void *arg, bool func(vo
             continue;
         if (!func(arg, _objn))
             continue;
-        dll_node_append(_poslists, coordtrackernode_ctor(&_objh->_pos));
+        dll_node_append(_poslists, coordnode_ctor(&_objh->_pos));
     }
     return _poslists;
 }
@@ -833,14 +836,12 @@ int aoc_2d_eng_draw_part(struct ascii_2d_engine *eng, part_h part, char *specfmt
     if (eng->_drawingenabled)
     {
         printf(MCUR_FMT "%s", part->_pos._y + eng->_partoffset._y, part->_pos._x + eng->_partoffset._x, specfmt ? specfmt : "");
-        printf("%s", part->_fmt ? part->_fmt : "");
-        printf("%s", specfmt ? specfmt : "");
-        printf("%c" RESET, part->_sym);
+        printf("%c\n" RESET, part->_sym);
     }
     return ret;
 }
 
-int aoc_2d_eng_draw_obj(struct ascii_2d_engine *eng, struct object *obj, char *specfmt)
+int aoc_2d_eng_draw_obj(aoc_2d_eng_h eng,  aoc_2d_obj_h obj, char *specfmt)
 {
     int ret = 0;
 
@@ -851,7 +852,7 @@ int aoc_2d_eng_draw_obj(struct ascii_2d_engine *eng, struct object *obj, char *s
         LL_FOREACH_EXT(_partdllnode, obj->_parts)
         {
             _parth = CAST(part_h, _partdllnode);
-            aoc_2d_eng_draw_part(eng, _parth, obj->_fmt);
+            aoc_2d_eng_draw_part(eng, _parth, specfmt ? specfmt : obj->_fmt);
         }
         usleep(1000 * eng->_delay);
         aoc_2d_eng_exit_drawing_area(eng);
@@ -859,6 +860,7 @@ int aoc_2d_eng_draw_obj(struct ascii_2d_engine *eng, struct object *obj, char *s
 
     return ret;
 }
+
 
 int aoc_2d_eng_erase_obj(struct ascii_2d_engine *eng, struct object *obj)
 {

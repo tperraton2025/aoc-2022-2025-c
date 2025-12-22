@@ -50,10 +50,10 @@ typedef struct
 static int track_tail(struct solutionCtrlBlock_t *_blk, coord_t *_pos)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
-    coord_tracker_t _posTrack = {._coord = {._x = _pos->_x, _pos->_y}};
-    if (NULL == dll_node_find_by_property(&_ctx->_tailPos, (void *)&_posTrack, coord_equal))
+    coordnode_t _posTrack = {._coord = {._x = _pos->_x, _pos->_y}};
+    if (NULL == dll_node_find_by_property(&_ctx->_tailPos, (void *)&_posTrack, coordnodes_equal))
     {
-        coord_tracker_h _npos = malloc(sizeof(coord_tracker_t));
+        coordnode_h _npos = malloc(sizeof(coordnode_t));
         if (!_npos)
             return ENOMEM;
         _npos->_coord._x = _pos->_x;
@@ -84,7 +84,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_tailPos);
     dll_head_init(&_ctx->_tails);
 
-    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, objh_byYfirst, false);
+    _ctx->_eng = aoc_2d_eng_create(&_prelcoordmaxima, '~', 0, objref_ydecr_xdecr, false);
 
     if (!_ctx->_eng)
     {
@@ -181,7 +181,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_obj_h _head, aoc_2d_obj_h _tail, AOC_2D_DIR _dir)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
-    coord_tracker_h _npos = NULL;
+    coordnode_h _npos = NULL;
 
     if (_ctx->_head == _head)
     {
@@ -214,7 +214,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     LL_FOREACH(_node, _ctx->_movs)
     {
         nmov = MOV_CAST(_node);
-        coord_tracker_h _npos = NULL;
+        coordnode_h _npos = NULL;
         for (size_t ii = 0; ii < nmov->steps; ii++)
         {
             _ctx->_lastMovedLink = _ctx->_head;
@@ -228,7 +228,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     LL_FOREACH(pos_node, _ctx->_tailPos)
     {
-        coord_tracker_h _npos = CAST(coord_tracker_h, pos_node);
+        coordnode_h _npos = CAST(coordnode_h, pos_node);
         aoc_2d_eng_draw_part_at(_ctx->_eng, &_npos->_coord, "#", "");
     }
 

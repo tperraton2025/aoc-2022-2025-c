@@ -36,7 +36,7 @@ size_t trimaccessiblepositions(aoc_2d_eng_h eng, dll_head_h allpos)
     LL_FOREACH_P(_posn, allpos)
     {
         size_t _limit = 0;
-        coord_tracker_h _trkh = (coord_tracker_h)_posn;
+        coordnode_h _trkh = (coordnode_h)_posn;
         coord_t *_posh = &_trkh->_coord;
 
         _limit += dll_try_count_nodes_by_property(_posn, (void *)_posn, coord_dist_less_than_2, coord_dist_more_than_2);
@@ -48,7 +48,7 @@ size_t trimaccessiblepositions(aoc_2d_eng_h eng, dll_head_h allpos)
         if (_posn->_obsolete)
         {
             liberated++;
-            coord_tracker_h _trkh = (coord_tracker_h)_posn;
+            coordnode_h _trkh = (coordnode_h)_posn;
             coord_t *_posh = &_trkh->_coord;
             aoc_2d_eng_draw_part_at(eng, _posh, "x", RED);
             ghostnode._next = _posn->_next;

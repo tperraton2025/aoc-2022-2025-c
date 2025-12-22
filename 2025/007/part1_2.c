@@ -9,7 +9,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     _ctx->_result = 0;
 
     coord_t _lim = {._x = 2, ._y = 2};
-    _ctx->_eng = aoc_2d_eng_create(&_lim, '.', 10, objh_byYfirst, true);
+    _ctx->_eng = aoc_2d_eng_create(&_lim, '.', 10, objref_ydecr_xdecr, true);
     parser_append(&_ctx->_parsers, &_objparser, _ctx);
     aoc_2d_eng_parse_cli(_ctx->_eng, argc, argv);
 

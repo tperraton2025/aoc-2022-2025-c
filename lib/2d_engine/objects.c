@@ -97,6 +97,7 @@ aoc_2d_obj_ref_t *aoc_2d_obj_ref_ctor(aoc_2d_obj_h _obj)
         return NULL;
     _ntracker->_node._prev = NULL;
     _ntracker->_node._next = NULL;
+    _ntracker->_node._obsolete = false;
     _ntracker->_blocked = false;
     _ntracker->data = _obj;
     _obj->_refcnt++;
@@ -129,23 +130,13 @@ const char *const aoc_2d_obj_get_name(aoc_2d_obj_h _obj)
 }
 
 static char _strobj[64] = {0};
-
-char *strobj(aoc_2d_obj_h obj)
+const char const *strobj(aoc_2d_obj_h obj)
 {
-    sprintf(_strobj, "%.4s %.lu:%lu", obj->_name, obj->_pos._x, obj->_pos._y);
+    snprintf(_strobj, sizeof(_strobj), "%.4s %.lu:%lu", obj->_name, obj->_pos._x, obj->_pos._y);
     return _strobj;
 }
-
-dll_node_h objh_byXfirst(dll_node_h arga, dll_node_h argb)
-{
-    coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
-    coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
-    if (posa->_x == posb->_x)
-        return posa->_y > posb->_y ? arga : argb;
-    return posa->_x > posb->_x ? arga : argb;
-}
-
-dll_node_h objh_byYfirst(dll_node_h arga, dll_node_h argb)
+ 
+dll_node_h objref_ydecr_xdecr(dll_node_h arga, dll_node_h argb)
 {
     coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
     coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
@@ -153,39 +144,42 @@ dll_node_h objh_byYfirst(dll_node_h arga, dll_node_h argb)
         return posa->_x > posb->_x ? arga : argb;
     return posa->_y > posb->_y ? arga : argb;
 }
-
-dll_node_h posh_byXfirst(dll_node_h arga, dll_node_h argb)
+dll_node_h objref_xdecr_ydecr(dll_node_h arga, dll_node_h argb)
 {
-    coord_t *posa = ((coord_t *)arga);
-    coord_t *posb = ((coord_t *)argb);
+    coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
+    coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
     if (posa->_x == posb->_x)
         return posa->_y > posb->_y ? arga : argb;
     return posa->_x > posb->_x ? arga : argb;
-}
+} 
 
-dll_node_h posh_byYfirst(dll_node_h arga, dll_node_h argb)
+dll_node_h pos_ydecr_xdecr(dll_node_h arga, dll_node_h argb)
 {
     coord_t *posa = ((coord_t *)arga);
     coord_t *posb = ((coord_t *)argb);
     if (posa->_y == posb->_y)
         return posa->_x > posb->_x ? arga : argb;
-    return posa->_y > posb->_y ? arga : argb;
+    return (posa->_y < posb->_y) ? arga : argb;
 }
 
-dll_node_h pickhighestY(dll_node_h arga, dll_node_h argb)
+dll_node_h posnode_yincr_xdecr(dll_node_h arga, dll_node_h argb)
 {
-    coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
-    coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
-    return posa->_y > posb->_y ? arga : argb;
+    coord_t *posa = &((coordnode_h)arga)->_coord;
+    coord_t *posb = &((coordnode_h)argb)->_coord;
+    if (posa->_y == posb->_y)
+        return posa->_x > posb->_x ? arga : argb;
+    return (posa->_y < posb->_y) ? arga : argb;
 }
-
-dll_node_h picklowestY(dll_node_h arga, dll_node_h argb)
+   
+dll_node_h posnode_ydecr_xdecr(dll_node_h arga, dll_node_h argb)
 {
-    coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
-    coord_t *posb = &((aoc_2d_obj_h)argb)->_pos;
-    return posa->_y < posb->_y ? arga : argb;
+    coord_t *posa = &((coordnode_h)arga)->_coord;
+    coord_t *posb = &((coordnode_h)argb)->_coord;
+    if (posa->_y == posb->_y)
+        return posa->_x > posb->_x ? arga : argb;
+    return (posa->_y > posb->_y) ? arga : argb;
 }
-
+  
 const char *const aoc_2d_obj_name(const aoc_2d_obj_h const _obj)
 {
     if (!_obj)

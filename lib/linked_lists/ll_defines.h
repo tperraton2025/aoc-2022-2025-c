@@ -1,8 +1,25 @@
 #ifndef AOC_PRIV_LL_DEFINES_H
 #define AOC_PRIV_LL_DEFINES_H
 
-#define DLL_DECLARE(_type) \
-    struct dll_node _node;
+#define typedef_dllnode(type, members) \
+    typedef struct type                \
+    {                                  \
+        dll_node_t _node;              \
+        members                        \
+    } type##node_t;                    \
+    typedef type##node_t *type##node_h;
+
+#define typedef_dllhandle(type) \
+    typedef type##_t *type##_h;
+
+#define typenode_ctor(type, membersdef, ...) \
+    dll_node_h type##node_ctor(__VA_ARGS__) \
+    {                                        \
+        type##node_t *new = NULL;            \
+        TRY_TYPE_MALLOC(new, type##node_t);  \
+        membersdef;                          \
+        return &new->_node;                  \
+    }
 
 #define DLL_NODE_CTOR(_type, _name)   \
     _type *_name(void)                \

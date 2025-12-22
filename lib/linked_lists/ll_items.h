@@ -23,6 +23,15 @@ typedef struct voidpnode
 typedef voidpnode_t *voidpnode_h;
 dll_node_h voidpnode_ctor(void *ptr);
 
+typedef struct voidparrnode
+{
+    struct dll_node _node;
+    size_t _len;
+    void *_ptr;
+} voidparrnode_t;
+typedef voidparrnode_t *voidparrnode_h;
+dll_node_h voidparrnode_ctor(void **data, size_t len);
+
 typedef struct intnode
 {
     struct dll_node _node;
@@ -73,10 +82,9 @@ typedef struct float3Dnode_h
     float3D_t _data;
 } float3Dnode_t;
 typedef float3Dnode_t *float3Dnode_h;
-dll_node_h float3Dnode_ctor(const float3D_t const data);
+dll_node_h float3Dnode_ctor(const float3D_t const data); 
 
 dll_node_h intcomphighest(dll_node_h arga, dll_node_h argb);
-
-dll_node_h posh_byXfirst(dll_node_h arga, dll_node_h argb);
-dll_node_h posh_byYfirst(dll_node_h arga, dll_node_h argb);
+dll_node_h pos_ydecr_xdecr(dll_node_h arga, dll_node_h argb); 
+dll_node_h posnode_yincr_xdecr(dll_node_h arga, dll_node_h argb); 
 #endif

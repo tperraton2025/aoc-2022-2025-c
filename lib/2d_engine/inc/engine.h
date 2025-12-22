@@ -69,8 +69,6 @@ int aoc_2d_eng_calculate_obj_position(aoc_2d_obj_h obj);
 
 part_h aoc_2d_eng_get_part_by_position(aoc_2d_eng_h eng, coord_t *pos);
 
-dll_node_h pickhighestY(dll_node_h arga, dll_node_h argb);
-
 static const coordpair_t _drawlimits = {._max = {._x = ABSOLUTE_MAX_X, ._y = ABSOLUTE_MAX_Y},
                                         ._min = {._x = 1, ._y = 1}};
 static const coordpair_t _coordpair = {._max = {._x = ABSOLUTE_MAX_X, ._y = ABSOLUTE_MAX_Y},

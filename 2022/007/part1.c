@@ -72,7 +72,6 @@ static void free_solution(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CAST(struct context *, _blk->_data);
     aoc_tree_free_all(&_ctx->_root->path);
     dll_free_all(&_ctx->_cmds, stringnode_free);
-    FREE(_ctx->_root);
     FREE(_blk->_data);
 }
 

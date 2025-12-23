@@ -50,16 +50,12 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     struct context *_ctx = CTX_CAST(_blk->_data);
     aoc_2d_eng_extend_one_direction(_ctx->_eng, 75, AOC_2D_DIR_UP);
     aoc_2d_eng_draw(_ctx->_eng);
-
-    _ctx->_verbose = false;
-    aoc_2d_eng_disable_draw(_ctx->_eng);
     
     crane_action(_ctx, false);
     
     aoc_spell_ans(_blk);
     _ctx->_verbose = true;
     
-    aoc_2d_eng_enable_draw(_ctx->_eng);
     return 0;
 }
 

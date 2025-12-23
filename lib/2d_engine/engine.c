@@ -799,7 +799,6 @@ aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *
         if (COORD_RANGE_CHECK(_ret->_pos, eng->_poslim))
         {
             aoc_2d_obj_h other = aoc_2d_eng_get_obj_by_position(eng, pos);
-            assert(!other);
             if (other)
             {
                 if (!(_ret->_props & OBJ_FLAG_NO_COLLISION) && !(other->_props & OBJ_FLAG_NO_COLLISION))

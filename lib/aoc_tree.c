@@ -76,6 +76,7 @@ void aoc_tree_free_all(tree_node_h _start)
         _node = _nxtNode;
     }
     _root->_free(_root);
+    FREE(_root);
 }
 
 int aoc_tree_swap(tree_node_h _a, tree_node_h _b)
@@ -116,12 +117,12 @@ void aoc_tree_free_node(tree_node_h _a)
     if (_anode->_parent)
         dll_node_disconnect(&_anode->_parent->_dllchildren, NODE_CAST(_a));
 
-    aoc_tree_free_all_children(_a);
     FOR_EACH_PARENT_UNTIL_ROOT(_node, _to_delete)
     {
         assert(_node->_size && "error in tree node counting");
         _node->_size--;
     }
+    aoc_tree_free_all_children(_a);
 }
 
 tree_node_h aoc_tree_leaf_node(tree_node_h _start)

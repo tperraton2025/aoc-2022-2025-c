@@ -74,3 +74,18 @@ aocclean(){
         find -name "CMakeFiles" -type d -execdir 'rm' '-rv' '{}' ';'
 }
 
+_aoc_opts-2 ()
+{
+ local cur
+ COMPREPLY=()
+ cur=${COMP_WORDS[COMP_CWORD]}
+
+ case "$cur" in
+        -*)
+        COMPREPLY=($(compgen -W '--no-draw --draw-delay --' -- $cur));;
+ esac
+ return 0
+}
+
+complete -F _aoc_opts-2 -o filenames aoctest 
+complete -F _aoc_opts-2 -o filenames aocinput 

@@ -31,4 +31,11 @@ typedef dll_node_h(dll_exp_compare)(dll_node_h _a, dll_node_h _b, dll_node_h _c)
 
 typedef int(dll_test)(dll_node_h _a, dll_node_h _b);
 
+typedef struct sll_node
+{
+    struct sll_node *_next;
+} sllnode_t;
+typedef sllnode_t *sll_node_h;
+
+
 #endif

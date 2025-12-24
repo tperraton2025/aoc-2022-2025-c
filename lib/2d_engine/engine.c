@@ -289,15 +289,16 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h eng, aoc_2d_obj_h newobj)
     if (!newobj)
         return EINVAL;
 
-    LL_FOREACH(_partiter, newobj->_parts)
+    LL_FOREACH(_partnode, newobj->_parts)
     {
-        part_h _part = (part_h)_partiter;
+        part_h _part = (part_h)_partnode;
         _extension._x = HIGHEST(eng->_poslim._max._x, _part->_pos._x);
         _extension._y = HIGHEST(eng->_poslim._max._y, _part->_pos._y);
     }
 
     if (!COORD_RANGE_CHECK(_extension, _drawlimits))
         return ERANGE;
+
     int ret = 0;
     if (eng->_objsort)
         ret = dll_node_sorted_insert(&eng->_objects, (dll_node_h)newobj, eng->_objsort);
@@ -738,96 +739,6 @@ int aoc_2d_eng_step_obj(aoc_2d_eng_h eng, aoc_2d_obj_h _obj, size_t steps, AOC_2
     return _ret;
 }
 
-aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *pos, char *sym, size_t props, const char *const fmt)
-{
-    struct object *_ret = NULL;
-    TRY_TYPE_MALLOC(_ret, struct object);
-    if (!_ret)
-        return NULL;
-
-    size_t _strlen = strnlen(name, MAX_NAME_LEN_LUI) + 1;
-    TRY_ARR_MALLOC(_ret->_name, _strlen);
-    if (!_ret->_name)
-        goto free_rt;
-    strncpy(_ret->_name, name, _strlen);
-
-    _strlen = strnlen(fmt, MAX_NAME_LEN_LUI) + 1;
-    TRY_ARR_MALLOC(_ret->_fmt, _strlen);
-    if (!_ret->_fmt)
-        goto free_rt;
-    strncpy(_ret->_fmt, fmt, _strlen);
-
-    char _buf[ABSOLUTE_MAX_PART_CNT] = {0};
-    char *_pc;
-
-    strncpy(_buf, sym, ABSOLUTE_MAX_PART_CNT - 1);
-    dll_head_init(&_ret->_parts);
-
-    _pc = strtok(_buf, "\n");
-
-    coord_t _rpos = {._x = pos->_x, ._y = pos->_y};
-
-    assert(COORD_RANGE_CHECK(_rpos, _coordpair));
-
-    while (_pc)
-    {
-        size_t _parti = 0;
-        size_t _partcnt = 0;
-        _partcnt = strnlen(_pc, ABSOLUTE_MAX_PART_CNT);
-        while (_parti < _partcnt)
-        {
-            if (_buf[_parti] != ' ')
-            {
-                part_h _pns = aoc_2d_eng_new_part(_ret, &_rpos, _buf[_parti], NULL);
-                if (dll_node_append(&_ret->_parts, NODE_CAST(_pns)))
-                    goto free_ll;
-            }
-            _rpos._x += 1;
-            _parti++;
-        }
-        _rpos._y += 1;
-        _rpos._x = 0;
-        _pc = strtok(NULL, "\n");
-    }
-    _ret->_props = props;
-
-    if (pos)
-    {
-        _ret->_pos._x = pos->_x;
-        _ret->_pos._y = pos->_y;
-
-        if (COORD_RANGE_CHECK(_ret->_pos, eng->_poslim))
-        {
-            aoc_2d_obj_h other = aoc_2d_eng_get_obj_by_position(eng, pos);
-            if (other)
-            {
-                if (!(_ret->_props & OBJ_FLAG_NO_COLLISION) && !(other->_props & OBJ_FLAG_NO_COLLISION))
-                {
-                    goto free_ll;
-                }
-            }
-        }
-    }
-    else
-    {
-        //! should have a collision test.
-        _ret->_pos._x = eng->_poslim._min._x;
-        _ret->_pos._y = eng->_poslim._min._y;
-    }
-
-    aoc_2d_eng_calculate_obj_position(_ret);
-
-    return _ret;
-
-free_ll:
-    dll_free_all(&_ret->_parts, aoc_2d_eng_free_part);
-free_name:
-    FREE(_ret->_name);
-    FREE(_ret->_fmt);
-free_rt:
-    FREE(_ret);
-    return NULL;
-}
 
 int aoc_2d_eng_draw_part(struct ascii_2d_engine *eng, part_h part, char *specfmt)
 {

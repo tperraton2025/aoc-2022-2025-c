@@ -27,7 +27,7 @@ typedef struct object
 
 typedef struct part
 {
-    struct dll_node _node;
+    sll_node_h _node;
     struct object *_parent;
     coord_t _pos;
     char _sym;

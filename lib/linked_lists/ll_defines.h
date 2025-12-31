@@ -12,23 +12,23 @@
 #define typedef_dllhandle(type) \
     typedef type##_t *type##_h;
 
-#define typenode_ctor(type, membersdef, ...) \
-    dll_node_h type##node_ctor(__VA_ARGS__) \
-    {                                        \
-        type##node_t *new = NULL;            \
-        TRY_TYPE_MALLOC(new, type##node_t);  \
-        membersdef;                          \
-        return &new->_node;                  \
+#define typenode_ctor(type, membersdef, ...)     \
+    dll_node_h type##node_ctor(__VA_ARGS__)      \
+    {                                            \
+        type##node_t *new = NULL;                \
+        new = calloc(1LU, sizeof(type##node_t)); \
+        membersdef;                              \
+        return &new->_node;                      \
     }
 
-#define DLL_NODE_CTOR(_type, _name)   \
-    _type *_name(void)                \
-    {                                 \
-        _type *_ret = NULL;           \
-        TRY_TYPE_MALLOC(_ret, _type); \
-        if (!_ret)                    \
-            return NULL;              \
-        return _ret;                  \
+#define DLL_NODE_CTOR(_type, _name)        \
+    _type *_name(void)                     \
+    {                                      \
+        _type *_ret = NULL;                \
+        _ret = calloc(1LU, sizeof(_type)); \
+        if (!_ret)                         \
+            return NULL;                   \
+        return _ret;                       \
     }
 
 #define LL_FOREACH_P_EXT(_it, _head_h) \

@@ -35,28 +35,45 @@ size_t trimaccessiblepositions(aoc_2d_eng_h eng, dll_head_h allpos)
     dll_node_t ghostnode = {0};
     LL_FOREACH_P(_posn, allpos)
     {
-        size_t _limit = 0;
-        coordnode_h _trkh = (coordnode_h)_posn;
-        coord_t *_posh = &_trkh->_coord;
+        size_t _obstacles = 0;
+        coord_t *_posh = &((coordnode_h)_posn)->_coord;
 
-        _limit += dll_try_count_nodes_by_property(_posn, (void *)_posn, coord_dist_less_than_2, coord_dist_more_than_2);
-        if (4 > _limit)
+        uint2D_t scanmin = {._xy._x = _posh->_x ? _posh->_x - 1 : _posh->_x,
+                            ._xy._y = _posh->_y ? _posh->_y - 1 : _posh->_y};
+        uint2D_t scanmax = {._xy._x = _posh->_x + 1, ._xy._y = _posh->_y + 1};
+        uint2D_t scan = scanmin;
+
+        do
+        {
+            coord_t _pos = {._x = scan._xy._x, ._y = scan._xy._y};
+            if (_pos._x == _posh->_x && _pos._y == _posh->_y)
+                continue;
+
+            if (aoc_2d_eng_get_obj_by_position(eng, &_pos))
+                _obstacles++;
+
+        } while (!bscanuint2d(&scan, &scanmin, &scanmax));
+
+        if (4 > _obstacles)
+        {
             _posn->_obsolete = true;
+        }
     }
     LL_FOREACH_P_EXT(_posn, allpos)
     {
         if (_posn->_obsolete)
         {
             liberated++;
-            coordnode_h _trkh = (coordnode_h)_posn;
-            coord_t *_posh = &_trkh->_coord;
-            aoc_2d_eng_draw_part_at(eng, _posh, "x", RED);
+            coord_t *_posh = &((coordnode_h)_posn)->_coord;
+            aoc_2d_obj_delete(eng, aoc_2d_eng_get_obj_by_position(eng, _posh));
+            aoc_2d_eng_draw_sym_at(eng, _posh, "x", RED);
+
             ghostnode._next = _posn->_next;
             dll_node_disconnect(allpos, _posn);
             free(_posn);
+            _posn = &ghostnode;
             if (!ghostnode._next)
                 break;
-            _posn = &ghostnode;
         }
     }
     return liberated;

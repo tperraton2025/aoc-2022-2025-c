@@ -97,7 +97,7 @@ int engine_cursor_user_stats(struct ascii_2d_engine *eng);
 
 int aoc_2d_eng_exit_drawing_area(struct ascii_2d_engine *eng);
 
-int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const char *fmt);
+int aoc_2d_eng_draw_sym_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const char *fmt);
 int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym, const char *fmt);
 size_t aoc_2d_eng_get_dist_between_objects(aoc_2d_eng_h eng, aoc_2d_obj_h _a, aoc_2d_obj_h _b);
 int aoc_2d_eng_move_one_step_towards(aoc_2d_eng_h eng, aoc_2d_obj_h _a, coord_t _pos);

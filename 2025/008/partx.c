@@ -20,12 +20,12 @@ typenode_ctor(pointref,
 dll_node_h pointnode_ctor(float3D_h p3dref)
 {
     pointnode_h npointnode = NULL;
-    TRY_TYPE_MALLOC(npointnode, pointnode_t);
+    npointnode = calloc(1LU, sizeof(pointnode_t));
     npointnode->_f3d = p3dref;
     npointnode->_shortestdist = 9000000000000.0f;
     return &npointnode->_node;
 }
- 
+
 bool areonoftwopoints(void *arga, void *argb)
 {
     return ((float3D_h *)argb)[0] == ((pointnode_h)((voidpnode_h)arga)->_ptr)->_f3d ||

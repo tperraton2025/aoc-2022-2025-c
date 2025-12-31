@@ -60,7 +60,7 @@ joltchoice_h joltagetreechoice(joltchoice_h parent, size_t decimals, dll_head_h 
     if (!selected || !free)
         return NULL;
 
-    TRY_TYPE_MALLOC(newchoice, joltchoice_t);
+    newchoice = calloc(1LU, sizeof(joltchoice_t));
     if (!newchoice)
         return NULL;
 

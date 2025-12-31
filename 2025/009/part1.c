@@ -4,7 +4,7 @@
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    TRY_TYPE_MALLOC(_blk->_data, struct context);
+    _blk->_data = calloc(1LU, sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
     context_h _ctx = CTX_CAST(_blk->_data);
@@ -68,6 +68,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 
     dll_free_all(ctx->_blocks_xaligned, free);
     dll_free_all(ctx->_blocks_yaligned, free);
+    dll_free_all(&ctx->_boundaries, free);
     free(ctx->_blocks_xaligned);
     free(ctx->_blocks_yaligned);
     aoc_ans("AOC %s %s solution is %lu", CONFIG_YEAR, _blk->_name, ctx->_result);

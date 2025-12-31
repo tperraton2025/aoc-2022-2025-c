@@ -2,7 +2,7 @@
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    TRY_TYPE_MALLOC(_blk->_data, struct context);
+    _blk->_data = calloc(1LU, sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
     context_h _ctx = CTX_CAST(_blk->_data);

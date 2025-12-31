@@ -24,6 +24,7 @@ typedef struct object
     size_t _refcnt;
     size_t _collisionscounter;
 } object_t;
+typedef object_t *object_h;
 
 typedef struct part
 {

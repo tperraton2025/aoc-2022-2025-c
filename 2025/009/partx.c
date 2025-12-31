@@ -17,7 +17,7 @@ parser_t blockparser = {._func = posparser, ._name = "blockparser"};
 int scanboundaries(context_h ctx)
 {
     populateedges(ctx, AXIS_X);
-    //populateedges(ctx, AXIS_Y);
+    // populateedges(ctx, AXIS_Y);
 }
 
 int trackcoord(coord_t *goal, coord_t *curs)
@@ -106,7 +106,7 @@ void populateedges(context_h const ctx, const axis_t axis)
     {
         coordnode_h coordn = (coordnode_h)node;
         dll_node_append(blockslists[const_axis], coordnode_ctor(&coordn->_coord));
-        aoc_2d_eng_draw_part_at(ctx->_eng, &((coordnode_h)node)->_coord, "*", colors[axis]);
+        aoc_2d_eng_draw_sym_at(ctx->_eng, &((coordnode_h)node)->_coord, "*", colors[axis]);
     }
 
     dll_free_all(&ctx->_boundaries, free);
@@ -155,7 +155,7 @@ void mergeboundaries(context_h ctx)
                     ctx->_blocks_yaligned,
                     &GETPOS(pointysorted->_next),
                     coordnodes_equal);
-        } 
+        }
     }
 }
 
@@ -164,12 +164,12 @@ void plotboundaries(context_h ctx)
     LL_FOREACH(node, ctx->_boundaries)
     {
         ctx->_cursor = GETPOS(node);
-        // do
-        // printf(ERASE_LINE_FROM_CR "-- plotted " GREEN " %s" RESET "\n", strpos(&ctx->_cursor));
-        // aoc_2d_eng_draw_part_at(ctx->_eng, &ctx->_cursor, "+", coordt_equal(&ctx->_cursor, &GETPOS(node)) ? RED : GREEN);
-        // while (!trackcoord(&GETPOS((node->_next ? node->_next : ctx->_boundaries._first)), &ctx->_cursor));
-        // if (ctx->_verbose)
-        //    printf(ERASE_LINE_FROM_CR "-- plotted " GREEN " %s" RESET "\n", strpos(&GETPOS(node)));
+        do
+        {
+            printf(ERASE_LINE_FROM_CR "-- plotted " GREEN " %s" RESET "\n", strpos(&ctx->_cursor));
+            aoc_2d_eng_draw_sym_at(ctx->_eng, &ctx->_cursor, "+", coordt_equal(&ctx->_cursor, &GETPOS(node)) ? RED : GREEN);
+        } while (!trackcoord(&GETPOS((node->_next ? node->_next : ctx->_boundaries._first)), &ctx->_cursor));
+        if (ctx->_verbose)
+            printf(ERASE_LINE_FROM_CR "-- plotted " GREEN " %s" RESET "\n", strpos(&GETPOS(node)));
     }
 }
-

@@ -6,7 +6,7 @@
 dll_node_h voidpnode_ctor(void *ptr)
 {
     voidpnode_t *ret = NULL;
-    TRY_TYPE_MALLOC(ret, voidpnode_t);
+    ret = calloc(1LU, sizeof(voidpnode_t));
     ret->_ptr = ptr;
     return &ret->_node;
 }
@@ -75,7 +75,7 @@ int stringnode_rename(stringnode_h node, const char *const name)
 dll_node_h floatnode_ctor(float val)
 {
     floatnode_h ret;
-    TRY_TYPE_MALLOC(ret, floatnode_t);
+    ret = calloc(1LU, sizeof(floatnode_t));
     ret->_val = val;
     return &ret->_node;
 }
@@ -89,7 +89,7 @@ float3D_t float3D_ctor(const float x, const float y, const float z)
 dll_node_h float3Dnode_ctor(const float3D_t const data)
 {
     float3Dnode_h val = NULL;
-    TRY_TYPE_MALLOC(val, float3Dnode_t);
+    val = calloc(1LU, sizeof(float3Dnode_t));
     val->_data = data;
     return &val->_node;
 }
@@ -97,7 +97,7 @@ dll_node_h float3Dnode_ctor(const float3D_t const data)
 dll_node_h intnode_ctor(size_t value)
 {
     intnode_h ret = NULL;
-    TRY_TYPE_MALLOC(ret, intnode_t);
+    ret = calloc(1LU, sizeof(intnode_t));
     ret->_int = value;
     return &ret->_node;
 }
@@ -110,7 +110,7 @@ dll_node_h intcomphighest(dll_node_h arga, dll_node_h argb)
 dll_node_h voidparrnode_ctor(void **data, size_t len)
 {
     voidparrnode_h new = NULL;
-    TRY_TYPE_MALLOC(new, voidparrnode_t);
+    new = calloc(1LU, sizeof(voidparrnode_t));
     new->_len = len;
     memcpy(&new->_ptr, data, len * sizeof(void *));
     return &new->_node;

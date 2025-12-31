@@ -13,7 +13,7 @@ a part has :
 -   a format (color/underline/bold...)
 */
 
-part_h aoc_2d_eng_new_part(struct object *obj, coord_t *sympos, char sym, char *fmt)
+part_h aoc_2d_eng_new_part(object_h obj, coord_t *sympos, char sym, char *fmt)
 {
     part_h ret = malloc(sizeof(struct part));
     if (!ret)
@@ -44,19 +44,19 @@ void aoc_2d_eng_free_part(void *arg)
 
 aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *pos, char *sym, size_t props, const char *const fmt)
 {
-    struct object *_ret = NULL;
-    TRY_TYPE_MALLOC(_ret, struct object);
+    object_h _ret = NULL;
+    _ret = calloc(1LU, sizeof(object_t));
     if (!_ret)
         return NULL;
 
     size_t _strlen = strnlen(name, MAX_NAME_LEN_LUI) + 1;
-    TRY_ARR_MALLOC(_ret->_name, _strlen);
+    _ret->_name = calloc(_strlen, sizeof(*name));
     if (!_ret->_name)
         goto free_rt;
     strncpy(_ret->_name, name, _strlen);
 
     _strlen = strnlen(fmt, MAX_NAME_LEN_LUI) + 1;
-    TRY_ARR_MALLOC(_ret->_fmt, _strlen);
+    _ret->_fmt = calloc(_strlen, sizeof(char));
     if (!_ret->_fmt)
         goto free_rt;
     strncpy(_ret->_fmt, fmt, _strlen);
@@ -69,7 +69,7 @@ aoc_2d_obj_h aoc_2d_obj_ctor(aoc_2d_eng_h eng, const char *const name, coord_t *
 
     _pc = strtok(_buf, "\n");
 
-    coord_t _rpos = {._x = pos->_x, ._y = pos->_y};
+    coord_t _rpos = {0};
 
     assert(COORD_RANGE_CHECK(_rpos, _coordpair));
 
@@ -168,8 +168,8 @@ int aoc_2d_eng_calculate_obj_position(aoc_2d_obj_h obj)
         _averagecoord._x += _part->_pos._x;
         _averagecoord._y += _part->_pos._y;
     }
-    obj->_pos._x = _averagecoord._x / obj->_parts._size;
-    obj->_pos._y = _averagecoord._y / obj->_parts._size;
+    obj->_pos._x = obj->_pos._x + _averagecoord._x / obj->_parts._size;
+    obj->_pos._y = obj->_pos._y + _averagecoord._y / obj->_parts._size;
     return 0;
 }
 
@@ -182,14 +182,10 @@ const coord_t *const aoc_2d_obj_get_pos(aoc_2d_obj_h _obj)
 aoc_2d_obj_ref_t *aoc_2d_obj_ref_ctor(aoc_2d_obj_h _obj)
 {
     aoc_2d_obj_ref_t *_ntracker = NULL;
-    TRY_TYPE_MALLOC(_ntracker, aoc_2d_obj_ref_t);
+    _ntracker = calloc(1LU, sizeof(aoc_2d_obj_ref_t));
 
     if (!_ntracker)
         return NULL;
-    _ntracker->_node._prev = NULL;
-    _ntracker->_node._next = NULL;
-    _ntracker->_node._obsolete = false;
-    _ntracker->_blocked = false;
     _ntracker->data = _obj;
     _obj->_refcnt++;
     return _ntracker;
@@ -226,7 +222,7 @@ const char const *strobj(aoc_2d_obj_h obj)
     snprintf(_strobj, sizeof(_strobj), "%.4s %.lu:%lu", obj->_name, obj->_pos._x, obj->_pos._y);
     return _strobj;
 }
- 
+
 dll_node_h objref_ydecr_xdecr(dll_node_h arga, dll_node_h argb)
 {
     coord_t *posa = &((aoc_2d_obj_h)arga)->_pos;
@@ -242,7 +238,7 @@ dll_node_h objref_xdecr_ydecr(dll_node_h arga, dll_node_h argb)
     if (posa->_x == posb->_x)
         return posa->_y > posb->_y ? arga : argb;
     return posa->_x > posb->_x ? arga : argb;
-} 
+}
 
 dll_node_h pos_ydecr_xdecr(dll_node_h arga, dll_node_h argb)
 {
@@ -261,7 +257,7 @@ dll_node_h posnode_yincr_xdecr(dll_node_h arga, dll_node_h argb)
         return posa->_x > posb->_x ? arga : argb;
     return (posa->_y < posb->_y) ? arga : argb;
 }
-   
+
 dll_node_h posnode_ydecr_xdecr(dll_node_h arga, dll_node_h argb)
 {
     coord_t *posa = &((coordnode_h)arga)->_coord;
@@ -270,7 +266,7 @@ dll_node_h posnode_ydecr_xdecr(dll_node_h arga, dll_node_h argb)
         return posa->_x > posb->_x ? arga : argb;
     return (posa->_y > posb->_y) ? arga : argb;
 }
-  
+
 const char *const aoc_2d_obj_name(const aoc_2d_obj_h const _obj)
 {
     if (!_obj)

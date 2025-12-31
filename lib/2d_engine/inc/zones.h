@@ -6,7 +6,7 @@
 
 typedef struct zone *aoc_2d_zone_h; 
 
-#define EDGECAST(node) ((edgenode_h)node)
+#define EDGE(node) ((edgenode_h)node)
 
 aoc_2d_zone_h aoc_2d_zone_ctor(void);
 int aoc_2d_zone_append(aoc_2d_zone_h zone_h, dll_head_h points);

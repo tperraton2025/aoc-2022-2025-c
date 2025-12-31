@@ -3,7 +3,7 @@
 dyn2darr_h dyn2d1malloc(const coord_t _len, void dealloc(void *arg))
 {
     dyn2darr_h array;
-    TRY_TYPE_MALLOC(array, dyn2darr_t);
+    array = calloc(1LU, sizeof(dyn2darr_t));
     array->_len = _len;
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_1_BLOCK;
@@ -17,7 +17,7 @@ dyn2darr_h dyn2d1malloc(const coord_t _len, void dealloc(void *arg))
 dyn2darr_h dyn2dMmalloc(const coord_t _len, void dealloc(void *arg))
 {
     dyn2darr_h array;
-    TRY_TYPE_MALLOC(array, dyn2darr_t);
+    array = calloc(1LU, sizeof(dyn2darr_t));
     array->_len = _len;
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_M_BLOCK;
@@ -66,7 +66,7 @@ void dyn2dfree(dyn2darr_h array)
 dyn3darr_h dyn3d1malloc(const size_t _len, void dealloc(void *arg))
 {
     dyn3darr_h array;
-    TRY_TYPE_MALLOC(array, dyn3darr_t);
+    array = calloc(1LU, sizeof(dyn3darr_t));
     array->_len = _len;
     assert(array->_len != 1LU);
     array->_dealloc = dealloc;
@@ -95,7 +95,7 @@ dyn3darr_h dyn3d1malloc(const size_t _len, void dealloc(void *arg))
 dyn3darr_h dyn3dMmalloc(const size_t _len, void dealloc(void *arg))
 {
     dyn3darr_h array;
-    TRY_TYPE_MALLOC(array, dyn3darr_t);
+    array = calloc(1LU, sizeof(dyn3darr_t));
     array->_len = _len;
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_M_BLOCK;

@@ -80,6 +80,7 @@ int adduint3D(uint3D_t *a, uint3D_t *b);
 int scanuint(uint3D_t *array, size_t max, size_t dim);
 int expuint3d(uint3D_t *array, uint3D_t *max);
 int shruint3d(uint3D_t *array, uint3D_t *min);
+int bscanuint2d(uint2D_t *array, uint2D_t *min, uint2D_t *max);
 int bscanuint3d(uint3D_t *array, uint3D_t *min, uint3D_t *max);
 /*
  * Coordinates comparators

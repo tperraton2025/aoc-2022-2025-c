@@ -17,7 +17,7 @@ void engine_free(aoc_2d_eng_h eng)
 aoc_2d_eng_h aoc_2d_eng_create(coord_t *ncoordlimits, char _voidsym, size_t delay, dll_compare *comp, bool collisionmap)
 {
     aoc_2d_eng_h eng = NULL;
-    TRY_TYPE_MALLOC(eng, struct ascii_2d_engine);
+    eng = calloc(1LU, sizeof(struct ascii_2d_engine));
 
     if (!eng)
         return NULL;
@@ -188,7 +188,7 @@ int aoc_2d_eng_extend_drawing_area(struct ascii_2d_engine *eng, coord_t newlimit
     return EINVAL;
 }
 
-int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const char *fmt)
+int aoc_2d_eng_draw_sym_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const char *fmt)
 {
     if (eng->_drawingenabled)
     {
@@ -197,8 +197,8 @@ int aoc_2d_eng_draw_part_at(aoc_2d_eng_h eng, coord_t *_pos, char *_sym, const c
         aoc_2d_eng_draw_symbol_at(eng, &_pcord, _sym, fmt);
         printf(RESTCUR2);
         // aoc_2d_eng_exit_drawing_area(eng);
-        usleep(1000 * eng->_delay);
     }
+    usleep(1000 * eng->_delay);
     return 0;
 }
 
@@ -208,7 +208,6 @@ int aoc_2d_eng_draw_symbol_at(aoc_2d_eng_h eng, coord_t *_pos, const char *_sym,
     {
         printf(MCUR_FMT "%s%s\n" RESET, _pos->_y, _pos->_x, fmt, _sym);
         aoc_2d_eng_exit_drawing_area(eng);
-        usleep(1000 * eng->_delay);
     }
     return 0;
 }
@@ -292,8 +291,8 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h eng, aoc_2d_obj_h newobj)
     LL_FOREACH(_partnode, newobj->_parts)
     {
         part_h _part = (part_h)_partnode;
-        _extension._x = HIGHEST(eng->_poslim._max._x, _part->_pos._x);
-        _extension._y = HIGHEST(eng->_poslim._max._y, _part->_pos._y);
+        _extension._x = HIGHEST(eng->_poslim._max._x, _part->_pos._x + newobj->_pos._x);
+        _extension._y = HIGHEST(eng->_poslim._max._y, _part->_pos._y + newobj->_pos._y);
     }
 
     if (!COORD_RANGE_CHECK(_extension, _drawlimits))
@@ -303,7 +302,7 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h eng, aoc_2d_obj_h newobj)
     if (eng->_objsort)
         ret = dll_node_sorted_insert(&eng->_objects, (dll_node_h)newobj, eng->_objsort);
     else
-        dll_node_append(&eng->_objects, (dll_node_h)newobj);
+        ret = dll_node_append(&eng->_objects, (dll_node_h)newobj);
     if (ret)
     {
         aoc_err("Failed to append %s at %s: %s", newobj->_name, strpos(&newobj->_pos), strerror(ret));
@@ -325,9 +324,12 @@ int aoc_2d_eng_append_obj(aoc_2d_eng_h eng, aoc_2d_obj_h newobj)
     {
         objmap_h _objectsmap = &eng->_objmap;
 
-        assert(!_objectsmap->_map[newobj->_pos._x][newobj->_pos._y]);
-
-        _objectsmap->_map[newobj->_pos._x][newobj->_pos._y] = newobj;
+        LL_FOREACH(_partnode, newobj->_parts)
+        {
+            part_h _part = (part_h)_partnode;
+            assert(!_objectsmap->_map[newobj->_pos._x + _part->_pos._x][newobj->_pos._y + _part->_pos._y]);
+            _objectsmap->_map[newobj->_pos._x + _part->_pos._x][newobj->_pos._y + _part->_pos._y] = newobj;
+        }
         _objectsmap->_objcount++;
         assert(_objectsmap->_objcount == eng->_objects._size);
     }
@@ -355,15 +357,22 @@ aoc_2d_obj_h aoc_2d_eng_get_obj_by_position(aoc_2d_eng_h eng, const coord_t *con
             (_pos->_y <= eng->_poslim._max._y))
             return eng->_objmap._map[_pos->_x][_pos->_y];
     }
-
-    LL_FOREACH(_obj_node, eng->_objects)
+    else
     {
-        if (_obj_node->_obsolete)
-            continue;
-        aoc_2d_obj_h _object = CAST(aoc_2d_obj_h, _obj_node);
-        if (_object->_pos._x == _pos->_x && _object->_pos._y == _pos->_y)
+        LL_FOREACH(_obj_node, eng->_objects)
         {
-            return _object;
+            aoc_2d_obj_h _object = (aoc_2d_obj_h)_obj_node;
+            if (_obj_node->_obsolete)
+                continue;
+            LL_FOREACH(partnode, _object->_parts)
+            {
+                part_h part = (part_h)partnode;
+                if (_object->_pos._x + part->_pos._x == _pos->_x &&
+                    _object->_pos._y + part->_pos._y == _pos->_y)
+                {
+                    return _object;
+                }
+            }
         }
     }
     return NULL;
@@ -641,29 +650,12 @@ part_h aoc_2d_eng_get_part_by_position(aoc_2d_eng_h eng, coord_t *pos)
         LL_FOREACH(_partnode, _obj->_parts)
         {
             part_h _part = (part_h)_partnode;
-            if (pos->_x == _part->_pos._x && pos->_x == _part->_pos._x)
+            if (pos->_x == _part->_pos._x + _obj->_pos._x &&
+                pos->_y == _part->_pos._y + _obj->_pos._y)
                 return _part;
         }
     }
     return NULL;
-}
-
-int aoc_2d_eng_move_all_parts(aoc_2d_eng_h eng, aoc_2d_obj_h obj, size_t steps, AOC_2D_DIR dir)
-{
-    LL_FOREACH(_partnode, obj->_parts)
-    {
-        part_h _part = (part_h)_partnode;
-        coord_t _prevpos = {._x = _part->_pos._x, ._y = _part->_pos._y};
-
-        move_within_coord(eng, &_part->_pos, steps, dir);
-
-        /** huge bottleneck
-         * part_h other = aoc_2d_eng_get_part_by_position(eng, &_prevpos);
-         * if (other)
-         *     aoc_2d_eng_draw_part(eng, other, NULL);
-         */
-    }
-    return 0;
 }
 
 static int aoc_2d_eng_check_move_possible(aoc_2d_eng_h eng, aoc_2d_obj_h _obj, size_t steps, AOC_2D_DIR dir)
@@ -672,7 +664,8 @@ static int aoc_2d_eng_check_move_possible(aoc_2d_eng_h eng, aoc_2d_obj_h _obj, s
     LL_FOREACH(_partnode, _obj->_parts)
     {
         part_h _part = (part_h)_partnode;
-        coord_t _testpos = {._x = _part->_pos._x, ._y = _part->_pos._y};
+        coord_t _testpos = {._x = _obj->_pos._x + _part->_pos._x,
+                            ._y = _obj->_pos._y + _part->_pos._y};
         ret = move_within_coord(eng, &_testpos, steps, dir);
         if (ret)
         {
@@ -705,12 +698,6 @@ int aoc_2d_eng_step_obj(aoc_2d_eng_h eng, aoc_2d_obj_h _obj, size_t steps, AOC_2
         else
             aoc_2d_eng_erase_obj(eng, _obj);
 
-    _ret = aoc_2d_eng_move_all_parts(eng, _obj, steps, dir);
-    if (_ret)
-    {
-        engine_put_cursor_in_footer_area(eng);
-        aoc_err("aoc_2d_eng_move_all_parts:%s", strerror(_ret));
-    }
     coord_t prevpos = _obj->_pos;
     _ret = move_within_coord(eng, &_obj->_pos, steps, dir);
     if (_ret)
@@ -739,30 +726,19 @@ int aoc_2d_eng_step_obj(aoc_2d_eng_h eng, aoc_2d_obj_h _obj, size_t steps, AOC_2
     return _ret;
 }
 
-
-int aoc_2d_eng_draw_part(struct ascii_2d_engine *eng, part_h part, char *specfmt)
-{
-    int ret = 0;
-    if (eng->_drawingenabled)
-    {
-        printf(MCUR_FMT "%s", part->_pos._y + eng->_partoffset._y, part->_pos._x + eng->_partoffset._x, specfmt ? specfmt : "");
-        printf("%c\n" RESET, part->_sym);
-    }
-    return ret;
-}
-
-int aoc_2d_eng_draw_obj(aoc_2d_eng_h eng,  aoc_2d_obj_h obj, char *specfmt)
+int aoc_2d_eng_draw_obj(aoc_2d_eng_h eng, aoc_2d_obj_h obj, char *specfmt)
 {
     int ret = 0;
 
     if (eng->_drawingenabled)
     {
-        dll_node_h _partdllnode;
-        part_h _parth = NULL;
-        LL_FOREACH_EXT(_partdllnode, obj->_parts)
+        LL_FOREACH(partnode, obj->_parts)
         {
-            _parth = CAST(part_h, _partdllnode);
-            aoc_2d_eng_draw_part(eng, _parth, specfmt ? specfmt : obj->_fmt);
+            part_h parth = CAST(part_h, partnode);
+            coord_t pos = obj->_pos;
+            pos._x += parth->_pos._x;
+            pos._y += parth->_pos._y;
+            aoc_2d_eng_draw_sym_at(eng, &pos, &parth->_sym, specfmt ? specfmt : obj->_fmt);
         }
         usleep(1000 * eng->_delay);
         aoc_2d_eng_exit_drawing_area(eng);
@@ -770,7 +746,6 @@ int aoc_2d_eng_draw_obj(aoc_2d_eng_h eng,  aoc_2d_obj_h obj, char *specfmt)
 
     return ret;
 }
-
 
 int aoc_2d_eng_erase_obj(struct ascii_2d_engine *eng, struct object *obj)
 {
@@ -783,7 +758,10 @@ int aoc_2d_eng_erase_obj(struct ascii_2d_engine *eng, struct object *obj)
         LL_FOREACH_EXT(_part_node, obj->_parts)
         {
             _sym = CAST(part_h, _part_node);
-            printf(MCUR_FMT "%c", _sym->_pos._y + eng->_partoffset._y, _sym->_pos._x + eng->_partoffset._x, eng->_voidsym);
+            printf(MCUR_FMT "%c",
+                   _sym->_pos._y + obj->_pos._y + eng->_partoffset._y,
+                   _sym->_pos._x + obj->_pos._x + eng->_partoffset._x,
+                   eng->_voidsym);
         }
         aoc_2d_eng_exit_drawing_area(eng);
     }

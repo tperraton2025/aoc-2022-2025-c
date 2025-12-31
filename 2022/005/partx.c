@@ -134,7 +134,7 @@ int crate_lift(struct context *_ctx, command_t *_cmd, size_t boxestolift)
 
         LL_FOREACH(boxn, _ctx->_grippedBoxes)
         {
-            if (!aoc_2d_eng_step_obj(_ctx->_eng, ((aoc_2d_obj_ref_h)boxn)->data, 1LU, AOC_2D_DIR_UP, RED))
+            if (!aoc_2d_eng_step_obj(_ctx->_eng, ((aoc_2d_obj_ref_h)boxn)->data, 1LU, AOC_2D_DIR_UP, BGREEN))
                 alllifted = false;
         }
         aoc_2d_eng_prompt_obj_list(_ctx->_eng);
@@ -171,7 +171,7 @@ int crate_change_lane(struct context *_ctx, command_t *_cmd)
             _ctx->_pos = *aoc_2d_obj_get_pos(((aoc_2d_obj_ref_h)boxn)->data);
             AOC_2D_DIR dir = _ctx->_pos._x > boxstack->_col_x ? AOC_2D_DIR_LEFT : AOC_2D_DIR_RIGHT;
 
-            if (aoc_2d_eng_step_obj(_ctx->_eng, ((aoc_2d_obj_ref_h)boxn)->data, 1LU, dir, RED))
+            if (aoc_2d_eng_step_obj(_ctx->_eng, ((aoc_2d_obj_ref_h)boxn)->data, 1LU, dir, BGREEN))
             {
                 aoc_2d_eng_prompt_extra_stats_as_err(_ctx->_eng, "moving %s to %lu failed", aoc_2d_obj_name(((aoc_2d_obj_ref_h)boxn)->data), boxstack->_col_x);
             }
@@ -204,7 +204,7 @@ int crate_deposit(struct context *_ctx, command_t *_cmd, size_t boxestodeposit)
         alldeposited = true;
         LL_FOREACH_REV(boxn, _ctx->_grippedBoxes)
         {
-            if (!aoc_2d_eng_step_obj(_ctx->_eng, ((aoc_2d_obj_ref_h)boxn)->data, 1LU, AOC_2D_DIR_DOWN, RED))
+            if (!aoc_2d_eng_step_obj(_ctx->_eng, ((aoc_2d_obj_ref_h)boxn)->data, 1LU, AOC_2D_DIR_DOWN, BGREEN))
                 alldeposited = false;
         }
         aoc_2d_eng_prompt_obj_list(_ctx->_eng);
@@ -215,6 +215,7 @@ int crate_deposit(struct context *_ctx, command_t *_cmd, size_t boxestodeposit)
 
     RANGE_FOR(ind, 0, boxestodeposit)
     {
+        aoc_2d_eng_draw_obj(_ctx->_eng, ((aoc_2d_obj_ref_h)_ctx->_grippedBoxes._last)->data, "");
         dll_node_append(&boxstack->_boxes, &aoc_2d_obj_ref_ctor(((aoc_2d_obj_ref_h)_ctx->_grippedBoxes._last)->data)->_node);
         dll_node_h todelete = _ctx->_grippedBoxes._last;
         dll_node_disconnect(&_ctx->_grippedBoxes, todelete);
@@ -255,11 +256,14 @@ void printstacks(dll_head_h columns)
     {
         columnnode_h colcast = (columnnode_h)colnode;
         printf(ERASE_ALL_FROM_CURSOR "-- boxes stacks %lu: x=%lu", colcast->_col_index, colcast->_col_x);
-        LL_FOREACH(box, colcast->_boxes)
+        if (colcast->_boxes._size)
         {
-            printf("%s", aoc_2d_obj_name(((aoc_2d_obj_ref_h)box)->data));
+            LL_FOREACH(box, colcast->_boxes)
+            {
+                printf("%s", aoc_2d_obj_name(((aoc_2d_obj_ref_h)box)->data));
+            }
+            printf("\n");
         }
-        printf("\n");
     }
 }
 

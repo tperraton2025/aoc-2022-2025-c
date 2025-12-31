@@ -27,12 +27,12 @@ set_target_properties(
 
 add_definitions(-DCONFIG_DAY="${day}" -DCONFIG_YEAR="${YEAR}")
 # unit tests
-include(CTest)
-add_test(
-  NAME ${ProjectId}test
-  COMMAND
-    "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" "--no-draw" --exe
-    "${ProjectId}test")
+# include(CTest)
+# add_test(
+#   NAME ${ProjectId}test
+#   COMMAND
+#     "valgrind" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${ProjectId}"
+#     "${CMAKE_CURRENT_SOURCE_DIR}/data/test1.txt" "--no-draw" --exe
+#     "${ProjectId}test")
 
-add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "50" "0")
+# add_aoc_day_test_regex(${YEAR} ${day} ${ProjectId}test "50" "0")

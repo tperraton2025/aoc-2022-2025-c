@@ -107,6 +107,52 @@ int bscanuint3d(uint3D_t *array, uint3D_t *min, uint3D_t *max)
     return ret;
 }
 
+int bscanuint2d(uint2D_t *array, uint2D_t *min, uint2D_t *max)
+{
+    size_t *_array = array->_arr;
+    size_t *_min = min->_arr;
+    size_t *_max = max->_arr;
+
+    for (size_t ind = 1LU; ind < __SIZE_MAX__; ind--)
+    {
+        if (_min[ind] <= _max[ind])
+            break;
+        assert(_min[ind] <= _max[ind]);
+    }
+
+    bool carryover = false;
+    int ret = 0;
+    RANGE_FOR(ind, 0LU, 2LU)
+    {
+        _array[ind]++;
+        if (_array[ind] > _max[ind])
+        {
+            _array[ind] = _min[ind];
+            if (ind == 1LU)
+            {
+                RANGE_FOR(clearind, 0LU, 2LU)
+                {
+                    _array[clearind] = _min[clearind];
+                }
+                return EOVERFLOW;
+            }
+            continue;
+        }
+        break;
+    }
+    /**
+     * debuging
+
+    RANGE_FOR(ind, 0LU, 2LU)
+    {
+        printf("%lu ", array->_arr[ind]);
+    }
+    printf("\n");
+
+    /* */
+    return ret;
+}
+
 int scanuint(uint3D_t *array, size_t max, size_t dim)
 {
     size_t *_array = array->_arr;
@@ -244,7 +290,7 @@ dll_node_h coord_y_aligned(dll_node_h arga, dll_node_h argb)
 dll_node_h coordnode_ctor(coord_t *coord)
 {
     coordnode_h new = NULL;
-    TRY_TYPE_MALLOC(new, coordnode_t);
+    new = calloc(1LU, sizeof(coordnode_t));
     new->_coord._x = coord->_x;
     new->_coord._y = coord->_y;
     return &new->_node;
@@ -260,7 +306,7 @@ bool coordt_equal(void *arga, void *argb)
 dll_node_h coordpairnode_ctor(coordpair_h pair)
 {
     coordpairnode_h new = NULL;
-    TRY_TYPE_MALLOC(new, coordpairnode_t);
+    new = calloc(1LU, sizeof(coordpairnode_t));
     new->_pair._max = pair->_max;
     new->_pair._min = pair->_min;
     return &new->_node;
@@ -306,7 +352,7 @@ dll_node_h coordpair_equal_y_higher_x(dll_node_h _a, dll_node_h _b)
 dll_node_h coordrefpairnode_ctor(coordpair_h pair)
 {
     coordrefpairnode_h new = NULL;
-    TRY_TYPE_MALLOC(new, coordrefpairnode_t);
+    new = calloc(1LU, sizeof(coordrefpairnode_t));
     new->_first = &pair->_max;
     new->_second = &pair->_min;
     return &new->_node;
@@ -340,4 +386,3 @@ bool coordnodes_equal(void *_a, void *_b)
     coordnode_h bpos = CAST(coordnode_h, _b);
     return (apos->_coord._x == bpos->_coord._x) && (apos->_coord._y == bpos->_coord._y);
 }
-

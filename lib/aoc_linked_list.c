@@ -14,7 +14,7 @@ void dll_head_init(dll_head_h head)
 dll_head_h dll_head_ctor()
 {
     dll_head_h new = NULL;
-    TRY_TYPE_MALLOC(new, dll_head_t);
+    new = calloc(1LU, sizeof(dll_head_t));
     return new;
 }
 
@@ -418,7 +418,7 @@ dll_head_h dll_get_nodes_by_property(dll_node_h start, void *arg, bool (*equal)(
         return NULL;
 
     dll_head_h result = NULL;
-    TRY_TYPE_MALLOC(result, dll_head_t);
+    result = calloc(1LU, sizeof(dll_head_t));
     if (!result)
         return NULL;
 

@@ -18,7 +18,7 @@ extern size_t score_ind_from_items(char mine, char his);
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    TRY_TYPE_MALLOC(_blk->_data, struct context);
+    _blk->_data = calloc(1LU, sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
     struct context *_ctx = CTX_CAST(_blk->_data);

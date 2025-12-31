@@ -11,7 +11,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     dll_head_init(&_ctx->_parsers);
 
     coord_t _max_xy = {1, 1};
-    _ctx->_eng = aoc_2d_eng_create(&_max_xy, '.', 0, objref_ydecr_xdecr, false);
+    _ctx->_eng = aoc_2d_eng_create(&_max_xy, '.', 0, objref_ydecr_xdecr, true);
     aoc_2d_eng_parse_cli(_ctx->_eng, argc, argv);
     parser_append(&_ctx->_parsers, &blockparser, _ctx->_eng);
     _ctx->_result = 0;
@@ -30,6 +30,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
 
+    aoc_2d_eng_draw(_ctx->_eng);
     _ctx->_rollspositions = aoc_2d_eng_list_obj_pos(_ctx->_eng, NULL);
     size_t liberated = trimaccessiblepositions(_ctx->_eng, _ctx->_rollspositions);
     while (liberated)
@@ -44,7 +45,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     }
     else
     {
-        aoc_err("AOC %s %s solution is not %lu", CONFIG_YEAR, _blk->_name, _ctx->_result);
+        aoc_err("AOC %s %s solution is not %lu, it should be %lu or %lu", CONFIG_YEAR, _blk->_name, _ctx->_result, 43LU, 8493LU);
     }
 
     return 0;

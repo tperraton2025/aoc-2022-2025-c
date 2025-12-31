@@ -77,7 +77,7 @@ int engine_fill_drawing_area(struct ascii_2d_engine *eng)
             for (size_t _col = eng->_poslim._min._x; _col <= eng->_poslim._max._x; _col++)
             {
                 coord_t _coord = {._x = _col, ._y = _line};
-                aoc_2d_eng_draw_part_at(eng, &_coord, &eng->_voidsym, "");
+                aoc_2d_eng_draw_sym_at(eng, &_coord, &eng->_voidsym, "");
             }
         }
     }
@@ -129,7 +129,7 @@ void aoc_2d_eng_prompt_obj_list(aoc_2d_eng_h eng)
         {
             if (_node->_obsolete)
                 continue;
-            eng->_statColOffset = 18;
+            eng->_statColOffset = 24;
 
             size_t _maxbytes = 0;
             struct object *_obj = CAST(struct object *, _node);

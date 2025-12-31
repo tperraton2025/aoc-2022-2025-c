@@ -104,7 +104,7 @@ sizepair_t memoreport(context_h ctx, aoc_2d_obj_h top_splt_h, size_t progr)
             if (splttl > 10LU)
                 btm_spl_p._x--;
             btm_spl_p._y--;
-            aoc_2d_eng_draw_part_at(eng, &btm_spl_p, numstr, "");
+            aoc_2d_eng_draw_sym_at(eng, &btm_spl_p, numstr, "");
             btm_spl_p._y++;
         }
     }

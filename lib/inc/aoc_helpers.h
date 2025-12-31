@@ -20,20 +20,6 @@
         _p = NULL;    \
     }
 
-#define TRY_TYPE_MALLOC(_p, _t)        \
-    {                                  \
-        _p = (_t *)malloc(sizeof(_t)); \
-        if (_p)                        \
-            memset(_p, 0, sizeof(_t)); \
-    }
-
-#define TRY_ARR_MALLOC(_p, _len)   \
-    {                              \
-        _p = malloc((_len));       \
-        if (_p)                    \
-            memset(_p, 0, (_len)); \
-    }
-
 #define TRY_COPY_MALLOC(_p, _s, _i) \
     {                               \
         _p = malloc(_s);            \

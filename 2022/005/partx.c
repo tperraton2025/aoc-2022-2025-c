@@ -234,8 +234,7 @@ void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CAST(struct context *, _blk->_data);
 
-    _ctx->spelling = malloc((_ctx->_columns._size * sizeof("[A]")) + 1);
-    memset(_ctx->spelling, '\0', _ctx->_columns._size);
+    _ctx->spelling = calloc(_ctx->_columns._size, sizeof("[A]") + 1);
     char *_p = _ctx->spelling;
 
     LL_FOREACH(column, _ctx->_columns)

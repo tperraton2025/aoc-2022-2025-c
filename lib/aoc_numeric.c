@@ -2,10 +2,9 @@
 
 base10_h base_10_conversion(size_t luint)
 {
-    base10_h _base10 = malloc(sizeof(base10_t));
+    base10_h _base10 = calloc(1LU, sizeof(base10_t));
     if (!_base10)
         return NULL;
-    memset(_base10, 0, sizeof(base10_t));
     _base10->_val = luint;
     for (size_t _ii = 0; _ii < ARRAY_DIM(_base10->_digits) && luint; _ii++)
     {

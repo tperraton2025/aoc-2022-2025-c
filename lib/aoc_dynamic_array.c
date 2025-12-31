@@ -8,9 +8,8 @@ dyn2darr_h dyn2d1malloc(const coord_t _len, void dealloc(void *arg))
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_1_BLOCK;
 
-    array->_map = malloc((_len._y) * (_len._x) * sizeof(void *));
-    memset(array->_map, 0, (_len._y) * (_len._x) * sizeof(void *));
-
+    array->_map = calloc((_len._y) * (_len._x), sizeof(void *));
+    
     return array;
 }
 
@@ -72,10 +71,8 @@ dyn3darr_h dyn3d1malloc(const size_t _len, void dealloc(void *arg))
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_1_BLOCK;
 
-    size_t blocksize = (_len) * (_len) * (_len) * sizeof(void *);
-    array->_map = malloc(blocksize);
+    array->_map = calloc((_len) * (_len) * (_len), sizeof(void *));
     assert(array->_map);
-    memset(array->_map, 0, blocksize);
     /** this debug test might be useful in the future.
         uint3D_t scan = {0};
         do
@@ -99,11 +96,9 @@ dyn3darr_h dyn3dMmalloc(const size_t _len, void dealloc(void *arg))
     array->_len = _len;
     array->_dealloc = dealloc;
     array->_alloctype = ALLOC_TYPE_M_BLOCK;
-    const size_t arraydim = (_len) * sizeof(void *);
 
     /** allocation for all pointers on z axis */
-    array->_map = malloc(arraydim);
-    memset(array->_map, 0, arraydim);
+    array->_map = calloc(_len, sizeof(void *));
 
     /** now it starts (T-T) */
     void *****map = (void *****)&array->_map;
@@ -111,14 +106,12 @@ dyn3darr_h dyn3dMmalloc(const size_t _len, void dealloc(void *arg))
     RANGE_FOR(itz, 0LU, (_len))
     {
         /** allocation for all pointers on y axis */
-        (*map)[itz] = malloc(arraydim);
-        memset((*map)[itz], 0, _len);
+        (*map)[itz] = calloc(_len, sizeof(void *));
 
         RANGE_FOR(ity, 0LU, (_len))
         {
             /** allocation for all pointers on x axis */
-            (*map)[itz][ity] = malloc(arraydim);
-            memset((*map)[itz][ity], 0, _len);
+            (*map)[itz][ity] = calloc(_len, sizeof(void *));
         }
     }
     /** (x-x) */

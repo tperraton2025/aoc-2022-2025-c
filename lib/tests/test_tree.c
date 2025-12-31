@@ -83,10 +83,9 @@ void tree_test_suite()
 
 static test_string_t *test_string(tree_node_h _parent, const char *const _str)
 {
-    test_string_t *_ntstr = malloc(sizeof(test_string_t));
+    test_string_t *_ntstr = calloc(1LU, sizeof(test_string_t));
     assert(_ntstr && "_ntstr malloc failed");
-    memset(_ntstr, 0, sizeof(test_string_t));
-
+ 
     _ntstr->_str = malloc(strnlen(_str, MAX_LINE_LEN + 1) + 1);
     assert(_ntstr->_str && "_ntstr->_str malloc failed");
 

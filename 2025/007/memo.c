@@ -2,8 +2,7 @@
 
 memospawn_h memospawn_ctor(aoc_2d_obj_h splitter)
 {
-    memospawn_h ret = malloc(sizeof(memospawn_t));
-    memset(ret, 0, sizeof(memospawn_t));
+    memospawn_h ret = calloc(1LU, sizeof(memospawn_t));
     ret->_splitter = splitter;
     if (!splitter)
         return ret;

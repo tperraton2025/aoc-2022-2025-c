@@ -56,24 +56,17 @@ int aoc_2d_zone_append(aoc_2d_zone_h zone_h, dll_head_h points)
 }
 
 /**
- * @param points: dll of points pair connected together horizontally;
+ * @param points: dll of points delimitting the zone;
  */
-int aoc_2d_zone_compile(aoc_2d_zone_h zone_h)
+
+int aoc_2d_zone_compile(aoc_2d_zone_h zone_h, dll_head_h points)
 {
-    dll_node_append(&zone_h->_pointlist, zone_h->_newedges._first);
-    dll_node_disconnect(&zone_h->_pointlist, zone_h->_newedges._first);
-
-    LL_FOREACH(pedge, zone_h->_newedges)
-    {
-        dll_node_insert_after(&zone_h->_pointlist,
-                              pedge,
-                              dll_node_find_by_property(&zone_h->_newedges, &EDGE(pedge)->_prevpoint, coordt_equal));
+    LL_FOREACH_P(pnode, points) {
+        
     }
-
-    return 0;
 }
 
-int aoc_2d_zone_detect(aoc_2d_zone_h zone, coord_h pos) {}
+int aoc_2d_isinsidezone(aoc_2d_zone_h zone, coord_h pos) {}
 
 void aoc_2d_zone_free(aoc_2d_zone_h zone)
 {

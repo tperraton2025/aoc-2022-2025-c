@@ -230,11 +230,10 @@ static void delete_dir(void *arg)
 
 static fdir_t *dir(const char *const name, fdir_t *parent)
 {
-    fdir_t *_ndir = malloc(sizeof(fdir_t));
+    fdir_t *_ndir = calloc(1LU, sizeof(fdir_t));
     if (!_ndir)
         return NULL;
 
-    memset(_ndir, 0, sizeof(fdir_t));
     _ndir->name = malloc(strnlen(name, MAX_NAME_LEN_AS_USIZE) + 1);
     if (!_ndir->name)
         goto abort_dir;

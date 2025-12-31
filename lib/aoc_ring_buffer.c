@@ -19,24 +19,23 @@ aoc_ring_buffer_h aoc_ring_buffer(size_t _size, size_t _len)
     if (!_size || !_len)
         return NULL;
 
-    struct ring_buffer *_ret = malloc(sizeof(struct ring_buffer));
+    struct ring_buffer *_ret = calloc(1LU, sizeof(struct ring_buffer));
     if (!_ret)
         return NULL;
 
     _ret->_u_cell_dim = _size;
     _ret->_u_arr_dim = _len;
 
-    _ret->_pv_buff = malloc(sizeof(void *) * _ret->_u_arr_dim);
+    _ret->_pv_buff = calloc(_ret->_u_arr_dim, sizeof(void *));
 
     if (!_ret->_pv_buff)
         goto error;
 
     FOREACHCELL(_index, _ret)
     {
-        _ret->_pv_buff[_index] = malloc(_ret->_u_cell_dim);
+        _ret->_pv_buff[_index] = calloc(1LU, _ret->_u_cell_dim);
         if (!_ret->_pv_buff[_index])
             goto free_arr;
-        memset(_ret->_pv_buff[_index], 0, _ret->_u_cell_dim);
     }
 
     _ret->_px_head = 0;

@@ -45,10 +45,9 @@ typedef struct command
 
 static command_t *command_ctor(command_t *_ncmd)
 {
-    command_t *ret = malloc(sizeof(struct command));
+    command_t *ret = calloc(1LU, sizeof(struct command));
     if (!ret)
         return NULL;
-    memset(ret, 0, sizeof(struct command));
     ret->count = _ncmd->count;
     ret->from = _ncmd->from;
     ret->to = _ncmd->to;

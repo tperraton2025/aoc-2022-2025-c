@@ -15,10 +15,9 @@ a part has :
 
 part_h aoc_2d_eng_new_part(object_h obj, coord_t *sympos, char sym, char *fmt)
 {
-    part_h ret = malloc(sizeof(struct part));
+    part_h ret = calloc(1LU, sizeof(struct part));
     if (!ret)
         return NULL;
-    memset(ret, 0, sizeof(struct part));
     if (fmt)
     {
         ret->_fmt = malloc(strnlen(fmt, ABSOLUTE_MAX_PART_FMT_LEN) + 1);

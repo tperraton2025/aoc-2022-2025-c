@@ -23,10 +23,9 @@ static int base_10_has_pattern(base10_h base10);
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    _blk->_data = malloc(sizeof(struct context));
+    _blk->_data = calloc(1LU, sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
-    memset(_blk->_data, 0, sizeof(struct context));
     struct context *_ctx = CTX_CAST(_blk->_data);
     return 0;
 }
@@ -35,8 +34,7 @@ static int handler(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
     size_t _len = strnlen(_blk->_str, MAX_SSTR_LEN) + 1;
-    _ctx->_instr = malloc(_len);
-    memset(_ctx->_instr, 0, _len);
+    _ctx->_instr = calloc(_len, sizeof(char));
     strcpy(_ctx->_instr, _blk->_str);
     return 0;
 }
@@ -102,10 +100,8 @@ static int base_10_has_pattern(base10_h base10)
     if (base10->_lastdigit % 2 == 0)
     {
         size_t _len = _dummy._lastdigit >> 1;
-        char *top = malloc((_len) + 1);
-        char *bot = malloc((_len) + 1);
-        memset(top, 0, _len + 1);
-        memset(bot, 0, _len + 1);
+        char *top = calloc((_len) + 1, sizeof(char));
+        char *bot = calloc((_len) + 1, sizeof(char));
         strncpy(top, _dummy._digits, _len);
         strncpy(bot, _dummy._digits + _len, _len);
         if (0 == strncmp(top, bot, _len))

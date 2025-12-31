@@ -20,7 +20,7 @@ struct context
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    _blk->_data = malloc(sizeof(struct context));
+    _blk->_data = calloc(1LU, sizeof(struct context));
     struct context *_ctx = CTX_CAST(_blk->_data);
 
     _ctx->_root = dir("root", NULL);

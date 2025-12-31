@@ -36,7 +36,7 @@ typedef struct context
 typedef context_t *context_h;
 
 void checkparseconsistency(context_h _ctx);
-void checkocotparseconsistency(context_h _ctx);
+void checkoctoparseconsistency(context_h _ctx);
 size_t add(context_h _ctx);
 size_t multiply(context_h _ctx);
 size_t octoadd(context_h _ctx);

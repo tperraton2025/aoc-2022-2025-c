@@ -113,7 +113,7 @@ void checkparseconsistency(context_h _ctx)
     }
 }
 
-void checkocotparseconsistency(context_h _ctx)
+void checkoctoparseconsistency(context_h _ctx)
 {
     size_t _len = strlen(_ctx->_prob._instr[0]);
     for (size_t _it = 0; _it < _ctx->_prob._instrcnt; _it++)

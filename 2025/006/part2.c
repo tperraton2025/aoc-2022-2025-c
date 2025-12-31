@@ -32,7 +32,7 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     size_t _len = _ctx->_prob._params[0]._size;
     dll_node_h _operands = _ctx->_prob._ops._first;
 
-    checkocotparseconsistency(_ctx);
+    checkoctoparseconsistency(_ctx);
     char lastoperand = ' ';
     char *opstr = _ctx->_prob._opstr;
     size_t head = strlen(_ctx->_prob._instr[0]) - 1;

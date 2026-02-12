@@ -128,16 +128,16 @@ void aoc_2d_eng_parse_cli(aoc_2d_eng_h eng, int argc, char **argv)
     if (argc >= 2)
         for (int _iarg = 0; _iarg < argc; _iarg++)
         {
-            if (0 == strcmp(argv[_iarg], "--no-draw"))
+            if (0 == strncmp(argv[_iarg], "--no-draw", sizeof("--no-draw")))
                 aoc_2d_eng_disable_draw(eng);
-            if ((0 == strcmp(argv[_iarg], "--draw-delay")) && argc > (_iarg + 1))
+            if ((0 == strncmp(argv[_iarg], "--draw-delay", sizeof("--draw-delay"))) && argc > (_iarg + 1))
             {
                 if (sscanf(argv[_iarg + 1], "%lu", &delay))
                     aoc_2d_eng_setrefreshdelay(eng, delay);
                 else
                     aoc_err("%s", "--draw-delay not recognized, using default delay");
             }
-            if ((0 == strcmp(argv[_iarg], "--canvas-size")) && argc > (_iarg + 1))
+            if ((0 == strncmp(argv[_iarg], "--canvas-size", sizeof("--canvas-size"))) && argc > (_iarg + 1))
             {
                 if (sscanf(argv[_iarg + 1], "%3lu", &canvassize))
                     if (128 < canvassize)
@@ -572,7 +572,7 @@ dll_head_h aoc_2d_eng_list_objects(aoc_2d_eng_h eng, const char *const incl, con
 
         if (incl && excl)
         {
-            if (!strcmp(objh->_name, incl) && strcmp(objh->_name, excl))
+            if (!strncmp(objh->_name, incl, sizeof(MAX_NAME_LEN_LUI)) && strncmp(objh->_name, excl, sizeof(MAX_NAME_LEN_LUI)))
             {
                 aoc_2d_obj_ref_h _ntr = aoc_2d_obj_ref_ctor(objh);
                 dll_node_append(_objlist, &_ntr->_node);
@@ -774,7 +774,7 @@ aoc_2d_obj_h aoc_2d_eng_get_obj_by_name(aoc_2d_eng_h eng, const char *const name
     {
         if (_node->_obsolete)
             continue;
-        if (!strcmp(name, CAST(aoc_2d_obj_h, _node)->_name))
+        if (!strncmp(name, CAST(aoc_2d_obj_h, _node)->_name, sizeof(MAX_NAME_LEN_LUI)))
             return CAST(aoc_2d_obj_h, _node);
     }
     return NULL;

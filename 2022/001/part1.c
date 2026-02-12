@@ -38,7 +38,7 @@ static elfCal_t *elfCtor(dll_head_h head)
         FREE(_ret);
         return NULL;
     }
-    sprintf(_ret->_name, "elfo%3d", _ret->_count);
+    snprintf(_ret->_name, sizeof("elfo 999"), "elfo%3d", _ret->_count);
 
     return _ret;
 }
@@ -54,7 +54,7 @@ static void freeElf(void *arg)
 
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
-    _blk->_data= calloc(1LU, sizeof(context_t));
+    _blk->_data = calloc(1LU, sizeof(context_t));
     context_t *_ctx = CAST(context_t *, _blk->_data);
     if (!_ctx)
         return ENOMEM;

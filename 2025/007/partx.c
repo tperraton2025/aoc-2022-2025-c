@@ -121,7 +121,7 @@ aoc_2d_obj_h beamexplore(context_h ctx, aoc_2d_obj_h start)
             }
 
             dll_node_disconnect(&ctx->_activebeams, beamnode);
-            assert(!strcmp(aoc_2d_obj_get_name(beam), "beam"));
+            assert(!strncmp(aoc_2d_obj_get_name(beam), "beam", sizeof("beam")));
             aoc_2d_obj_delete(eng, beam);
             ghostnode._next = beamnode->_next;
             free(beamnode);

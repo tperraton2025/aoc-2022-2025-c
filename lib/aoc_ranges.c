@@ -41,8 +41,8 @@ int tryinsertrange(rangelist_h list, rangenode_h newrangenode)
         {
             newrangenode->_node._obsolete = true;
 #ifdef AOC_RANGE_VERBOSE_MODE
-            sprintf(rangestringa, "%s", str_rangenode(newrangenode));
-            sprintf(rangestringb, "%s", str_rangenode(_itrnode));
+            snprintf(rangestringa, sizeof(rangestringa), "%s", str_rangenode(newrangenode));
+            snprintf(rangestringb, sizeof(rangestringb), "%s", str_rangenode(_itrnode));
             aoc_ans("%s obsoleted by %s, the end\t\t\t:)", rangestringa, rangestringb);
 #endif
             return EEXIST;
@@ -51,16 +51,16 @@ int tryinsertrange(rangelist_h list, rangenode_h newrangenode)
         {
             newrangenode->_node._obsolete = true;
 #ifdef AOC_RANGE_VERBOSE_MODE
-            sprintf(rangestringa, "%s", str_rangenode(newrangenode));
-            sprintf(rangestringb, "%s", str_rangenode(_itrnode));
+            snprintf(rangestringa, sizeof(rangestringa), "%s", str_rangenode(newrangenode));
+            snprintf(rangestringb, sizeof(rangestringb), "%s", str_rangenode(_itrnode));
             aoc_warn("%s overlapping %s", rangestringa, rangestringb);
 #endif
             _itrangeh->_max = _newrangeh->_max;
             _itrangeh->_min = _newrangeh->_min;
             _toreeval = _itrnode;
 #ifdef AOC_RANGE_VERBOSE_MODE
-            sprintf(rangestringa, "%s", str_rangenode(newrangenode));
-            sprintf(rangestringb, "%s", str_rangenode(_itrnode));
+            snprintf(rangestringa, sizeof(rangestringa), "%s", str_rangenode(newrangenode));
+            snprintf(rangestringb, sizeof(rangestringb), "%s", str_rangenode(_itrnode));
             aoc_ans("%s obsoleted by %s", rangestringa, rangestringb);
 #endif
             tryinsertrange(list, _toreeval);
@@ -70,15 +70,15 @@ int tryinsertrange(rangelist_h list, rangenode_h newrangenode)
         {
             newrangenode->_node._obsolete = true;
 #ifdef AOC_RANGE_VERBOSE_MODE
-            sprintf(rangestringa, "%s", str_rangenode(newrangenode));
-            sprintf(rangestringb, "%s", str_rangenode(_itrnode));
+            snprintf(rangestringa, sizeof(rangestringa), "%s", str_rangenode(newrangenode));
+            snprintf(rangestringb, sizeof(rangestringb), "%s", str_rangenode(_itrnode));
             aoc_warn("%s overlapping %s", rangestringa, rangestringb);
 #endif
             _itrangeh->_min = _newrangeh->_min;
             _toreeval = _itrnode;
 #ifdef AOC_RANGE_VERBOSE_MODE
-            sprintf(rangestringa, "%s", str_rangenode(newrangenode));
-            sprintf(rangestringb, "%s", str_rangenode(_itrnode));
+            snprintf(rangestringa, sizeof(rangestringa), "%s", str_rangenode(newrangenode));
+            snprintf(rangestringb, sizeof(rangestringb), "%s", str_rangenode(_itrnode));
             aoc_ans("%s obsoleted by %s", rangestringa, rangestringb);
 #endif
             tryinsertrange(list, _toreeval);
@@ -88,15 +88,15 @@ int tryinsertrange(rangelist_h list, rangenode_h newrangenode)
         {
             newrangenode->_node._obsolete = true;
 #ifdef AOC_RANGE_VERBOSE_MODE
-            sprintf(rangestringa, "%s", str_rangenode(newrangenode));
-            sprintf(rangestringb, "%s", str_rangenode(_itrnode));
+            snprintf(rangestringa, sizeof(rangestringa), "%s", str_rangenode(newrangenode));
+            snprintf(rangestringb, sizeof(rangestringb), "%s", str_rangenode(_itrnode));
             aoc_warn("%s overlapping %s", rangestringa, rangestringb);
 #endif
             _itrangeh->_max = _newrangeh->_max;
             _toreeval = _itrnode;
 #ifdef AOC_RANGE_VERBOSE_MODE
-            sprintf(rangestringa, "%s", str_rangenode(newrangenode));
-            sprintf(rangestringb, "%s", str_rangenode(_itrnode));
+            snprintf(rangestringa, sizeof(rangestringa), "%s", str_rangenode(newrangenode));
+            snprintf(rangestringb, sizeof(rangestringb), "%s", str_rangenode(_itrnode));
             aoc_ans("%s obsoleted by %s", rangestringa, rangestringb);
 #endif
             tryinsertrange(list, _toreeval);
@@ -123,6 +123,6 @@ static char rangestring[] = "[" STR(__SIZE_MAX__) "," STR(__SIZE_MAX__) "]";
 
 char *str_rangenode(rangenode_h rangen)
 {
-    sprintf(rangestring, "[%lu,%lu]", rangen->_range._min, rangen->_range._max);
+    snprintf(rangestring, sizeof(rangestring), "[%lu,%lu]", rangen->_range._min, rangen->_range._max);
     return rangestring;
 }

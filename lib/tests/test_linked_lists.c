@@ -103,7 +103,7 @@ static stringnode_h _string_ll_test(const char *const _str)
 
     _nstr->_str = malloc(strnlen(_str, TEST_STRING_MAX_LEN + 1) + 1);
     assert(_nstr->_str && "_nstr->_str malloc failed");
-    sprintf(_nstr->_str, "%s", _str);
+    snprintf(_nstr->_str, strnlen(_str, TEST_STRING_MAX_LEN + 1) + 1, "%s", _str);
 
     return _nstr;
 }
@@ -132,5 +132,5 @@ static dll_node_h _strinsortbyname(dll_node_h arga, dll_node_h argb)
 {
     stringnode_h _jolta = (stringnode_h)arga;
     stringnode_h _joltb = (stringnode_h)argb;
-    return strcmp(_jolta->_str, _joltb->_str) >= 0 ? arga : argb;
+    return strncmp(_jolta->_str, _joltb->_str, MAX_STR_LEN) >= 0 ? arga : argb;
 }

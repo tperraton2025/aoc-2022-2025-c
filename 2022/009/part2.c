@@ -166,7 +166,7 @@ static void int_refresh_link(struct solutionCtrlBlock_t *_blk, aoc_2d_obj_h _hea
     usleep(100 * 1000);
     ctx->_lastMovedLink = _tail;
 
-    if (0 == strcmp(aoc_2d_obj_name(_tail), "tail 9"))
+    if (0 == strncmp(aoc_2d_obj_name(_tail), "tail 9",sizeof("tail 9")))
     {
         coord_t _prevTailPosition = *aoc_2d_obj_get_pos(_tail);
         track_tail(ctx, &_prevTailPosition);

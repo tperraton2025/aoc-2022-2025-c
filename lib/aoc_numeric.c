@@ -56,14 +56,17 @@ char *strconv(base10_h base10)
     }
 
     char *_at = _strconv;
-    _at += sprintf(_at, "╔══════════════════════════╗\n");
-    _at += sprintf(_at, "║value: %*ld ║\n", 18, _dummy._val);
-    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", _dummy._digits);
-    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[16]);
-    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[32]);
-    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[48]);
-    _at += sprintf(_at, "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[48]);
-    _at += sprintf(_at, "╚══════════════════════════╝\n");
+
+    _at += snprintf(_at, sizeof(_strconv) - (_at - _strconv), "╔══════════════════════════╗\n");
+    _at += snprintf(_at, sizeof(_strconv) - (_at - _strconv), "║value: %*ld ║\n", 18, _dummy._val);
+    _at += snprintf(_at, sizeof(_strconv) - (_at - _strconv), "║  " GREEN "  %.16s" RESET "      ║\n", _dummy._digits);
+    _at += snprintf(_at, sizeof(_strconv) - (_at - _strconv), "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[16]);
+    _at += snprintf(_at, sizeof(_strconv) - (_at - _strconv), "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[32]);
+    _at += snprintf(_at, sizeof(_strconv) - (_at - _strconv), "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[48]);
+    _at += snprintf(_at, sizeof(_strconv) - (_at - _strconv), "║  " GREEN "  %.16s" RESET "      ║\n", &_dummy._digits[48]);
+    _at += snprintf(_at, sizeof(_strconv) - (_at - _strconv), "╚══════════════════════════╝\n");
+
+    assert(_at < _strconv + sizeof(_strconv) && "_strconv overflow");
     return _strconv;
 }
 

@@ -156,15 +156,15 @@ char *strcomb(joltchoice_h choice)
         {
             if (lastchx->_order == jolth->_order)
             {
-                _pen += sprintf(_pen, GREEN "%lu" RESET, jolth->_rating);
+                _pen += snprintf(_pen, sizeof(_strcomb), GREEN "%lu" RESET, jolth->_rating);
                 pathnode = (voidpnode_h)pathnode->_node._prev;
                 lastchx = pathnode ? (joltage_h)pathnode->_ptr : NULL;
             }
             else
-                _pen += sprintf(_pen, RED "%lu" RESET, jolth->_rating);
+                _pen += snprintf(_pen, sizeof(_strcomb), RED "%lu" RESET, jolth->_rating);
         }
         else
-            _pen += sprintf(_pen, RED "%lu" RESET, jolth->_rating);
+            _pen += snprintf(_pen, sizeof(_strcomb), RED "%lu" RESET, jolth->_rating);
     }
     assert((_pen - _strcomb < sizeof(_strcomb)));
 

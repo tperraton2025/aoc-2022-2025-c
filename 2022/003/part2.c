@@ -29,13 +29,13 @@ static void print_arr(struct letter_map_t *_map)
     char *_pout = _out;
     for (size_t _c = 0; _c < sizeof(struct letter_map_t); _c++)
     {
-        sprintf(_pout++, "%1u", _map->_arr[_c]);
+        snprintf(_pout++, 2, "%1u", _map->_arr[_c]);
     }
     aoc_info("%s", _out);
     _pout = _out;
     for (size_t _c = 0; _c < sizeof(struct letter_map_t); _c++)
     {
-        sprintf(_pout++, "%c", (char)TO_LTTR(_c));
+        snprintf(_pout++, 2, "%c", (char)TO_LTTR(_c));
     }
     aoc_info("%s", _out);
 }

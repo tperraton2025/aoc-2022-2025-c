@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #define MAX_STR_DLL_LEN (1024)
+#define MAX_STR_LEN (64)
 /* c standard types linked list node constructors */
 
 typedef struct stringnode

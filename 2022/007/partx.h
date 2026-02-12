@@ -130,7 +130,7 @@ static dll_node_h uglyls_compare(dll_node_h _a, dll_node_h _b)
 
     char *_a_str = strchr(_string_a->_str, ' ');
     char *_b_str = strchr(_string_b->_str, ' ');
-    int _ret = strcmp(_a_str, _b_str);
+    int _ret = strncmp(_a_str, _b_str, MAX_STR_LEN);
     if (_ret >= 0)
         return _b;
     else
@@ -145,8 +145,8 @@ static void uglyls(tree_node_h _dir)
     LL_FOREACH(_dllfiles, _fsp->_content)
     {
         file_t *_f = (file_t *)_dllfiles;
-        char *_fname = malloc(strlen("0000000000000000000") + strlen(_f->name) + 1);
-        sprintf(_fname, "%ld %s", _f->size, _f->name);
+        char *_fname = malloc(strlen(STR(__SIZE_MAX__)) + strnlen(_f->name, MAX_NAME_LEN_AS_USIZE) + 1);
+        snprintf(_fname, strlen(STR(__SIZE_MAX__)) + MAX_NAME_LEN_AS_USIZE, "%ld %s", _f->size, _f->name);
         stringnode_h _nName = stringnode_ctor(_fname);
         dll_node_sorted_insert(&namelist, &_nName->_node, uglyls_compare);
         FREE(_fname);
@@ -154,8 +154,8 @@ static void uglyls(tree_node_h _dir)
     LL_FOREACH(_dllsubdirs, _fsp->path._dllchildren)
     {
         fdir_t *_d = (fdir_t *)_dllsubdirs;
-        char *_dname = malloc(strlen("dir ") + strlen(_d->name) + 1);
-        sprintf(_dname, "dir %s", _d->name);
+        char *_dname = malloc(strlen("dir ") + strnlen(_d->name, MAX_NAME_LEN_AS_USIZE) + 1);
+        snprintf(_dname, MAX_NAME_LEN_AS_USIZE, "dir %s", _d->name);
         stringnode_h _nName = stringnode_ctor(_dname);
         dll_node_sorted_insert(&namelist, &_nName->_node, uglyls_compare);
         FREE(_dname);
@@ -188,7 +188,7 @@ static int file_exists_in_cdir(file_t *nfile, fdir_t *cdir)
     LL_FOREACH(_dllfiles, cdir->_content)
     {
         file_t *_f = (file_t *)_dllfiles;
-        if ((0 == strcmp(nfile->name, _f->name)) && (_f->dir == nfile->dir))
+        if ((0 == strncmp(nfile->name, _f->name, MAX_NAME_LEN_AS_USIZE)) && (_f->dir == nfile->dir))
         {
             aoc_err("%s exists in %s", nfile->name, cdir->name);
             return EEXIST;
@@ -205,7 +205,7 @@ static int dir_exists_in_cdir(fdir_h fdir, fdir_h cdir)
         LL_FOREACH(_dlldirs, cdir->path._dllchildren)
         {
             fdir_h _dir = (fdir_h)_dlldirs;
-            if ((0 == strcmp(fdir->name, _dir->name)) && (_dir->path._parent == fdir->path._parent))
+            if ((0 == strncmp(fdir->name, _dir->name, MAX_NAME_LEN_AS_USIZE)) && (_dir->path._parent == fdir->path._parent))
             {
                 aoc_err("%s exists in %s", fdir->name, cdir->name);
                 return EEXIST;
@@ -237,7 +237,7 @@ static fdir_t *dir(const char *const name, fdir_t *parent)
     _ndir->name = malloc(strnlen(name, MAX_NAME_LEN_AS_USIZE) + 1);
     if (!_ndir->name)
         goto abort_dir;
-    sprintf(_ndir->name, "%s", name);
+    snprintf(_ndir->name, strnlen(name, MAX_NAME_LEN_AS_USIZE) + 1, "%s", name);
     int ret = dir_exists_in_cdir(_ndir, parent);
 
     if (ret)
@@ -267,7 +267,7 @@ static file_t *file(char *name, size_t size, fdir_t *dir)
         FREE(_nfile);
         return NULL;
     }
-    sprintf(_nfile->name, "%s", name);
+    snprintf(_nfile->name, strnlen(name, MAX_NAME_LEN_AS_USIZE) + 1, "%s", name);
     _nfile->size = size;
     _nfile->dir = dir;
 

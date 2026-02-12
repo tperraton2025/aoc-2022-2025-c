@@ -31,7 +31,7 @@ stringnode_h stringnode_ctor(const char *const name)
     stringnode_h _ret = malloc(sizeof(stringnode_t));
     if (!_ret)
         return NULL;
-    _ret->_str = malloc(strnlen(name, MAX_STR_DLL_LEN) + 1);
+    _ret->_str = malloc(strnlen(name, MAX_STR_LEN) + 1);
     if (!_ret->_str)
         goto abort;
 
@@ -54,7 +54,7 @@ dll_node_h stringnode_compare(dll_node_h _a, dll_node_h _b)
 {
     stringnode_h _string_a = (stringnode_h)_a;
     stringnode_h _string_b = (stringnode_h)_b;
-    int _ret = strcmp(_string_a->_str, _string_b->_str);
+    int _ret = strncmp(_string_a->_str, _string_b->_str, MAX_STR_LEN);
     if (_ret >= 0)
         return _b;
     else
@@ -63,11 +63,11 @@ dll_node_h stringnode_compare(dll_node_h _a, dll_node_h _b)
 
 int stringnode_rename(stringnode_h node, const char *const name)
 {
-    char *_nname = malloc(strnlen(name, MAX_STR_DLL_LEN) + 1);
+    char *_nname = malloc(strnlen(name, MAX_STR_LEN) + 1);
     if (!_nname)
         return ENOMEM;
     FREE(node->_str);
-    sprintf(_nname, "%s", name);
+    snprintf(_nname, strnlen(name, MAX_STR_LEN) + 1, "%s", name);
     node->_str = _nname;
     return 0;
 }

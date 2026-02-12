@@ -179,11 +179,12 @@ STR_BUFFER(_strpoint, "[00000000,00000000,00000000] <--> [00000000,00000000,0000
 const char *const strpoint(pointnode_h _dist, const char *const fmt)
 {
     char *pstr = _strpoint;
-    pstr += snprintf(pstr, ANSI_MAX_LEN, "%s", fmt);
-    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_f3d, ""));
-    pstr += snprintf(pstr, sizeof(" <--> "), " <--> ");
-    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_closest->_f3d, ""));
-    pstr += snprintf(pstr, 10, " = %.0f", _dist->_shortestdist);
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), "%s", fmt);
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), "%s", strfloat3d(_dist->_f3d, ""));
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), " <--> ");
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), "%s", strfloat3d(_dist->_closest->_f3d, ""));
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), " = %.0f", _dist->_shortestdist);
+
     assert(pstr - _strpoint < sizeof(_strpoint));
     return _strpoint;
 }
@@ -192,11 +193,13 @@ STR_BUFFER(_strpref, "[00000000,00000000,00000000] <--> [00000000,00000000,00000
 const char *const strpref(pointrefnode_h _dist, const char *const fmt)
 {
     char *pstr = _strpref;
-    pstr += snprintf(pstr, ANSI_MAX_LEN, "%s", fmt);
-    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_first_point->_f3d, ""));
-    pstr += snprintf(pstr, sizeof(" <--> "), " <--> ");
-    pstr += sprintf(pstr, "%s", strfloat3d(_dist->_second_point->_f3d, ""));
-    pstr += snprintf(pstr, 10, " = %.0f", _dist->_dist);
+
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), "%s", fmt);
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), "%s", strfloat3d(_dist->_first_point->_f3d, ""));
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), " <--> ");
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), "%s", strfloat3d(_dist->_second_point->_f3d, ""));
+    pstr += snprintf(pstr, sizeof(_strpoint) - (pstr - _strpoint), " = %.0f", _dist->_dist);
+
     assert(pstr - _strpref < sizeof(_strpref));
     return _strpref;
 }

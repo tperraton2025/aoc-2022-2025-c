@@ -34,7 +34,7 @@ static struct elfCal_t *elf_ctor(struct context *_ctx)
     _ret->_name = malloc(sizeof("elfo999"));
     if (!_ret->_name)
         goto cleanup;
-    sprintf(_ret->_name, "elfo%3d", _ret->_count);
+    snprintf(_ret->_name, sizeof("elfo999"), "elfo%3d", _ret->_count);
 
     if (dll_node_append(&_ctx->_ll, (dll_node_h)_ret))
         goto name;

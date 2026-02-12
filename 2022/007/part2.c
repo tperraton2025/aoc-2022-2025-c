@@ -85,7 +85,7 @@ static int parsecommand(void *arg, char *_str)
             {
                 _npwd = _ctx->_cdir->path._parent;
                 if (!_npwd)
-                    assert(0 == strcmp("root", _ctx->_cdir->name));
+                    assert(0 == strncmp("root", _ctx->_cdir->name, sizeof("root")));
             }
             else if (0 == strncmp("/", _arg, MAX_NAME_LEN_AS_USIZE))
                 _npwd = &_ctx->_root->path;

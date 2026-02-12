@@ -17,7 +17,7 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     _ctx->_verbose = true;
     for (size_t iit = 0; iit < argc; iit++)
     {
-        if (!strcmp("--no-draw", argv[iit]))
+        if (!strncmp("--no-draw", argv[iit], sizeof("--no-draw")))
             _ctx->_verbose = false;
     }
     _ctx->_result = 0;

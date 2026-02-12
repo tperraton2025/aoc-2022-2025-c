@@ -12,7 +12,7 @@ int parsenum(void *arg, char *_str)
     }
 
     char *_strbuf = malloc(_strlen + 10);
-    sprintf(_strbuf, "%s", _str);
+    snprintf(_strbuf, _strlen + 10, "%s", _str);
     char *_strpos = strtok(_strbuf, " ");
 
     size_t _newnum = 0;
@@ -62,7 +62,7 @@ int parseops(void *arg, char *_str)
     }
 
     char *_strbuf = malloc(_strlen + 1);
-    sprintf(_strbuf, "%s", _str);
+    snprintf(_strbuf, _strlen + 1, "%s", _str);
     char *_strpos = strtok(_strbuf, " ");
 
     char _new_op = '+';
@@ -224,7 +224,7 @@ int octoparsenum(void *arg, char *_str)
         _prob->_instr = realloc(_prob->_instr, sizeof(char *) * (_prob->_instrcnt + 1));
 
     _prob->_instr[_prob->_instrcnt] = malloc(_strlen + 10);
-    sprintf(_prob->_instr[_prob->_instrcnt], "%s", _str);
+    snprintf(_prob->_instr[_prob->_instrcnt], _strlen + 10, "%s", _str);
 
     _prob->_instrcnt++;
 
@@ -250,7 +250,7 @@ int octoparseops(void *arg, char *_str)
         _prob->_instr = realloc(_prob->_instr, sizeof(char *) * (_prob->_instrcnt + 1));
 
     _prob->_opstr = malloc(_strlen + 10);
-    sprintf(_prob->_opstr, "%s", _str);
+    snprintf(_prob->_opstr, _strlen + 10, "%s", _str);
 
     return 0;
 }

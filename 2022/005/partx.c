@@ -150,7 +150,7 @@ int crate_lift(struct context *_ctx, command_t *_cmd, size_t boxestolift)
     return 0;
 
 nothingtogrip:
-    sprintf(_coord_str, "%3ld", _cmd->from);
+    snprintf(_coord_str, 4, "%3ld", _cmd->from);
     aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "nothing to grip at", _coord_str);
     return 1;
 }
@@ -244,7 +244,7 @@ void aoc_spell_ans(struct solutionCtrlBlock_t *_blk)
     LL_FOREACH(column, _ctx->_columns)
     {
         columnnode_h colcast = (columnnode_h)column;
-        _p += sprintf(_p, "%c", aoc_2d_obj_name(((aoc_2d_obj_ref_h)(colcast->_boxes._last))->data)[1]);
+        _p += snprintf(_p, 2, "%c", aoc_2d_obj_name(((aoc_2d_obj_ref_h)(colcast->_boxes._last))->data)[1]);
     }
     if (_ctx->_verbose)
         printstacks(&_ctx->_columns);
@@ -302,7 +302,7 @@ int crane_action(struct context *_ctx, bool multiboxmode)
     }
     dll_free_all(&_ctx->_cmds, free);
 
-    sprintf(cmdscount, "%3ld", inc);
+    snprintf(cmdscount, 4, "%3ld", inc);
     aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, cmdscount, "program finished commands executed");
     return 0;
 }

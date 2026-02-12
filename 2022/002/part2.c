@@ -26,6 +26,10 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     return 0;
 }
 
+static const int _pI_points[] = {0, 3, 6};
+static const char *const _psItemsStr[] = {"rock", "paper", "scissors"};
+static const char *const _psOutcomeStr[] = {"I loose :(", "draw :|", "I win :)"};
+
 static int handler(struct solutionCtrlBlock_t *_blk)
 {
     char _outcome = 0;
@@ -39,10 +43,6 @@ static int handler(struct solutionCtrlBlock_t *_blk)
     int _luReqOutcomeInd = 0;
     int _luHisInd = 0;
     int _luMineInd = 0;
-
-    const int _pI_points[] = {0, 3, 6};
-    const char *const _psItemsStr[] = {"rock", "paper", "scissors"};
-    const char *const _psOutcomeStr[] = {"I loose :(", "draw :|", "I win :)"};
 
     if (2 == sscanf(_blk->_str, "%c %c\n", &_his, &_outcome))
     {

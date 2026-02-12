@@ -48,10 +48,11 @@ static int handler(struct solutionCtrlBlock_t *_blk)
     return 0;
 }
 
+static char test[16] = {0};
+
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     struct context *_ctx = CTX_CAST(_blk->_data);
-    char test[16] = {0};
 
     aoc_2d_eng_extend_one_direction(_ctx->_eng, 75, AOC_2D_DIR_UP);
 

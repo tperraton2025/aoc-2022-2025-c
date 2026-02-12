@@ -82,9 +82,9 @@ static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
     for (size_t ii = 1; ii < 10; ii++)
     {
         char name[] = "1";
-        sprintf(name, "%1ld", ii);
+        snprintf(name, sizeof(name), "%1ld", ii);
         char fullname[] = "tail %1ld";
-        sprintf(fullname, "tail %1ld", ii);
+        snprintf(fullname, sizeof(fullname), "tail %1ld", ii);
         aoc_2d_obj_h ntail = aoc_2d_obj_ctor(ctx->_eng, fullname, &start, name, OBJ_FLAG_NO_COLLISION | OBJ_FLAG_NO_COLLISION, "");
 
         if (!ntail)

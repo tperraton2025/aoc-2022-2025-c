@@ -25,6 +25,8 @@ static int handler(struct solutionCtrlBlock_t *_blk)
     return 0;
 }
 
+static size_t rbuff[6] = {0};
+
 static int epilogue(struct solutionCtrlBlock_t *_blk)
 {
     context_h _ctx = CTX_CAST(_blk->_data);
@@ -38,7 +40,6 @@ static int epilogue(struct solutionCtrlBlock_t *_blk)
     size_t head = strlen(_ctx->_prob._instr[0]) - 1;
 
     base10_h conv = base_10_conversion(0);
-    size_t rbuff[6] = {0};
     size_t ind = 0;
 
     while (head < SIZE_MAX)

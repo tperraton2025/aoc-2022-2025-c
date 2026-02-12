@@ -2,6 +2,9 @@
 
 typenode_ctor(column, new->_col_index = col_index; new->_col_x = col_x;, size_t col_x, size_t col_index);
 void printstacks(dll_head_h columns);
+
+static char _buf[] = "[A]";
+
 int parseblock(void *arg, char *_str)
 {
     aoc_context_h _ctx = (aoc_context_h)arg;
@@ -12,7 +15,6 @@ int parseblock(void *arg, char *_str)
         return -1;
     _ctx->_pos._x = 1;
 
-    char _buf[] = "[A]";
     size_t columnindex = 1;
 
     for (char *_ss = strchr(_str, '['); _ss; _ss = strchr(_ss + 1, '['))
@@ -91,6 +93,8 @@ dll_node_h column_haslower_x(dll_node_h arga, dll_node_h argb)
     return _cola_h->_col_x < _colb_h->_col_x ? arga : argb;
 }
 
+static char _coord_str[4] = "";
+
 int crate_lift(struct context *_ctx, command_t *_cmd, size_t boxestolift)
 {
     coordpair_t boundaries = aoc_2d_eng_get_parts_boundaries(_ctx->_eng);
@@ -146,11 +150,12 @@ int crate_lift(struct context *_ctx, command_t *_cmd, size_t boxestolift)
     return 0;
 
 nothingtogrip:
-    char _coord_str[4] = "";
     sprintf(_coord_str, "%3ld", _cmd->from);
     aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, "nothing to grip at", _coord_str);
     return 1;
 }
+
+static char _dest_col_str[4] = "";
 
 int crate_change_lane(struct context *_ctx, command_t *_cmd)
 {
@@ -178,8 +183,7 @@ int crate_change_lane(struct context *_ctx, command_t *_cmd)
         }
         LL_FOREACH_EXT(boxn, _ctx->_grippedBoxes)
         {
-            char _dest_col_str[4] = "";
-            sprintf(_dest_col_str, "%3ld", _cmd->to);
+            snprintf(_dest_col_str, sizeof(_dest_col_str), "%3ld", _cmd->to);
             _ctx->_pos = *aoc_2d_obj_get_pos(((aoc_2d_obj_ref_h)boxn)->data);
         }
         aoc_2d_eng_prompt_obj_list(_ctx->_eng);
@@ -266,12 +270,14 @@ void printstacks(dll_head_h columns)
     }
 }
 
+static char scount[4] = "";
+static char sfrom[4] = "";
+static char sdest[4] = "";
+static char cmdscount[4] = "";
+
 int crane_action(struct context *_ctx, bool multiboxmode)
 {
     size_t inc = 0;
-    char scount[4] = "";
-    char sfrom[4] = "";
-    char sdest[4] = "";
     if (_ctx->_verbose)
         printstacks(&_ctx->_columns);
     LL_FOREACH(_node, _ctx->_cmds)
@@ -296,7 +302,6 @@ int crane_action(struct context *_ctx, bool multiboxmode)
     }
     dll_free_all(&_ctx->_cmds, free);
 
-    char cmdscount[4] = "";
     sprintf(cmdscount, "%3ld", inc);
     aoc_2d_eng_prompt_multistr(_ctx->_eng, SLEEP_TIME_MS, cmdscount, "program finished commands executed");
     return 0;

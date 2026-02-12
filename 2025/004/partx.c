@@ -16,7 +16,7 @@ int parserolls(void *arg, char *str)
             _start++;
 
         char _objname[] = "roll9999999";
-        sprintf(_objname, "roll%-3s", strobjcnt(eng));
+        snprintf(_objname, sizeof(_objname), "roll%-3s", strobjcnt(eng));
         aoc_2d_obj_h _objh = aoc_2d_obj_ctor(eng, _objname, &_pos, "@", OBJ_FLAG_STATIC, GREEN);
         if (!_objh)
             _ret = ENOMEM;

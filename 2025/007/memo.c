@@ -97,9 +97,9 @@ sizepair_t memoreport(context_h ctx, aoc_2d_obj_h top_splt_h, size_t progr)
         if (ctx->_drawrequest)
         {
             if (top_splt_h == btm_spl_h)
-                sprintf(numstr, BGREEN "%c", 'S');
+                snprintf(numstr,sizeof(numstr), BGREEN "%c", 'S');
             else
-                sprintf(numstr, "%s%*.1lu", splttl ? GREEN : YELLOW, 1, splttl);
+                snprintf(numstr,sizeof(numstr), "%s%*.1lu", splttl ? GREEN : YELLOW, 1, splttl);
             if (splttl > 10LU)
                 btm_spl_p._x--;
             btm_spl_p._y--;

@@ -47,11 +47,10 @@ static int queue_setup(queue_h mq_h, const char *_name, size_t mqlen, size_t msg
 static int prologue(struct solutionCtrlBlock_t *_blk, int argc, char *argv[])
 {
     int _ret = 1;
-    _blk->_data = malloc(sizeof(struct context));
+    _blk->_data = calloc(1LU, sizeof(struct context));
     if (!_blk->_data)
         return ENOMEM;
     struct context *_ctx = CTX_CAST(_blk->_data);
-    memset(_ctx, 0, sizeof(struct context));
 
     _ctx->_result = 0;
 
@@ -146,22 +145,22 @@ void *graphics_routine(void *args)
         {
             if (AOC_2D_DIR_UP == _cMsgQueueBuffer[0])
             {
-                sprintf(_cMsgQueueBuffer, "UP");
+                snprintf(_cMsgQueueBuffer, sizeof(_cMsgQueueBuffer), "UP");
                 aoc_2d_eng_step_obj(_gfxtask->eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_UP, NULL);
             }
             else if (AOC_2D_DIR_DOWN == _cMsgQueueBuffer[0])
             {
-                sprintf(_cMsgQueueBuffer, "DOWN");
+                snprintf(_cMsgQueueBuffer, sizeof(_cMsgQueueBuffer), "DOWN");
                 aoc_2d_eng_step_obj(_gfxtask->eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_DOWN, NULL);
             }
             else if (AOC_2D_DIR_RIGHT == _cMsgQueueBuffer[0])
             {
-                sprintf(_cMsgQueueBuffer, "RIGHT");
+                snprintf(_cMsgQueueBuffer, sizeof(_cMsgQueueBuffer), "RIGHT");
                 aoc_2d_eng_step_obj(_gfxtask->eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_LEFT, NULL);
             }
             else if (AOC_2D_DIR_LEFT == _cMsgQueueBuffer[0])
             {
-                sprintf(_cMsgQueueBuffer, "LEFT");
+                snprintf(_cMsgQueueBuffer, sizeof(_cMsgQueueBuffer), "LEFT");
                 aoc_2d_eng_step_obj(_gfxtask->eng_h, _gfxtask->_cur_h, 1LU, AOC_2D_DIR_RIGHT, NULL);
             }
             aoc_2d_eng_prompt(_gfxtask->eng_h, 0, 2, "got mq", _cMsgQueueBuffer);

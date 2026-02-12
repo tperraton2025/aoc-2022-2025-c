@@ -15,7 +15,7 @@ typedef struct context
     size_t _memcheck;
     struct dll_head _cmds;
     size_t _result;
-} context_t; 
+} context_t;
 
 #define CTX_CAST(_p) ((struct context *)_p)
 
@@ -99,11 +99,12 @@ static int parsefile(void *arg, char *_str)
     return EINVAL;
 }
 
+static char _dirname[16] = {0};
+
 static int parsedir(void *arg, char *_str)
 {
     aoc_context_h _ctx = (aoc_context_h)arg;
     int match = 0;
-    char _dirname[16] = {0};
 
     if (1 == sscanf(_str, "dir %s", _dirname))
     {
@@ -157,11 +158,12 @@ static int parsecommand(void *arg, char *_str)
     return EINVAL;
 }
 
+static char _cmd[16] = {0};
+static char _arg[16] = {0};
+
 static int command_executor(aoc_context_h _ctx, char *_str)
 {
     int match = 0;
-    char _cmd[16] = {0};
-    char _arg[16] = {0};
 
     if (sscanf(_str, "$ %15s %15s", _cmd, _arg) > 0)
     {

@@ -832,7 +832,7 @@ size_t aoc_2d_eng_get_obj_count(aoc_2d_eng_h eng)
     return eng->_objects._size % LL_MAX_LEN_LUI;
 }
 
-char _strobjcountbuf[] = LL_MAX_LEN_STR;
+static char _strobjcountbuf[] = LL_MAX_LEN_STR;
 char *strobjcnt(aoc_2d_eng_h eng)
 {
     snprintf(_strobjcountbuf, ARRAY_DIM(_strobjcountbuf), "%lu", aoc_2d_eng_get_obj_count(eng));

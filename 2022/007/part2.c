@@ -127,11 +127,12 @@ static int parsefile(void *arg, char *_str)
     return EINVAL;
 }
 
+static char _dirname[16] = {0};
+
 static int parsedir(void *arg, char *_str)
 {
     aoc_context_h _ctx = (aoc_context_h)arg;
     int match = 0;
-    char _dirname[16] = {0};
 
     if (1 == sscanf(_str, "dir %s", _dirname))
     {
